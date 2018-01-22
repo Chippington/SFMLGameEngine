@@ -417,46 +417,42 @@ namespace SFMLEngine.Collision {
 			var horizontalOverlaps = horizontal.updateNodes();
 			var verticalOverlaps = vertical.updateNodes();
 
-			foreach (var key in newCollisions.Keys) {
-				foreach(var col in newCollisions[key]) {
+			foreach(var key in activeCollisions.Keys) {
+				foreach (var col in newCollisions[key]) {
 					activeCollisions[key].Add(col);
 				}
 
-				newCollisions[key].Clear();
-			}
-
-			foreach(var key in oldCollisions.Keys) {
-				foreach(var col in oldCollisions[key]) {
+				foreach (var col in oldCollisions[key]) {
 					activeCollisions[key].Remove(col);
 				}
 
+				newCollisions[key].Clear();
 				oldCollisions[key].Clear();
-			}
-			
-			foreach(var key in horizontalOverlaps.Keys) {
-				if (verticalOverlaps.ContainsKey(key) == false)
-					continue;
 
-				var hcols = horizontalOverlaps[key];
-				var vcols = verticalOverlaps[key];
+				if(horizontalOverlaps.ContainsKey(key)) {
+					if (verticalOverlaps.ContainsKey(key) == false)
+						continue;
 
-				foreach(var col in hcols) {
-					if(vcols.Contains(col)) {
-						//'key' collides with 'col'
-						handleCollision(key, col);
+					var hcols = horizontalOverlaps[key];
+					var vcols = verticalOverlaps[key];
+
+					foreach (var col in hcols) {
+						if (vcols.Contains(col)) {
+							//'key' collides with 'col'
+							handleCollision(key, col);
+						}
 					}
 				}
 			}
 
-			foreach (var key in newCollisions.Keys)
+			foreach (var key in activeCollisions.Keys) {
 				foreach (var col in newCollisions[key])
 					key.onEnterCollision(col);
-			foreach (var key in oldCollisions.Keys)
 				foreach (var col in oldCollisions[key])
 					key.onLeaveCollision(col);
-			foreach (var key in activeCollisions.Keys)
 				foreach (var col in activeCollisions[key])
 					key.onStepCollision(col);
+			}
 		}
 
 		private void handleCollision(ICollider one, ICollider two) {
