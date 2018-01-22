@@ -39,7 +39,9 @@ namespace SFMLEngine.Entities.Components {
 			_bounds = newBounds;
 		}
 
+		static int ii = 0;
 		public virtual void onEnterCollision(ICollider other) {
+			Console.WriteLine($"Collision detected [{++ii}]");
 		}
 
 		public virtual void onLeaveCollision(ICollider other) {

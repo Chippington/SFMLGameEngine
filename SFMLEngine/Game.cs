@@ -34,7 +34,7 @@ namespace SFMLEngine {
 			InputController input = new InputController();
 			EntitySet set = new EntitySet();
 			Collision.CollisionMap map = new CollisionMap(set);
-
+			
 			logicThread = new Thread(() => {
 				Stopwatch sw = new Stopwatch();
 				GameContext context = new GameContext();
