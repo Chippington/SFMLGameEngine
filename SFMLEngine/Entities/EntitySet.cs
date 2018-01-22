@@ -34,6 +34,8 @@ namespace SFMLEngine.Entities {
 
 		public T instantiate<T>() where T : Entity {
 			T ent = (T)Activator.CreateInstance(typeof(T));
+			entityList.Add(ent);
+
 			ent.OnDestroyEvent += onEntityDestroyed;
 			ent._initialize(this);
 

@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFMLEngine.Collision;
+using SFMLEngine.Debug;
 using SFMLEngine.Entities;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Input;
@@ -33,16 +34,6 @@ namespace SFMLEngine {
 			InputController input = new InputController();
 			EntitySet set = new EntitySet();
 			Collision.CollisionMap map = new CollisionMap(set);
-
-			for(int i = 0; i < 10000; i++) {
-				var e = set.instantiate<TestEntity>();
-				e.getComponent<RigidBody>().setBoundingBox(new BoundingBox() {
-					left = 10001 - i,
-					top = 0,
-					right = 5,
-					bottom = 5
-				});
-			}
 
 			logicThread = new Thread(() => {
 				Stopwatch sw = new Stopwatch();

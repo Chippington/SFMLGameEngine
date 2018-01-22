@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collision\CollisionMap.cs" />
+    <Compile Include="Debug\LogBlock.cs" />
     <Compile Include="Entities\Components\Component.cs" />
     <Compile Include="Entities\Components\RigidBody.cs" />
     <Compile Include="Entities\Entity.cs" />

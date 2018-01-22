@@ -5,57 +5,326 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace SFMLEngine.Collision {
 	public class CollisionMap {
-		private class CollisionList {
-			public class Node : IComparable<Node> {
-				public float start, end;
-				public ICollider collider;
+		public class Node : IComparable<Node> {
+			public Node() {
+			}
 
-				public int CompareTo(Node other) {
-					var c = start.CompareTo(other.start);
-					if (c == 0) return 1;
-					return c;
+			public float start;// => startFunc(collider);
+			public float end;// => endFunc(collider);
+			public ICollider collider;
+
+			public int CompareTo(Node other) {
+				var c = start.CompareTo(other.start);
+				return c;
+			}
+		}
+
+		private class SortedLinkedList<T> : ICollection<T> where T : CollisionMap.Node {
+			private ListNode start, end;
+			private Dictionary<T, ListNode> nodeMap;
+			private List<ListNode> nodeList;
+
+			public int Count => nodeMap.Count;
+
+			public bool IsReadOnly => false;
+
+			public class ListNode {
+				public ListNode next;
+				public ListNode prev;
+
+				public void setNext(ListNode nextNode) {
+					if (nextNode == this)
+						throw new Exception("Next node cannot be same node");
+
+					if (nextNode != null)
+						nextNode.prev = this;
+
+					next = nextNode;
+				}
+
+				public void setPrev(ListNode prevNode) {
+					if (prevNode == this)
+						throw new Exception("Previous node cannot be same node");
+
+					if (prevNode != null)
+						prevNode.next = this;
+
+					prev = prevNode;
+				}
+
+				public T data;
+				public ListNode(T data) {
+					this.data = data;
 				}
 			}
 
-			public SortedSet<Node> list;
+			public class SortedLinkedListEnumerator : IEnumerator<T> {
+				private ListNode currentNode;
+				private ListNode startNode;
+				public SortedLinkedListEnumerator(ListNode start) {
+					startNode = start;
+					currentNode = start;
+				}
+
+				public T Current => currentNode.data;
+
+				object IEnumerator.Current => throw new NotImplementedException();
+
+				public void Dispose() {
+					currentNode = null;
+				}
+
+				public bool MoveNext() {
+					if (currentNode.next == null)
+						return false;
+
+					currentNode = currentNode.next;
+					return true;
+				}
+
+				public bool MovePrevious() {
+					if (currentNode.prev == null)
+						return false;
+
+					currentNode = currentNode.prev;
+					return true;
+				}
+
+				public bool HasNext() {
+					return currentNode.next != null;
+				}
+
+				public bool HasPrevious() {
+					return currentNode.prev != null;
+				}
+
+				public T PeekNext() {
+					if (currentNode.next == null)
+						return default(T);
+
+					return currentNode.next.data;
+				}
+				public T PeekPrevious() {
+					if (currentNode.prev == null)
+						return default(T);
+
+					return currentNode.prev.data;
+				}
+
+				public void Reset() {
+					currentNode = startNode;
+				}
+			}
+
+			public SortedLinkedList() {
+				nodeMap = new Dictionary<T, ListNode>();
+				nodeList = new List<ListNode>();
+			}
+
+			private ListNode ShiftRight(ListNode node) {
+				if (node.next == null)
+					return null;
+
+				var tmp = node.next.data;
+				node.next.data = node.data;
+				node.data = tmp;
+				return node.next;
+			}
+
+			private ListNode ShiftLeft(ListNode node) {
+				if (node.prev == null)
+					return null;
+
+				var tmp = node.prev.data;
+				node.prev.data = node.data;
+				node.data = tmp;
+				return node.prev;
+			}
+
+			public List<ListNode> GetList() {
+				return nodeList;
+			}
+
+			public void Update() {
+				var cur = start;
+				while(cur != null) { 
+					//Shift right
+					if (cur.next != null && cur.data.start > cur.next.data.start) {
+						var next = cur.next;
+						while (next.next != null && cur.data.start > next.next.data.start) {
+							next = next.next;
+						}
+
+						var tmp = cur.next;
+						if(cur.prev != null)
+							cur.prev.setNext(cur.next);
+
+						if (cur.next != null)
+							cur.next.setPrev(cur.prev);
+
+						cur.setNext(next.next);
+						cur.setPrev(next);
+						cur = tmp;
+					}
+
+					//Shift left
+					if (cur.prev != null && cur.data.start < cur.prev.data.start) {
+						var prev = cur.prev;
+						while (prev.prev != null && cur.data.start < prev.prev.data.start) {
+							prev = prev.prev;
+						}
+
+						var tmp = cur.prev;
+						if (cur.prev != null)
+							cur.prev.setNext(cur.next);
+
+						if (cur.next != null)
+							cur.next.setPrev(cur.prev);
+
+						cur.setPrev(prev.prev);
+						cur.setNext(prev);
+						cur = tmp;
+					}
+
+					cur = cur.next;
+				}
+
+				while (end.next != null)
+					end = end.next;
+
+				while (start.prev != null)
+					start = start.prev;
+			}
+
+			public void Add(T item) {
+				if (nodeMap.ContainsKey(item))
+					throw new ArgumentException("Collection can only have one instance of each element");
+
+				if (start == null) {
+					start = end = new ListNode(item);
+					return;
+				}
+
+				var cur = start;
+				while (cur.next != null && item.start > cur.data.start)
+					cur = cur.next;
+
+				var newNode = new ListNode(item);
+				newNode.setNext(cur.next);
+				newNode.setPrev(cur);
+
+				//newNode.prev = cur;
+				//newNode.next = cur.next;
+				//if (cur.next != null)
+				//	cur.next.prev = newNode;
+				//cur.next = newNode;
+
+				while (end.next != null)
+					end = end.next;
+
+				while (start.prev != null)
+					start = start.prev;
+
+				nodeMap.Add(item, newNode);
+				nodeList.Add(newNode);
+			}
+
+			public void Clear() {
+				start = end = null;
+				nodeMap = new Dictionary<T, ListNode>();
+				nodeList = new List<ListNode>();
+			}
+
+			public bool Contains(T item) {
+				return nodeMap.ContainsKey(item);
+			}
+
+			public void CopyTo(T[] arr, int arrayIndex) {
+				var e = GetEnumerator();
+				for (int i = 0; i < arr.Length; i++) {
+					arr[i + arrayIndex] = e.Current;
+					e.MoveNext();
+				}
+			}
+
+			public bool Remove(T item) {
+				if (nodeMap.ContainsKey(item) == false)
+					return false;
+
+				var node = nodeMap[item];
+				if (node.prev != null)
+					node.prev.next = node.next;
+
+				if (node.next != null)
+					node.next.prev = node.prev;
+
+				nodeMap.Remove(item);
+				nodeList.Remove(node);
+				return true;
+			}
+
+			public IEnumerator<T> GetEnumerator(T data) {
+				if (nodeMap.ContainsKey(data) == false)
+					return null;
+
+				return new SortedLinkedListEnumerator(nodeMap[data]);
+			}
+
+			public IEnumerator<T> GetEnumerator() {
+				return new SortedLinkedListEnumerator(start);
+			}
+
+			IEnumerator IEnumerable.GetEnumerator() {
+				return new SortedLinkedListEnumerator(start);
+			}
+		}
+
+		private class CollisionList {
+			public SortedLinkedList<Node> list;
 			private Func<ICollider, float> nodeStartFunc;
 			private Func<ICollider, float> nodeEndFunc;
 			public CollisionList(
-				Func<ICollider, float> nodeStartFunc, 
+				Func<ICollider, float> nodeStartFunc,
 				Func<ICollider, float> nodeEndFunc) {
 
-				list = new SortedSet<Node>();
+				list = new SortedLinkedList<Node>();
 				this.nodeStartFunc = nodeStartFunc;
 				this.nodeEndFunc = nodeEndFunc;
 			}
 
 			public void addNode(ICollider collider) {
-				Node n = new Node {
+				Node n = new Node() {
 					collider = collider,
 					start = nodeStartFunc(collider),
-					end = nodeEndFunc(collider)
+					end = nodeEndFunc(collider),
 				};
 
 				list.Add(n);
 			}
 
 			public void updateNodes() {
-				var oldList = list;
-				list = new SortedSet<Node>();
+				foreach (var n in list) {
+					n.start = nodeStartFunc(n.collider);
+					n.end = nodeEndFunc(n.collider);
+				}
 
-				foreach (var n in oldList)
-					addNode(n.collider);
+				list.Update();
 			}
 		}
 
 		private CollisionList horizontal;
 		private CollisionList vertical;
 		public CollisionMap(EntitySet entities) {
-			horizontal = new CollisionList(n => n.getBoundingBox().left, n => n.getBoundingBox().right);
-			vertical = new CollisionList(n => n.getBoundingBox().top, n => n.getBoundingBox().bottom);
+			horizontal = new CollisionList(
+				n => { var bb = n.getBoundingBox(); return bb.x + bb.left; },
+				n => { var bb = n.getBoundingBox(); return bb.x + bb.right; });
+			vertical = new CollisionList(
+				n => { var bb = n.getBoundingBox(); return bb.y + bb.top; },
+				n => { var bb = n.getBoundingBox(); return bb.y + bb.bottom; });
 
 			entities.OnEntityCreated += onEntityCreated;
 			entities.OnEntityDestroyed = onEntityDestroyed;
@@ -68,9 +337,9 @@ namespace SFMLEngine.Collision {
 
 		private void onEntityCreated(EntitySetEventArgs args) {
 			var comps = args.entity.getComponents();
-			foreach(var comp in comps) {
+			foreach (var comp in comps) {
 				var collider = comp as ICollider;
-				if(collider != null) {
+				if (collider != null) {
 					horizontal.addNode(collider);
 					vertical.addNode(collider);
 					return;

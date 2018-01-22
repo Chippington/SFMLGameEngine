@@ -10,27 +10,33 @@ namespace SFMLEngine.Entities.Components {
 		void onEnterCollision(ICollider other);
 		void onLeaveCollision(ICollider other);
 		void onStepCollision(ICollider other);
+		bool hasChanged();
 	}
 
 	public class RigidBody : Component, ICollider {
-		private BoundingBox bounds;
+		private BoundingBox _bounds;
+		private BoundingBox bounds {
+			get {
+				_bounds.x = entity.position.X;
+				_bounds.y = entity.position.Y;
+				return _bounds;
+			}
+		}
+
+		private bool hasChangedData;
 
 		public override void onInitialize() {
 			base.onInitialize();
-			entity.OnUpdateEvent += onUpdate;
-		}
-
-		private void onUpdate(EntityEventArgs args) {
-			bounds.x = entity.position.X;
-			bounds.y = entity.position.Y;
+			hasChangedData = true;
 		}
 
 		public virtual BoundingBox getBoundingBox() {
 			return bounds;
 		}
 
-		public virtual void setBoundingBox(BoundingBox bounds) {
-			this.bounds = bounds;
+		public virtual void setBoundingBox(BoundingBox newBounds) {
+			hasChangedData = true;
+			_bounds = newBounds;
 		}
 
 		public virtual void onEnterCollision(ICollider other) {
@@ -40,6 +46,14 @@ namespace SFMLEngine.Entities.Components {
 		}
 
 		public virtual void onStepCollision(ICollider other) {
+		}
+
+		public bool hasChanged() {
+			return hasChangedData;
+		}
+
+		public void resetChangedFlag() {
+			hasChangedData = false;
 		}
 	}
 
