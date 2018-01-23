@@ -1,6 +1,5 @@
 ﻿using SFML.Graphics;
 using SFMLEngine.Collision;
-using SFMLEngine.Debug;
 using SFMLEngine.Entities;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Input;

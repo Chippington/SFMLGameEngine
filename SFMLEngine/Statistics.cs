@@ -11,6 +11,7 @@ namespace SFMLEngine {
 		private static Queue<long> graphicsFrameQueue;
 		private static long last;
 
+		private static long startTickTime;
 		private static long lastTickTime;
 		private static Text text;
 
@@ -18,6 +19,7 @@ namespace SFMLEngine {
 			logicFrameQueue = new Queue<long>();
 			graphicsFrameQueue = new Queue<long>();
 
+			startTickTime = Environment.TickCount;
 			lastTickTime = Environment.TickCount;
 			text = new Text("", new Font("Resources/Fonts/MavenPro-Regular.ttf"));
 			text.FillColor = new Color(255,255,255);
@@ -25,17 +27,17 @@ namespace SFMLEngine {
 		}
 
 		public static void debugDraw(RenderWindow window) {
-			text.DisplayedString = $"CPU: {logicFrameQueue.Count}{Environment.NewLine}GPU: {graphicsFrameQueue.Count}";
+			text.DisplayedString = $"CPU: {(int)getLogicFramesPerSecond()}{Environment.NewLine}GPU: {(int)getGraphicsFramesPerSecond()}";
 			window.Draw(text);
 		}
 
 		public static void onLogicUpdate() {
 			logicFrameQueue.Enqueue(Environment.TickCount);
 
-			while (logicFrameQueue.Count > 0 && logicFrameQueue.Peek() < Environment.TickCount - 1000)
+			while (logicFrameQueue.Count > 0 && logicFrameQueue.Peek() < Environment.TickCount - 5000)
 				logicFrameQueue.Dequeue();
 
-			while (graphicsFrameQueue.Count > 0 && graphicsFrameQueue.Peek() < Environment.TickCount - 1000)
+			while (graphicsFrameQueue.Count > 0 && graphicsFrameQueue.Peek() < Environment.TickCount - 5000)
 				graphicsFrameQueue.Dequeue();
 		}
 
@@ -43,12 +45,12 @@ namespace SFMLEngine {
 			graphicsFrameQueue.Enqueue(Environment.TickCount);
 		}
 
-		public static int getLogicFramesPerSecond() {
-			return logicFrameQueue.Count;
+		public static float getLogicFramesPerSecond() {
+			return ((float)logicFrameQueue.Count) / Math.Min(((float)Environment.TickCount - startTickTime) / 1000f, 5f);
 		}
 
-		public static int getGraphicsFramesPerSecond() {
-			return graphicsFrameQueue.Count;
+		public static float getGraphicsFramesPerSecond() {
+			return ((float)graphicsFrameQueue.Count) / Math.Min(((float)Environment.TickCount - startTickTime) / 1000f, 5f);
 		}
 	}
 }
