@@ -1,6 +1,6 @@
 ﻿using SFML.Graphics;
-using SFMLEngine.Collision;
 using SFMLEngine.Entities;
+using SFMLEngine.Entities.Collision;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Input;
 using System;
@@ -28,7 +28,7 @@ namespace SFMLEngine {
 		public void start() {
 			InputController input = new InputController();
 			EntitySet set = new EntitySet();
-			Collision.CollisionMap map = new CollisionMap(set);
+			CollisionMap map = new CollisionMap(set);
 			
 			logicThread = new Thread(() => {
 				Stopwatch sw = new Stopwatch();

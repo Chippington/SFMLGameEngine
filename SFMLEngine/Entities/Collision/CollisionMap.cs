@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 
-namespace SFMLEngine.Collision {
+namespace SFMLEngine.Entities.Collision {
 	public class CollisionMap {
 		public class Node {
 			public Node() {
