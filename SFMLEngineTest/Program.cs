@@ -46,14 +46,24 @@ namespace SFMLEngineTest {
 				p.y = 0f;
 
 				r.onCollisionEnter += onCollisionEnter;
+				r.onCollisionLeave += onCollisionLeave;
+			}
+
+			private void onCollisionLeave(CollisionEventArgs args) {
+				var other = args.other.getEntity() as TestEntity;
+				if (other != null) {
+					Console.WriteLine($"({name}) Collision left with: " + other.name);
+				}
 			}
 
 			private void onCollisionEnter(CollisionEventArgs args) {
 				var other = args.other.getEntity() as TestEntity;
 				if(other != null) {
-					Console.WriteLine($"({name}) Collision with: " + other.name);
+					Console.WriteLine($"({name}) Collision enter with: " + other.name);
 				}
 
+				if(name == "Test")
+				components.Get<Position>().x = 1000f;
 			}
 		}
 

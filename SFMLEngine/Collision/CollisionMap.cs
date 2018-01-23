@@ -393,6 +393,7 @@ namespace SFMLEngine.Collision {
 
 		private CollisionList horizontal;
 		private CollisionList vertical;
+		private Dictionary<ICollider, ICollider> tempActiveCollisions;
 		private Dictionary<ICollider, List<ICollider>> activeCollisions;
 		private Dictionary<ICollider, List<ICollider>> newCollisions;
 		private Dictionary<ICollider, List<ICollider>> oldCollisions;
@@ -408,6 +409,7 @@ namespace SFMLEngine.Collision {
 			entities.OnEntityCreated += onEntityCreated;
 			entities.OnEntityDestroyed = onEntityDestroyed;
 
+			tempActiveCollisions = new Dictionary<ICollider, ICollider>();
 			activeCollisions = new Dictionary<ICollider, List<ICollider>>();
 			newCollisions = new Dictionary<ICollider, List<ICollider>>();
 			oldCollisions = new Dictionary<ICollider, List<ICollider>>();
@@ -428,6 +430,9 @@ namespace SFMLEngine.Collision {
 
 				newCollisions[key].Clear();
 				oldCollisions[key].Clear();
+
+				foreach (var col in activeCollisions[key])
+					oldCollisions[key].Add(col);
 			}
 
 			foreach (var key in activeCollisions.Keys) {
@@ -466,6 +471,9 @@ namespace SFMLEngine.Collision {
 
 			newCollisions[one].Add(two);
 			newCollisions[two].Add(one);
+
+			oldCollisions[one].Remove(two);
+			oldCollisions[two].Remove(one);
 		}
 
 		private void onEntityCreated(EntitySetEventArgs args) {
