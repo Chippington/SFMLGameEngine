@@ -18,11 +18,7 @@ namespace SFMLEngine {
 		private Thread logicThread;
 		private Thread graphicsThread;
 
-		public class TestEntity : Entities.Entity {
-			public override void initialize() {
-				base.initialize();
-				addComponent<Entities.Components.RigidBody>();
-			}
+		public Game() : this("") {
 		}
 
 		public Game(string name) {
@@ -38,6 +34,9 @@ namespace SFMLEngine {
 				Stopwatch sw = new Stopwatch();
 				GameContext context = new GameContext();
 				context.input = input;
+				context.entities = set;
+				context.collision = map;
+				logicInitialized(context);
 
 				sw.Start();
 				long last = 0;
@@ -50,14 +49,11 @@ namespace SFMLEngine {
 					set.updateEntities();
 					map.updateMap();
 
-					logicUpdate(context);
+					_logicUpdate(context);
 				}
 			});
 
 			graphicsThread = new Thread(() => {
-				GameContext context = new GameContext();
-				context.input = input;
-
 				RenderWindow window = new RenderWindow(new SFML.Window.VideoMode(800, 600), name);
 				window.SetVerticalSyncEnabled(true);
 				window.Closed += (sender, args) => {
@@ -66,14 +62,18 @@ namespace SFMLEngine {
 					if (win != null)
 						win.Close();
 				};
+				GameContext context = new GameContext();
+				context.input = input;
+				context.window = window;
 
 				input.setHooks(window);
+				graphicsInitialized(context);
 				while (!exitFlag) {
 					window.DispatchEvents();
 					Thread.Sleep(1);
 
 					window.Clear();
-					graphicsUpdate(window, context);
+					_graphicsUpdate(context);
 					window.Display();
 				}
 			});
@@ -86,18 +86,39 @@ namespace SFMLEngine {
 			return (logicThread.IsAlive || graphicsThread.IsAlive);
 		}
 
-		private void logicUpdate(GameContext context) {
+		private void _logicUpdate(GameContext context) {
 			Statistics.onLogicUpdate();
+			logicUpdate(context);
 		}
 
-		private void graphicsUpdate(RenderWindow window, GameContext context) {
+		private void _graphicsUpdate(GameContext context) {
 			Statistics.onGraphicsUpdate();
-			Statistics.debugDraw(window);
+			Statistics.debugDraw(context.window);
+			graphicsUpdate(context);
+		}
+
+		protected virtual void logicInitialized(GameContext context) {
+
+		}
+
+		protected virtual void graphicsInitialized(GameContext context) {
+
+		}
+
+		protected virtual void logicUpdate(GameContext context) {
+
+		}
+
+		protected virtual void graphicsUpdate(GameContext context) {
+
 		}
 	}
 
 	public class GameContext {
+		public RenderWindow window;
+		public CollisionMap collision;
 		public InputController input;
+		public EntitySet entities;
 		public float deltaTime;
 	}
 }

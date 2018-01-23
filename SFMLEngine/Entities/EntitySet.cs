@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SFMLEngine.Entities.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,8 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Entities {
 	public delegate void EntitySetEvent(EntitySetEventArgs args);
 	public class EntitySetEventArgs {
-		public Entity entity;
+		public IEntity entity;
+		public IComponent component;
 	}
 	public class EntitySet {
 		private int _id = 0;
@@ -17,27 +19,36 @@ namespace SFMLEngine.Entities {
 
 		public EntitySetEvent OnEntityCreated;
 		public EntitySetEvent OnEntityDestroyed;
-		public Dictionary<int, Entity> entityMap;
-		public List<Entity> entityList;
+		public EntitySetEvent OnEntityComponentAdded;
+		public EntitySetEvent OnEntityComponentRemoved;
+		public Dictionary<int, IEntity> entityMap;
+		public List<IEntity> entityList;
 
 		public EntitySet() {
-			entityMap = new Dictionary<int, Entity>();
-			entityList = new List<Entity>();
+			entityMap = new Dictionary<int, IEntity>();
+			entityList = new List<IEntity>();
 		}
 
 		public void updateEntities() {
 			for(int i = 0; i < entityList.Count; i++) {
-				entityList[i]._update();
-
+				entityList[i].onUpdate();
+				entityList[i].components.updateComponents();
 			}
 		}
 
-		public T instantiate<T>() where T : Entity {
-			T ent = (T)Activator.CreateInstance(typeof(T));
+		public void drawEntities() {
+			for (int i = 0; i < entityList.Count; i++) {
+				entityList[i].onDraw();
+				entityList[i].components.drawComponents();
+			}
+		}
+
+		public T instantiate<T>(params object[] args) where T : Entity {
+			T ent = (T)Activator.CreateInstance(typeof(T), args);
 			entityList.Add(ent);
 
 			ent.OnDestroyEvent += onEntityDestroyed;
-			ent._initialize(this);
+			ent.onInitialize();
 
 			OnEntityCreated?.Invoke(new EntitySetEventArgs() {
 				entity = ent,

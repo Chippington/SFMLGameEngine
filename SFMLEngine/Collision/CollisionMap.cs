@@ -417,7 +417,7 @@ namespace SFMLEngine.Collision {
 			var horizontalOverlaps = horizontal.updateNodes();
 			var verticalOverlaps = vertical.updateNodes();
 
-			foreach(var key in activeCollisions.Keys) {
+			foreach (var key in activeCollisions.Keys) {
 				foreach (var col in newCollisions[key]) {
 					activeCollisions[key].Add(col);
 				}
@@ -428,8 +428,10 @@ namespace SFMLEngine.Collision {
 
 				newCollisions[key].Clear();
 				oldCollisions[key].Clear();
+			}
 
-				if(horizontalOverlaps.ContainsKey(key)) {
+			foreach (var key in activeCollisions.Keys) {
+				if (horizontalOverlaps.ContainsKey(key)) {
 					if (verticalOverlaps.ContainsKey(key) == false)
 						continue;
 
@@ -468,7 +470,7 @@ namespace SFMLEngine.Collision {
 
 		private void onEntityCreated(EntitySetEventArgs args) {
 			var comps = args.entity.getComponents();
-			foreach (var comp in comps) {
+			foreach (var comp in comps.Values) {
 				var collider = comp as ICollider;
 				if (collider != null) {
 					horizontal.addNode(collider);
@@ -481,10 +483,10 @@ namespace SFMLEngine.Collision {
 				}
 			}
 
-			args.entity.OnComponentAdded += onEntityComponentAdded;
+			args.entity.components.OnComponentAdded += onEntityComponentAdded;
 		}
 
-		private void onEntityComponentAdded(EntityEventArgs args) {
+		private void onEntityComponentAdded(ComponentEventArgs args) {
 
 		}
 

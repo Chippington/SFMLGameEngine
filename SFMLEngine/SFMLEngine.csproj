@@ -61,9 +61,13 @@
   <ItemGroup>
     <Compile Include="Collision\CollisionMap.cs" />
     <Compile Include="Entities\Components\Component.cs" />
+    <Compile Include="Entities\Components\ComponentSet.cs" />
+    <Compile Include="Entities\Components\IComponent.cs" />
+    <Compile Include="Entities\Components\Position.cs" />
     <Compile Include="Entities\Components\RigidBody.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\EntitySet.cs" />
+    <Compile Include="Entities\IEntity.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Input\InputController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Entities.Components {
-	public interface ICollider {
+	public interface ICollider : IComponent {
 		BoundingBox getBoundingBox();
 		void onEnterCollision(ICollider other);
 		void onLeaveCollision(ICollider other);
@@ -13,21 +13,33 @@ namespace SFMLEngine.Entities.Components {
 		bool hasChanged();
 	}
 
+	public delegate void CollisionEvent(CollisionEventArgs args);
+	public class CollisionEventArgs {
+		public ICollider other;
+	}
+
 	public class RigidBody : Component, ICollider {
+		public CollisionEvent onCollisionEnter;
+		public CollisionEvent onCollisionLeave;
+		public CollisionEvent onCollisionStep;
+
 		private BoundingBox _bounds;
 		private BoundingBox bounds {
 			get {
-				_bounds.x = entity.position.X;
-				_bounds.y = entity.position.Y;
+				_bounds.x = position.x;
+				_bounds.y = position.y;
 				return _bounds;
 			}
 		}
 
 		private bool hasChangedData;
+		private Position position;
 
 		public override void onInitialize() {
 			base.onInitialize();
 			hasChangedData = true;
+
+			position = entity.components.Add<Position>();
 		}
 
 		public virtual BoundingBox getBoundingBox() {
@@ -39,15 +51,22 @@ namespace SFMLEngine.Entities.Components {
 			_bounds = newBounds;
 		}
 
-		static int ii = 0;
 		public virtual void onEnterCollision(ICollider other) {
-			Console.WriteLine($"Collision detected [{++ii}]");
+			onCollisionEnter?.Invoke(new CollisionEventArgs() {
+				other = other,
+			});
 		}
 
 		public virtual void onLeaveCollision(ICollider other) {
+			onCollisionLeave?.Invoke(new CollisionEventArgs() {
+				other = other,
+			});
 		}
 
 		public virtual void onStepCollision(ICollider other) {
+			onCollisionStep?.Invoke(new CollisionEventArgs() {
+				other = other,
+			});
 		}
 
 		public bool hasChanged() {
