@@ -29,17 +29,17 @@ namespace SFMLEngine.Entities {
 			entityList = new List<IEntity>();
 		}
 
-		public void updateEntities() {
+		public void updateEntities(GameContext context) {
 			for(int i = 0; i < entityList.Count; i++) {
-				entityList[i].onUpdate();
-				entityList[i].components.updateComponents();
+				entityList[i].onUpdate(context);
+				entityList[i].components.updateComponents(context);
 			}
 		}
 
-		public void drawEntities() {
+		public void drawEntities(GameContext context) {
 			for (int i = 0; i < entityList.Count; i++) {
-				entityList[i].onDraw();
-				entityList[i].components.drawComponents();
+				entityList[i].onDraw(context);
+				entityList[i].components.drawComponents(context);
 			}
 		}
 

@@ -10,8 +10,8 @@ namespace SFMLEngine.Entities.Components {
 
 		public virtual void onInitialize() { }
 		public virtual void onDestroy() { }
-		public virtual void onUpdate() { }
-		public virtual void onDraw() { }
+		public virtual void onUpdate(GameContext context) { }
+		public virtual void onDraw(GameContext context) { }
 		public void setEntity(IEntity owner) {
 			this.entity = owner;
 		}

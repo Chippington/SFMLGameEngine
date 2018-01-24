@@ -45,8 +45,7 @@ namespace SFMLEngine {
 					context.deltaTime = ((float)(sw.ElapsedTicks - last)) / 10000f;
 					last = sw.ElapsedTicks;
 
-					input.updateInput();
-					set.updateEntities();
+					set.updateEntities(context);
 					map.updateMap();
 
 					_logicUpdate(context);
@@ -65,14 +64,18 @@ namespace SFMLEngine {
 				GameContext context = new GameContext();
 				context.input = input;
 				context.window = window;
+				context.entities = set;
+				context.collision = map;
 
 				input.setHooks(window);
 				graphicsInitialized(context);
 				while (!exitFlag) {
 					window.DispatchEvents();
+					input.updateInput();
 					Thread.Sleep(1);
 
 					window.Clear();
+					set.drawEntities(context);
 					_graphicsUpdate(context);
 					window.Display();
 				}

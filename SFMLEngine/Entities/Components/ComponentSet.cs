@@ -30,14 +30,14 @@ namespace SFMLEngine.Entities.Components {
 			this.owner = owner;
 		}
 
-		public void updateComponents() {
+		public void updateComponents(GameContext context) {
 			foreach (var c in Values)
-				c.onUpdate();
+				c.onUpdate(context);
 		}
 
-		public void drawComponents() {
+		public void drawComponents(GameContext context) {
 			foreach (var c in Values)
-				c.onDraw();
+				c.onDraw(context);
 		}
 
 

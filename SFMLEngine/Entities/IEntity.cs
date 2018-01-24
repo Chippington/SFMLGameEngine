@@ -9,8 +9,8 @@ namespace SFMLEngine.Entities {
 	public interface IEntity {
 		ComponentSet components { get; set; }
 		void onInitialize();
-		void onUpdate();
-		void onDraw();
+		void onUpdate(GameContext context);
+		void onDraw(GameContext context);
 		void onDestroy();
 		ComponentSet getComponents();
 		void setOwner(EntitySet owner);

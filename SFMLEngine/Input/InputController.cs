@@ -23,6 +23,7 @@ namespace SFMLEngine.Input {
 		}
 
 		public void setHooks(RenderWindow window) {
+			window.SetKeyRepeatEnabled(false);
 			window.KeyPressed += onKeyPressed;
 			window.KeyReleased += onKeyReleased;
 		}
@@ -44,19 +45,27 @@ namespace SFMLEngine.Input {
 		}
 
 		public void updateInput() {
-			foreach (var v in pressedMap)
-				if(heldMap.Contains(v) == false)
-					heldMap.Add(v);
+			lock (pressedMap)
+				lock (heldMap)
+					foreach (var v in pressedMap)
+						if(heldMap.Contains(v) == false)
+							heldMap.Add(v);
 
-			releasedMap = new HashSet<Keyboard.Key>(tempReleasedMap);
-			pressedMap = new HashSet<Keyboard.Key>(tempPressedMap);
+			lock (releasedMap) lock (tempPressedMap) {
+					releasedMap = new HashSet<Keyboard.Key>(tempReleasedMap);
+					tempReleasedMap.Clear();
+				}
 
-			foreach (var v in releasedMap)
-				if (heldMap.Contains(v))
-					heldMap.Remove(v);
+			lock (pressedMap) lock (tempPressedMap) {
+					pressedMap = new HashSet<Keyboard.Key>(tempPressedMap);
+					tempPressedMap.Clear();
+				}
 
-			tempReleasedMap.Clear();
-			tempPressedMap.Clear();
+			lock(releasedMap)
+				lock (heldMap)
+					foreach (var v in releasedMap)
+						if (heldMap.Contains(v))
+							heldMap.Remove(v);
 		}
 
 		private void onKeyReleased(object sender, KeyEventArgs e) {

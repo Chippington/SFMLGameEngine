@@ -31,13 +31,13 @@ namespace SFMLEngine.Entities {
 
 		public virtual void onInitialize() { }
 
-		public virtual void onUpdate() {
+		public virtual void onUpdate(GameContext context) {
 			OnUpdateEvent?.Invoke(new EntityEventArgs() {
 				entity = this,
 			});
 		}
 
-		public virtual void onDraw() {
+		public virtual void onDraw(GameContext context) {
 			OnDrawEvent?.Invoke(new EntityEventArgs() {
 				entity = this,
 			});

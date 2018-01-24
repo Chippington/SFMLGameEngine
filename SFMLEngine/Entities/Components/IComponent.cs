@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Entities.Components {
 	public interface IComponent {
 		void onInitialize();
-		void onUpdate();
-		void onDraw();
+		void onUpdate(GameContext context);
+		void onDraw(GameContext context);
 		void onDestroy();
 		void setEntity(IEntity owner);
 		IEntity getEntity();

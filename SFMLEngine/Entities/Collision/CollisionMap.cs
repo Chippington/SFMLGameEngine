@@ -41,8 +41,11 @@ namespace SFMLEngine.Entities.Collision {
 			public void onVerticalFound(Node other) {
 				if(horizontals.Contains(other)) {
 					oldCollisions.Remove(other.collider);
-					if (activeCollisions.Contains(other.collider) == false)
+					other.oldCollisions.Remove(collider);
+					if (activeCollisions.Contains(other.collider) == false) {
 						newCollisions.Add(other.collider);
+						other.newCollisions.Add(collider);
+					}
 				}
 			}
 
@@ -69,10 +72,12 @@ namespace SFMLEngine.Entities.Collision {
 			}
 		}
 
+		private Dictionary<ICollider, Node> nodeMap;
 		private List<Node> horizontal;
 		private List<Node> vertical;
 
 		public CollisionMap(EntitySet entities) {
+			nodeMap = new Dictionary<ICollider, Node>();
 			horizontal = new List<Node>();
 			vertical = new List<Node>();
 
@@ -83,10 +88,20 @@ namespace SFMLEngine.Entities.Collision {
 		public void updateMap() {
 			foreach (var n in horizontal)
 				n.refresh();
+			
+			horizontal.Sort((i, j) => {
+				var f1 = i.boundingBox.x + i.boundingBox.left;
+				var f2 = j.boundingBox.x + j.boundingBox.left;
+				return f1.CompareTo(f2);
+			});
 
-			horizontal.OrderBy(i => { var bb = i.boundingBox; return bb.x + bb.left; });
-			vertical.OrderBy(i => { var bb = i.boundingBox; return bb.y + bb.top; });
+			vertical.Sort((i, j) => {
+				var f1 = i.boundingBox.y + i.boundingBox.top;
+				var f2 = j.boundingBox.y + j.boundingBox.top;
+				return f1.CompareTo(f2);
+			});
 
+			float x1, x2, x3, x4, y1, y2, y3, y4;
 			List<Node> hcols = new List<Node>();
 			List<Node> vcols = new List<Node>();
 			for (int i = 0; i < horizontal.Count; i++) {
@@ -94,14 +109,26 @@ namespace SFMLEngine.Entities.Collision {
 				var curVCollider = vertical[i].boundingBox;
 				for (int j = hcols.Count - 1; j >= 0; j--) {
 					var chkHCollider = hcols[j].boundingBox;
-					var chkVCollider = vcols[j].boundingBox;
-					if (curHCollider.x + curHCollider.left < chkHCollider.x + chkHCollider.right) {
+					x1 = curHCollider.x + curHCollider.left;
+					x2 = curHCollider.x + curHCollider.right;
+					x3 = chkHCollider.x + chkHCollider.left;
+					x4 = chkHCollider.x + chkHCollider.right;
+
+					if (x4 > x1 && x3 < x2) {
 						horizontal[i].onHorizontalFound(hcols[j]);
 					} else {
 						hcols.RemoveAt(j);
 					}
+				}
 
-					if (curVCollider.x + curVCollider.left < chkVCollider.x + chkVCollider.right) {
+				for(int j = vcols.Count - 1; j >= 0; j--) {
+					var chkVCollider = vcols[j].boundingBox;
+					y1 = curVCollider.y + curVCollider.top;
+					y2 = curVCollider.y + curVCollider.bottom;
+					y3 = chkVCollider.y + chkVCollider.top;
+					y4 = chkVCollider.y + chkVCollider.bottom;
+
+					if (y4 > y1 && y3 < y2) {
 						vertical[i].onVerticalFound(vcols[j]);
 					} else {
 						vcols.RemoveAt(j);
@@ -116,6 +143,137 @@ namespace SFMLEngine.Entities.Collision {
 				n.invokeCallbacks();
 		}
 
+		public bool testCollision(ICollider one, ICollider two) {
+			var n1 = nodeMap[one];
+			var n2 = nodeMap[two];
+
+			return testCollision(n1.boundingBox, n2.boundingBox);
+		}
+
+		public bool testCollision<T>(ICollider collider, float newX, float newY) {
+			horizontal.Sort((i, j) => {
+				var f1 = i.boundingBox.x + i.boundingBox.left;
+				var f2 = j.boundingBox.x + j.boundingBox.left;
+				return f1.CompareTo(f2);
+			});
+
+			vertical.Sort((i, j) => {
+				var f1 = i.boundingBox.y + i.boundingBox.top;
+				var f2 = j.boundingBox.y + j.boundingBox.top;
+				return f1.CompareTo(f2);
+			});
+
+			BoundingBox newBB = collider.getBoundingBox();
+			newBB.x = newX;
+			newBB.y = newY;
+
+			int hind, vind;
+			for (hind = 0; hind < horizontal.Count; hind++)
+				if (horizontal[hind].collider == collider)
+					break;
+
+			for (vind = 0; vind < vertical.Count; vind++)
+				if (vertical[vind].collider == collider)
+					break;
+
+			HashSet<ICollider> hcols = new HashSet<ICollider>();
+			for (int i = hind; i < horizontal.Count; i++) {
+				if (horizontal[i].collider == collider)
+					continue;
+
+				var otherBB = horizontal[i].collider.getBoundingBox();
+
+				float x1, x2, x3, x4;
+				x1 = newBB.x + newBB.left;
+				x2 = newBB.x + newBB.right;
+				x3 = otherBB.x + otherBB.left;
+				x4 = otherBB.x + otherBB.right;
+
+				if (x4 > x1 && x3 < x2) {
+					hcols.Add(horizontal[i].collider);
+				} else {
+					break;
+				}
+			}
+
+			for (int i = hind; i >= 0; i--) {
+				if (horizontal[i].collider == collider)
+					continue;
+
+				var otherBB = horizontal[i].collider.getBoundingBox();
+
+				float x1, x2, x3, x4;
+				x1 = newBB.x + newBB.left;
+				x2 = newBB.x + newBB.right;
+				x3 = otherBB.x + otherBB.left;
+				x4 = otherBB.x + otherBB.right;
+
+				if (x4 > x1 && x3 < x2) {
+					hcols.Add(horizontal[i].collider);
+				} else {
+					break;
+				}
+			}
+
+			for (int i = vind; i < vertical.Count; i++) {
+				if (vertical[i].collider == collider)
+					continue;
+
+				var otherBB = vertical[i].collider.getBoundingBox();
+
+				float y1, y2, y3, y4;
+				y1 = newBB.y + newBB.top;
+				y2 = newBB.y + newBB.bottom;
+				y3 = otherBB.y + otherBB.top;
+				y4 = otherBB.y + otherBB.bottom;
+
+				if (y4 > y1 && y3 < y2) {
+					if (hcols.Contains(vertical[i].collider))
+						if(vertical[i].collider.getEntity().GetType() == typeof(T))
+							return true;
+				} else {
+					break;
+				}
+			}
+
+			for (int i = vind; i >= 0; i--) {
+				if (vertical[i].collider == collider)
+					continue;
+
+				var otherBB = vertical[i].collider.getBoundingBox();
+
+				float y1, y2, y3, y4;
+				y1 = newBB.y + newBB.top;
+				y2 = newBB.y + newBB.bottom;
+				y3 = otherBB.y + otherBB.top;
+				y4 = otherBB.y + otherBB.bottom;
+
+				if (y4 > y1 && y3 < y2) {
+					if (hcols.Contains(vertical[i].collider))
+						if(vertical[i].collider.getEntity().GetType() == typeof(T))
+							return true;
+				} else {
+					break;
+				}
+			}
+
+			return false;
+		}
+
+		public bool testCollision(BoundingBox bb1, BoundingBox bb2) {
+			float x1, x2, x3, x4, y1, y2, y3, y4;
+			x1 = bb1.x + bb1.left;
+			x2 = bb1.x + bb1.right;
+			x3 = bb2.x + bb2.left;
+			x4 = bb2.x + bb2.right;
+			y1 = bb1.y + bb1.top;
+			y2 = bb1.y + bb1.bottom;
+			y3 = bb2.y + bb2.top;
+			y4 = bb2.y + bb2.bottom;
+
+			return (x4 > x1 && x3 < x2) && (y4 > y1 && y3 < y2);
+		}
+
 		private void onEntityCreated(EntitySetEventArgs args) {
 			var comps = args.entity.getComponents();
 			foreach (var comp in comps.Values) {
@@ -125,6 +283,7 @@ namespace SFMLEngine.Entities.Collision {
 						collider = collider,
 					};
 
+					nodeMap.Add(collider, newNode);
 					horizontal.Add(newNode);
 					vertical.Add(newNode);
 					return;
