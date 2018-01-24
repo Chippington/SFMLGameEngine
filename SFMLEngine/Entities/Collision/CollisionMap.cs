@@ -105,7 +105,7 @@ namespace SFMLEngine.Entities.Collision {
 
 		public void updateMap() {
 			HashSet<Node> changed = new HashSet<Node>();
-			foreach (var n in horizontal)
+			foreach (var n in nodeMap.Values)
 				if (n.refresh()) {
 					changed.Add(n);
 				}
@@ -281,17 +281,8 @@ namespace SFMLEngine.Entities.Collision {
 		}
 
 		public bool testCollision<T>(ICollider collider, float newX, float newY) {
-			horizontal.Sort((i, j) => {
-				var f1 = i.boundingBox.x + i.boundingBox.left;
-				var f2 = j.boundingBox.x + j.boundingBox.left;
-				return f1.CompareTo(f2);
-			});
-
-			vertical.Sort((i, j) => {
-				var f1 = i.boundingBox.y + i.boundingBox.top;
-				var f2 = j.boundingBox.y + j.boundingBox.top;
-				return f1.CompareTo(f2);
-			});
+			if (horizontal.Count == 0) return false;
+			if (vertical.Count == 0) return false;
 
 			BoundingBox newBB = collider.getBoundingBox();
 			newBB.x = newX;
@@ -309,6 +300,9 @@ namespace SFMLEngine.Entities.Collision {
 			HashSet<ICollider> hcols = new HashSet<ICollider>();
 			for (int i = hind; i < horizontal.Count; i++) {
 				if (horizontal[i].collider == collider)
+					continue;
+
+				if (horizontal[i].collider.getEntity().GetType() != typeof(T))
 					continue;
 
 				var otherBB = horizontal[i].collider.getBoundingBox();
@@ -330,6 +324,9 @@ namespace SFMLEngine.Entities.Collision {
 				if (horizontal[i].collider == collider)
 					continue;
 
+				if (horizontal[i].collider.getEntity().GetType() != typeof(T))
+					continue;
+
 				var otherBB = horizontal[i].collider.getBoundingBox();
 
 				float x1, x2, x3, x4;
@@ -347,6 +344,9 @@ namespace SFMLEngine.Entities.Collision {
 
 			for (int i = vind; i < vertical.Count; i++) {
 				if (vertical[i].collider == collider)
+					continue;
+
+				if (vertical[i].collider.getEntity().GetType() != typeof(T))
 					continue;
 
 				var otherBB = vertical[i].collider.getBoundingBox();
@@ -368,6 +368,9 @@ namespace SFMLEngine.Entities.Collision {
 
 			for (int i = vind; i >= 0; i--) {
 				if (vertical[i].collider == collider)
+					continue;
+
+				if (vertical[i].collider.getEntity().GetType() != typeof(T))
 					continue;
 
 				var otherBB = vertical[i].collider.getBoundingBox();
@@ -414,8 +417,6 @@ namespace SFMLEngine.Entities.Collision {
 					};
 
 					nodeMap.Add(collider, newNode);
-					horizontal.Add(newNode);
-					vertical.Add(newNode);
 					return;
 				}
 			}

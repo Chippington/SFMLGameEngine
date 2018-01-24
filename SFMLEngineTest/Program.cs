@@ -13,14 +13,16 @@ namespace SFMLEngineTest {
 		public class TestGame : Game {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
-				for(int i = 0; i < 3000; i++) {
+				for(int i = 0; i < 300; i++) {
 					var test = context.entities.instantiate<TestEntity>("Test"+i);
 					test.components.Get<Position>().x = 50 + (50 * i);
-					test.components.Get<Position>().y = 50;
-					//test.components.Get<RigidBody>().setDebugDraw(true);
+					test.components.Get<Position>().y = 50 + (50 * i);
+					test.components.Get<RigidBody>().setDebugDraw(true);
 				}
-
-				var player = context.entities.instantiate<TestPlayer>();
+				for (int i = 0; i < 100; i++) {
+					var player = context.entities.instantiate<TestPlayer>();
+					player.components.Get<Position>().x = i * 6;
+				}
 			}
 
 			protected override void graphicsUpdate(GameContext context) {
@@ -50,6 +52,17 @@ namespace SFMLEngineTest {
 				if(context.input.isHeld(SFML.Window.Keyboard.Key.A)) { vx -= 1f; }
 				if(context.input.isHeld(SFML.Window.Keyboard.Key.S)) { vy += 1f; }
 				if(context.input.isHeld(SFML.Window.Keyboard.Key.D)) { vx += 1f; }
+
+				var col = components.Get<RigidBody>();
+				if (context.collision.testCollision<TestEntity>(
+					col, pos.x + (vx * context.deltaTime), pos.y)) {
+					vx = 0f;
+				}
+
+				if (context.collision.testCollision<TestEntity>(
+					col, pos.x, pos.y + (vy * context.deltaTime))) {
+					vy = 0f;
+				}
 
 				pos.x += vx * context.deltaTime;
 				pos.y += vy * context.deltaTime;
