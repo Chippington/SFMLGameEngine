@@ -8,7 +8,145 @@ using System.Threading.Tasks;
 using System.Collections;
 
 namespace SFMLEngine.Entities.Collision {
+
+
 	public class CollisionMap {
+		public class Node {
+			public Node() {
+				activeCollisions = new HashSet<ICollider>();
+				newCollisions = new HashSet<ICollider>();
+				oldCollisions = new HashSet<ICollider>();
+				horizontals = new HashSet<Node>();
+			}
+
+			public ICollider collider;
+			public BoundingBox boundingBox;
+			public HashSet<ICollider> activeCollisions;
+			public HashSet<ICollider> newCollisions;
+			public HashSet<ICollider> oldCollisions;
+			HashSet<Node> horizontals;
+
+			public void refresh() {
+				boundingBox = collider.getBoundingBox();
+				horizontals.Clear();
+				foreach (var c in activeCollisions)
+					oldCollisions.Add(c);
+			}
+
+			public void onHorizontalFound(Node other) {
+				horizontals.Add(other);
+				other.horizontals.Add(this);
+			}
+
+			public void onVerticalFound(Node other) {
+				if(horizontals.Contains(other)) {
+					oldCollisions.Remove(other.collider);
+					if (activeCollisions.Contains(other.collider) == false)
+						newCollisions.Add(other.collider);
+				}
+			}
+
+			public void updateCollisions() {
+
+			}
+
+			public void invokeCallbacks() {
+				foreach (var col in oldCollisions) {
+					collider.onLeaveCollision(col);
+					activeCollisions.Remove(col);
+				}
+
+				foreach (var col in activeCollisions)
+					collider.onStepCollision(col);
+
+				foreach (var col in newCollisions) {
+					collider.onEnterCollision(col);
+					activeCollisions.Add(col);
+				}
+
+				newCollisions.Clear();
+				oldCollisions.Clear();
+			}
+		}
+
+		private List<Node> horizontal;
+		private List<Node> vertical;
+
+		public CollisionMap(EntitySet entities) {
+			horizontal = new List<Node>();
+			vertical = new List<Node>();
+
+			entities.OnEntityCreated += onEntityCreated;
+			entities.OnEntityDestroyed = onEntityDestroyed;
+		}
+
+		public void updateMap() {
+			foreach (var n in horizontal)
+				n.refresh();
+
+			horizontal.OrderBy(i => { var bb = i.boundingBox; return bb.x + bb.left; });
+			vertical.OrderBy(i => { var bb = i.boundingBox; return bb.y + bb.top; });
+
+			List<Node> hcols = new List<Node>();
+			for(int i = 0; i < horizontal.Count; i++) {
+				var curCollider = horizontal[i].boundingBox;
+				for(int j = hcols.Count - 1; j >= 0; j--) {
+					var chkCollider = hcols[j].boundingBox;
+					if(curCollider.x + curCollider.left < chkCollider.x + chkCollider.right) {
+						horizontal[i].onHorizontalFound(hcols[j]);
+					} else {
+						hcols.RemoveAt(j);
+					}
+				}
+
+				hcols.Add(horizontal[i]);
+			}
+
+			List<Node> vcols = new List<Node>();
+			for (int i = 0; i < vertical.Count; i++) {
+				var curCollider = vertical[i].boundingBox;
+				for (int j = vcols.Count - 1; j >= 0; j--) {
+					var chkCollider = vcols[j].boundingBox;
+					if (curCollider.x + curCollider.left < chkCollider.x + chkCollider.right) {
+						vertical[i].onVerticalFound(vcols[j]);
+					} else {
+						vcols.RemoveAt(j);
+					}
+				}
+
+				vcols.Add(vertical[i]);
+			}
+
+			foreach (var n in horizontal)
+				n.invokeCallbacks();
+		}
+
+		private void onEntityCreated(EntitySetEventArgs args) {
+			var comps = args.entity.getComponents();
+			foreach (var comp in comps.Values) {
+				var collider = comp as ICollider;
+				if (collider != null) {
+					var newNode = new Node() {
+						collider = collider,
+					};
+
+					horizontal.Add(newNode);
+					vertical.Add(newNode);
+					return;
+				}
+			}
+
+			args.entity.components.OnComponentAdded += onEntityComponentAdded;
+		}
+
+		private void onEntityComponentAdded(ComponentEventArgs args) {
+		}
+
+		private void onEntityDestroyed(EntitySetEventArgs args) {
+		}
+	}
+
+	public class CollisionMapOLD {
 		public class Node {
 			public Node() {
 				activeCollisions = new HashSet<ICollider>();
@@ -32,14 +170,7 @@ namespace SFMLEngine.Entities.Collision {
 			}
 
 			public void updateCollisions() {
-				foreach (var col in newCollisions)
-					activeCollisions.Add(col);
 
-				foreach (var col in oldCollisions)
-					activeCollisions.Remove(col);
-
-				newCollisions.Clear();
-				oldCollisions.Clear();
 			}
 
 			public void invokeCallbacks() {
@@ -54,7 +185,7 @@ namespace SFMLEngine.Entities.Collision {
 			}
 		}
 
-		private class SortedLinkedList<T> : ICollection<T> where T : CollisionMap.Node {
+		private class SortedLinkedList<T> : ICollection<T> where T : Node {
 			private ListNode start, end;
 			private Dictionary<T, ListNode> nodeMap;
 			private List<ListNode> nodeList;
@@ -398,7 +529,7 @@ namespace SFMLEngine.Entities.Collision {
 		private Dictionary<ICollider, List<ICollider>> newCollisions;
 		private Dictionary<ICollider, List<ICollider>> oldCollisions;
 
-		public CollisionMap(EntitySet entities) {
+		public CollisionMapOLD(EntitySet entities) {
 			horizontal = new CollisionList(
 				n => { var bb = n.getBoundingBox(); return bb.x + bb.left; },
 				n => { var bb = n.getBoundingBox(); return bb.x + bb.right; });
@@ -466,14 +597,14 @@ namespace SFMLEngine.Entities.Collision {
 			if (newCollisions[one].Contains(two) || newCollisions[two].Contains(one))
 				return;
 
+			oldCollisions[one].Remove(two);
+			oldCollisions[two].Remove(one);
+
 			if (activeCollisions[one].Contains(two) || activeCollisions[two].Contains(one))
 				return;
 
 			newCollisions[one].Add(two);
 			newCollisions[two].Add(one);
-
-			oldCollisions[one].Remove(two);
-			oldCollisions[two].Remove(one);
 		}
 
 		private void onEntityCreated(EntitySetEventArgs args) {

@@ -13,10 +13,10 @@ namespace SFMLEngineTest {
 		public class TestGame : Game {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
-				var test = context.entities.instantiate<TestEntity>("Test");
-				test = context.entities.instantiate<TestEntity>("Test2");
-				test.components.Get<Position>().x = 3f;
-				test.components.Get<Position>().y = 3f;
+				for(int i = 0; i < 10000; i++) {
+					var test = context.entities.instantiate<TestEntity>("Test"+i);
+					test.components.Get<Position>().x = i * 3;
+				}
 			}
 
 			protected override void graphicsUpdate(GameContext context) {
@@ -40,10 +40,6 @@ namespace SFMLEngineTest {
 					left = 0f, right = 5f,
 					top = 0f, bottom = 5f,
 				});
-
-				var p = components.Add<Position>();
-				p.x = 0f;
-				p.y = 0f;
 
 				r.onCollisionEnter += onCollisionEnter;
 				r.onCollisionLeave += onCollisionLeave;

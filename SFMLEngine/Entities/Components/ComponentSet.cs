@@ -23,8 +23,6 @@ namespace SFMLEngine.Entities.Components {
 
 		public int Count => source.Count;
 
-		public bool IsReadOnly => false;
-
 		//public IComponent this[Type key] { get => source[key]; set => source[key] = value; }
 
 		public ComponentSet(IEntity owner) {
