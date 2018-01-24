@@ -13,9 +13,9 @@ namespace SFMLEngineTest {
 		public class TestGame : Game {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
-				for(int i = 0; i < 10000; i++) {
+				for(int i = 0; i < 1000; i++) {
 					var test = context.entities.instantiate<TestEntity>("Test"+i);
-					test.components.Get<Position>().x = i * 3;
+					test.components.Get<Position>().x = i;
 				}
 			}
 

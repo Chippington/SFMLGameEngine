@@ -88,26 +88,20 @@ namespace SFMLEngine.Entities.Collision {
 			vertical.OrderBy(i => { var bb = i.boundingBox; return bb.y + bb.top; });
 
 			List<Node> hcols = new List<Node>();
-			for(int i = 0; i < horizontal.Count; i++) {
-				var curCollider = horizontal[i].boundingBox;
-				for(int j = hcols.Count - 1; j >= 0; j--) {
-					var chkCollider = hcols[j].boundingBox;
-					if(curCollider.x + curCollider.left < chkCollider.x + chkCollider.right) {
+			List<Node> vcols = new List<Node>();
+			for (int i = 0; i < horizontal.Count; i++) {
+				var curHCollider = horizontal[i].boundingBox;
+				var curVCollider = vertical[i].boundingBox;
+				for (int j = hcols.Count - 1; j >= 0; j--) {
+					var chkHCollider = hcols[j].boundingBox;
+					var chkVCollider = vcols[j].boundingBox;
+					if (curHCollider.x + curHCollider.left < chkHCollider.x + chkHCollider.right) {
 						horizontal[i].onHorizontalFound(hcols[j]);
 					} else {
 						hcols.RemoveAt(j);
 					}
-				}
 
-				hcols.Add(horizontal[i]);
-			}
-
-			List<Node> vcols = new List<Node>();
-			for (int i = 0; i < vertical.Count; i++) {
-				var curCollider = vertical[i].boundingBox;
-				for (int j = vcols.Count - 1; j >= 0; j--) {
-					var chkCollider = vcols[j].boundingBox;
-					if (curCollider.x + curCollider.left < chkCollider.x + chkCollider.right) {
+					if (curVCollider.x + curVCollider.left < chkVCollider.x + chkVCollider.right) {
 						vertical[i].onVerticalFound(vcols[j]);
 					} else {
 						vcols.RemoveAt(j);
@@ -115,6 +109,7 @@ namespace SFMLEngine.Entities.Collision {
 				}
 
 				vcols.Add(vertical[i]);
+				hcols.Add(horizontal[i]);
 			}
 
 			foreach (var n in horizontal)
