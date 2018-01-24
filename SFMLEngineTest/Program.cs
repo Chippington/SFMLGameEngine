@@ -13,11 +13,11 @@ namespace SFMLEngineTest {
 		public class TestGame : Game {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
-				for(int i = 0; i < 10; i++) {
+				for(int i = 0; i < 3000; i++) {
 					var test = context.entities.instantiate<TestEntity>("Test"+i);
 					test.components.Get<Position>().x = 50 + (50 * i);
 					test.components.Get<Position>().y = 50;
-					test.components.Get<RigidBody>().setDebugDraw(true);
+					//test.components.Get<RigidBody>().setDebugDraw(true);
 				}
 
 				var player = context.entities.instantiate<TestPlayer>();
@@ -43,10 +43,6 @@ namespace SFMLEngineTest {
 				pos = components.Add<Position>();
 			}
 
-			static int _ii;
-			static string ii {
-				get { return (_ii++).ToString(); }
-			}
 			public override void onUpdate(GameContext context) {
 				base.onUpdate(context);
 				vx = vy = 0;
@@ -57,10 +53,6 @@ namespace SFMLEngineTest {
 
 				pos.x += vx * context.deltaTime;
 				pos.y += vy * context.deltaTime;
-
-				if (context.collision.testCollision<TestEntity>(components.Get<RigidBody>(), pos.x, pos.y)) {
-					Console.WriteLine("TEST" + ii);
-				}
 			}
 		}
 

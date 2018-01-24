@@ -13,24 +13,41 @@ namespace SFMLEngine.Entities.Collision {
 	public class CollisionMap {
 		public class Node {
 			public Node() {
-				activeCollisions = new HashSet<ICollider>();
-				newCollisions = new HashSet<ICollider>();
-				oldCollisions = new HashSet<ICollider>();
+				activeCollisions = new HashSet<Node>();
+				newCollisions = new HashSet<Node>();
+				oldCollisions = new HashSet<Node>();
 				horizontals = new HashSet<Node>();
 			}
 
 			public ICollider collider;
 			public BoundingBox boundingBox;
-			public HashSet<ICollider> activeCollisions;
-			public HashSet<ICollider> newCollisions;
-			public HashSet<ICollider> oldCollisions;
+			public HashSet<Node> activeCollisions;
+			public HashSet<Node> newCollisions;
+			public HashSet<Node> oldCollisions;
 			HashSet<Node> horizontals;
+			public bool hasChanged;
 
-			public void refresh() {
-				boundingBox = collider.getBoundingBox();
+			public bool refresh() {
+				var _boundingBox = collider.getBoundingBox();
 				horizontals.Clear();
-				foreach (var c in activeCollisions)
-					oldCollisions.Add(c);
+
+				hasChanged = false;
+				if (boundingBox.x != _boundingBox.x || boundingBox.y != _boundingBox.y)
+					hasChanged = true;
+				else if (boundingBox.left != _boundingBox.left || boundingBox.right != _boundingBox.right)
+					hasChanged = true;
+				else if (boundingBox.top != _boundingBox.top || boundingBox.bottom != _boundingBox.bottom)
+					hasChanged = true;
+
+				if(hasChanged) {
+					foreach (var c in activeCollisions) {
+						oldCollisions.Add(c);
+						c.oldCollisions.Add(this);
+					}
+				}
+
+				this.boundingBox = _boundingBox;
+				return hasChanged;
 			}
 
 			public void onHorizontalFound(Node other) {
@@ -40,11 +57,12 @@ namespace SFMLEngine.Entities.Collision {
 
 			public void onVerticalFound(Node other) {
 				if(horizontals.Contains(other)) {
-					oldCollisions.Remove(other.collider);
-					other.oldCollisions.Remove(collider);
-					if (activeCollisions.Contains(other.collider) == false) {
-						newCollisions.Add(other.collider);
-						other.newCollisions.Add(collider);
+					oldCollisions.Remove(other);
+					other.oldCollisions.Remove(this);
+
+					if (activeCollisions.Contains(other) == false) {
+						newCollisions.Add(other);
+						other.newCollisions.Add(this);
 					}
 				}
 			}
@@ -55,15 +73,15 @@ namespace SFMLEngine.Entities.Collision {
 
 			public void invokeCallbacks() {
 				foreach (var col in oldCollisions) {
-					collider.onLeaveCollision(col);
+					collider.onLeaveCollision(col.collider);
 					activeCollisions.Remove(col);
 				}
 
 				foreach (var col in activeCollisions)
-					collider.onStepCollision(col);
+					collider.onStepCollision(col.collider);
 
 				foreach (var col in newCollisions) {
-					collider.onEnterCollision(col);
+					collider.onEnterCollision(col.collider);
 					activeCollisions.Add(col);
 				}
 
@@ -86,61 +104,173 @@ namespace SFMLEngine.Entities.Collision {
 		}
 
 		public void updateMap() {
+			HashSet<Node> changed = new HashSet<Node>();
 			foreach (var n in horizontal)
-				n.refresh();
-			
-			horizontal.Sort((i, j) => {
-				var f1 = i.boundingBox.x + i.boundingBox.left;
-				var f2 = j.boundingBox.x + j.boundingBox.left;
-				return f1.CompareTo(f2);
-			});
+				if (n.refresh()) {
+					changed.Add(n);
+				}
 
-			vertical.Sort((i, j) => {
-				var f1 = i.boundingBox.y + i.boundingBox.top;
-				var f2 = j.boundingBox.y + j.boundingBox.top;
-				return f1.CompareTo(f2);
-			});
+			for (int i = horizontal.Count - 1; i >= 0; i--) {
+				var n1 = horizontal[i];
+				var n2 = vertical[i];
+				if (n1.hasChanged) {
+					horizontal.RemoveAt(i);
+				}
+				if (n2.hasChanged) {
+					vertical.RemoveAt(i);
+				}
+			}
 
-			float x1, x2, x3, x4, y1, y2, y3, y4;
+			foreach(var change in changed) {
+				if (horizontal.Count == 0) {
+					horizontal.Add(change);
+				} else {
+					for (int i = 0; i < horizontal.Count; i++) {
+						var cur = horizontal[i];
+						if (change.boundingBox.x + change.boundingBox.left < cur.boundingBox.x + cur.boundingBox.left) {
+							horizontal.Insert(i, change);
+							break;
+						} else if(i == horizontal.Count - 1) {
+							horizontal.Add(change);
+							break;
+						}
+					}
+				}
+
+				if (vertical.Count == 0) {
+					vertical.Add(change);
+				} else {
+					for (int i = 0; i < vertical.Count; i++) {
+						var cur = vertical[i];
+						if (change.boundingBox.y + change.boundingBox.top < cur.boundingBox.y + cur.boundingBox.top) {
+							vertical.Insert(i, change);
+							break;
+						} else if(i == vertical.Count - 1) {
+							vertical.Add(change);
+							break;
+						}
+					}
+				}
+			}
+
 			List<Node> hcols = new List<Node>();
 			List<Node> vcols = new List<Node>();
-			for (int i = 0; i < horizontal.Count; i++) {
-				var curHCollider = horizontal[i].boundingBox;
-				var curVCollider = vertical[i].boundingBox;
-				for (int j = hcols.Count - 1; j >= 0; j--) {
-					var chkHCollider = hcols[j].boundingBox;
-					x1 = curHCollider.x + curHCollider.left;
-					x2 = curHCollider.x + curHCollider.right;
-					x3 = chkHCollider.x + chkHCollider.left;
-					x4 = chkHCollider.x + chkHCollider.right;
+			
+			foreach(var ch in changed) {
+				var hh = getHCols(ch);
+				var vv = getVCols(ch);
 
-					if (x4 > x1 && x3 < x2) {
-						horizontal[i].onHorizontalFound(hcols[j]);
-					} else {
-						hcols.RemoveAt(j);
-					}
-				}
+				foreach (var h in hh)
+					ch.onHorizontalFound(h);
 
-				for(int j = vcols.Count - 1; j >= 0; j--) {
-					var chkVCollider = vcols[j].boundingBox;
-					y1 = curVCollider.y + curVCollider.top;
-					y2 = curVCollider.y + curVCollider.bottom;
-					y3 = chkVCollider.y + chkVCollider.top;
-					y4 = chkVCollider.y + chkVCollider.bottom;
-
-					if (y4 > y1 && y3 < y2) {
-						vertical[i].onVerticalFound(vcols[j]);
-					} else {
-						vcols.RemoveAt(j);
-					}
-				}
-
-				vcols.Add(vertical[i]);
-				hcols.Add(horizontal[i]);
+				foreach (var v in vv)
+					ch.onVerticalFound(v);
 			}
 
 			foreach (var n in horizontal)
 				n.invokeCallbacks();
+		}
+
+		private List<Node> getVCols(Node node) {
+			var collider = node.collider;
+			var newBB = node.boundingBox;
+
+			int vind;
+			for (vind = 0; vind < vertical.Count; vind++)
+				if (vertical[vind].collider == collider)
+					break;
+
+			List<Node> vcols = new List<Node>();
+			for (int i = vind; i < vertical.Count; i++) {
+				if (vertical[i].collider == collider)
+					continue;
+
+				var otherBB = vertical[i].collider.getBoundingBox();
+
+				float y1, y2, y3, y4;
+				y1 = newBB.y + newBB.top;
+				y2 = newBB.y + newBB.bottom;
+				y3 = otherBB.y + otherBB.top;
+				y4 = otherBB.y + otherBB.bottom;
+
+				if (y4 > y1 && y3 < y2) {
+					vcols.Add(vertical[i]);
+				} else {
+					break;
+				}
+			}
+
+			for (int i = vind; i >= 0; i--) {
+				if (vertical[i].collider == collider)
+					continue;
+
+				var otherBB = vertical[i].collider.getBoundingBox();
+
+				float y1, y2, y3, y4;
+				y1 = newBB.y + newBB.top;
+				y2 = newBB.y + newBB.bottom;
+				y3 = otherBB.y + otherBB.top;
+				y4 = otherBB.y + otherBB.bottom;
+
+				if (y4 > y1 && y3 < y2) {
+					vcols.Add(vertical[i]);
+				} else {
+					break;
+				}
+			}
+
+			return vcols;
+		}
+
+		private List<Node> getHCols(Node node) {
+			var collider = node.collider;
+			var newBB = node.boundingBox;
+
+			int hind;
+			for (hind = 0; hind < horizontal.Count; hind++)
+				if (horizontal[hind].collider == collider)
+					break;
+
+			List<Node> hcols = new List<Node>();
+			for (int i = hind; i < horizontal.Count; i++) {
+				if (horizontal[i].collider == collider)
+					continue;
+
+				var otherBB = horizontal[i].collider.getBoundingBox();
+
+				float x1, x2, x3, x4;
+				x1 = newBB.x + newBB.left;
+				x2 = newBB.x + newBB.right;
+				x3 = otherBB.x + otherBB.left;
+				x4 = otherBB.x + otherBB.right;
+
+				if (x4 > x1 && x3 < x2) {
+					hcols.Add(horizontal[i]);
+				} else {
+					break;
+				}
+			}
+
+			for (int i = hind; i >= 0; i--) {
+				if (horizontal[i].collider == collider)
+					continue;
+
+				var otherBB = horizontal[i].collider.getBoundingBox();
+
+				float x1, x2, x3, x4;
+				x1 = newBB.x + newBB.left;
+				x2 = newBB.x + newBB.right;
+				x3 = otherBB.x + otherBB.left;
+				x4 = otherBB.x + otherBB.right;
+
+				if (x4 > x1 && x3 < x2) {
+					hcols.Add(horizontal[i]);
+				} else {
+					break;
+				}
+			}
+
+			return hcols;
 		}
 
 		public bool testCollision(ICollider one, ICollider two) {
