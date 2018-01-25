@@ -19,6 +19,7 @@ namespace SFMLEngine.Entities.Collision {
 				horizontals = new HashSet<Node>();
 			}
 
+			public IEntity entity;
 			public ICollider collider;
 			public BoundingBox boundingBox;
 			public HashSet<Node> activeCollisions;
@@ -28,6 +29,9 @@ namespace SFMLEngine.Entities.Collision {
 			public bool hasChanged;
 
 			public bool refresh() {
+				if (entity == null)
+					entity = collider.getEntity();
+
 				var _boundingBox = collider.getBoundingBox();
 				horizontals.Clear();
 
@@ -302,7 +306,7 @@ namespace SFMLEngine.Entities.Collision {
 				if (horizontal[i].collider == collider)
 					continue;
 
-				if (horizontal[i].collider.getEntity().GetType() != typeof(T))
+				if (horizontal[i].entity.GetType() != typeof(T))
 					continue;
 
 				var otherBB = horizontal[i].collider.getBoundingBox();
@@ -324,7 +328,7 @@ namespace SFMLEngine.Entities.Collision {
 				if (horizontal[i].collider == collider)
 					continue;
 
-				if (horizontal[i].collider.getEntity().GetType() != typeof(T))
+				if (horizontal[i].entity.GetType() != typeof(T))
 					continue;
 
 				var otherBB = horizontal[i].collider.getBoundingBox();
@@ -346,7 +350,7 @@ namespace SFMLEngine.Entities.Collision {
 				if (vertical[i].collider == collider)
 					continue;
 
-				if (vertical[i].collider.getEntity().GetType() != typeof(T))
+				if (vertical[i].entity.GetType() != typeof(T))
 					continue;
 
 				var otherBB = vertical[i].collider.getBoundingBox();
@@ -359,7 +363,7 @@ namespace SFMLEngine.Entities.Collision {
 
 				if (y4 > y1 && y3 < y2) {
 					if (hcols.Contains(vertical[i].collider))
-						if(vertical[i].collider.getEntity().GetType() == typeof(T))
+						if(vertical[i].entity.GetType() == typeof(T))
 							return true;
 				} else {
 					break;
@@ -370,7 +374,7 @@ namespace SFMLEngine.Entities.Collision {
 				if (vertical[i].collider == collider)
 					continue;
 
-				if (vertical[i].collider.getEntity().GetType() != typeof(T))
+				if (vertical[i].entity.GetType() != typeof(T))
 					continue;
 
 				var otherBB = vertical[i].collider.getBoundingBox();
@@ -383,7 +387,7 @@ namespace SFMLEngine.Entities.Collision {
 
 				if (y4 > y1 && y3 < y2) {
 					if (hcols.Contains(vertical[i].collider))
-						if(vertical[i].collider.getEntity().GetType() == typeof(T))
+						if(vertical[i].entity.GetType() == typeof(T))
 							return true;
 				} else {
 					break;

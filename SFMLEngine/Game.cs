@@ -54,7 +54,7 @@ namespace SFMLEngine {
 
 			graphicsThread = new Thread(() => {
 				RenderWindow window = new RenderWindow(new SFML.Window.VideoMode(800, 600), name);
-				window.SetVerticalSyncEnabled(true);
+				//window.SetVerticalSyncEnabled(true);
 				window.Closed += (sender, args) => {
 					var win = sender as RenderWindow;
 					exitFlag = true;
