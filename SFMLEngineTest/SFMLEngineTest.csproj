@@ -69,6 +69,9 @@
       <Name>SFMLEngine</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\Sprites\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Graphnode.SFML.Net.2.4\build\Graphnode.SFML.Net.targets" Condition="Exists('..\packages\Graphnode.SFML.Net.2.4\build\Graphnode.SFML.Net.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,25 +26,36 @@ namespace SFMLEngine.Entities.Components {
 		public CollisionEvent onCollisionStep;
 		private HashSet<ICollider> dbgCols;
 		private RectangleShape dbgRect;
+		private Vector2f dbgPosition;
+		private Vector2f dbgSize;
 
 		private BoundingBox _bounds;
 		private BoundingBox bounds {
 			get {
-				_bounds.x = position.x;
-				_bounds.y = position.y;
+				_bounds.x = transform.x;
+				_bounds.y = transform.y;
 				return _bounds;
 			}
 		}
 
 		private bool hasChangedData;
-		private Position position;
+		private Transform transform;
 
 		public override void onInitialize() {
 			base.onInitialize();
 			hasChangedData = true;
-
 			dbgCols = new HashSet<ICollider>();
-			position = entity.components.Add<Position>();
+			transform = entity.components.Add<Transform>();
+
+			dbgPosition = new Vector2f(transform.x + _bounds.left, transform.y + _bounds.top);
+			dbgSize = new Vector2f(_bounds.right - _bounds.left, _bounds.bottom - _bounds.top);
+		}
+
+		public override void onUpdate(GameContext context) {
+			base.onUpdate(context);
+			dbgPosition.X = transform.x + _bounds.left;
+			dbgPosition.Y = transform.y + _bounds.top;
+			dbgRect.Position = dbgPosition;
 		}
 
 		public virtual BoundingBox getBoundingBox() {
@@ -53,6 +65,11 @@ namespace SFMLEngine.Entities.Components {
 		public virtual void setBoundingBox(BoundingBox newBounds) {
 			hasChangedData = true;
 			_bounds = newBounds;
+
+			dbgSize.X = _bounds.right - _bounds.left;
+			dbgSize.Y = _bounds.bottom - _bounds.top;
+			if(dbgRect != null)
+				dbgRect.Size = dbgSize;
 		}
 
 		public virtual void onEnterCollision(ICollider other) {
@@ -88,6 +105,11 @@ namespace SFMLEngine.Entities.Components {
 				dbgRect = null;
 
 			dbgRect = new RectangleShape();
+			dbgRect.FillColor = new Color(0, 0, 0, 0);
+			dbgRect.OutlineColor = new Color(0, 255, 0, 255);
+			dbgRect.OutlineThickness = 1f;
+			dbgRect.Position = dbgPosition;
+			dbgRect.Size = dbgSize;
 		}
 
 		public override void onDraw(GameContext context) {
@@ -95,13 +117,13 @@ namespace SFMLEngine.Entities.Components {
 				return;
 
 			base.onDraw(context);
-			dbgRect.Position = new SFML.System.Vector2f(_bounds.x + _bounds.left, _bounds.y + bounds.top);
-			dbgRect.Size = new SFML.System.Vector2f(_bounds.right - _bounds.left, _bounds.bottom - _bounds.top);
-			dbgRect.FillColor = new Color(0, 0, 0, 0);
-			dbgRect.OutlineColor = new Color(0, 255, 0, 255);
-			if (dbgCols.Count > 0)
-				dbgRect.OutlineColor = new Color(255, 0, 0, 255);
-			dbgRect.OutlineThickness = 1f;
+			if (dbgRect.OutlineColor.G == 0)
+				if (dbgCols.Count == 0)
+					dbgRect.OutlineColor = new Color(0, 255, 0, 255);
+
+			if (dbgRect.OutlineColor.G == 255)
+				if (dbgCols.Count > 0)
+					dbgRect.OutlineColor = new Color(255, 0, 0, 255);
 
 			context.window.Draw(dbgRect);
 		}

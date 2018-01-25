@@ -15,13 +15,13 @@ namespace SFMLEngineTest {
 				base.logicInitialized(context);
 				for(int i = 0; i < 300; i++) {
 					var test = context.entities.instantiate<TestEntity>("Test"+i);
-					test.components.Get<Position>().x = 50 + (50 * i);
-					test.components.Get<Position>().y = 50 + (50 * i);
+					test.components.Get<Transform>().x = 50 + (50 * i);
+					test.components.Get<Transform>().y = 50 + (50 * i);
 					test.components.Get<RigidBody>().setDebugDraw(true);
 				}
 				for (int i = 0; i < 100; i++) {
 					var player = context.entities.instantiate<TestPlayer>();
-					player.components.Get<Position>().x = i * 6;
+					player.components.Get<Transform>().x = i * 6;
 				}
 			}
 
@@ -35,14 +35,14 @@ namespace SFMLEngineTest {
 		}
 
 		public class TestPlayer : Entity {
-			Position pos;
+			Transform pos;
 			float vx, vy;
 
 			public TestPlayer() {
 				var rb = components.Add<RigidBody>();
 				rb.setBoundingBox(new BoundingBox(-5f, -5f, 5f, 5f));
 				rb.setDebugDraw(true);
-				pos = components.Add<Position>();
+				pos = components.Add<Transform>();
 			}
 
 			public override void onUpdate(GameContext context) {
@@ -100,7 +100,7 @@ namespace SFMLEngineTest {
 				}
 
 				if(name == "Test")
-				components.Get<Position>().x = 1000f;
+				components.Get<Transform>().x = 1000f;
 			}
 		}
 

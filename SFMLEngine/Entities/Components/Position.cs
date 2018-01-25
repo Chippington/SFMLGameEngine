@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Entities.Components {
-	public class Position : Component {
+	public class Transform : Component {
 		public float x;
 		public float y;
+
+		public float angle;
 	}
 }

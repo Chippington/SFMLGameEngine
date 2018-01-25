@@ -65,6 +65,7 @@
     <Compile Include="Entities\Components\IComponent.cs" />
     <Compile Include="Entities\Components\Position.cs" />
     <Compile Include="Entities\Components\RigidBody.cs" />
+    <Compile Include="Entities\Components\SpriteRenderer.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\EntitySet.cs" />
     <Compile Include="Entities\IEntity.cs" />
