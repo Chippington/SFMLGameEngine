@@ -147,6 +147,20 @@ namespace SFMLEngine.Entities.Components {
 			this.x = this.y = 0f;
 		}
 
+		public BoundingBox(float left, float top, float right, float bottom, float x, float y) 
+			: this(left, top, right, bottom){
+
+			this.x = x;
+			this.y = y;
+		}
+
+		public bool intersects(BoundingBox other) {
+			return ((other.x + other.right > x + left) 
+				&& (other.x + other.left < x + right) 
+				&& (other.y + other.bottom > y + top) 
+				&& (y + top < y + bottom));
+		}
+
 		public float top, left, bottom, right;
 		public float x, y;
 	}

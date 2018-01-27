@@ -18,7 +18,7 @@ namespace SFMLEngine.Entities {
 		public EntityEvent OnUpdateEvent;
 		public EntityEvent OnDrawEvent;
 
-		protected EntitySet owner;
+		protected Scene owner;
 		private bool destroyed;
 
 		private ComponentSet _components;
@@ -49,7 +49,7 @@ namespace SFMLEngine.Entities {
 			});
 		}
 
-		public virtual void setOwner(EntitySet owner) {
+		public virtual void setOwner(Scene owner) {
 			this.owner = owner;
 		}
 

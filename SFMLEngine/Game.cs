@@ -27,7 +27,7 @@ namespace SFMLEngine {
 
 		public void start() {
 			InputController input = new InputController();
-			EntitySet set = new EntitySet();
+			Scene set = new Scene();
 			CollisionMap map = new CollisionMap(set);
 			
 			logicThread = new Thread(() => {
@@ -121,7 +121,7 @@ namespace SFMLEngine {
 		public RenderWindow window;
 		public CollisionMap collision;
 		public InputController input;
-		public EntitySet entities;
+		public Scene entities;
 		public float deltaTime;
 	}
 }

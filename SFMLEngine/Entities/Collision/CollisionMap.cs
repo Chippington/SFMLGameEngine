@@ -98,7 +98,7 @@ namespace SFMLEngine.Entities.Collision {
 		private List<Node> horizontal;
 		private List<Node> vertical;
 
-		public CollisionMap(EntitySet entities) {
+		public CollisionMap(Scene entities) {
 			nodeMap = new Dictionary<ICollider, Node>();
 			horizontal = new List<Node>();
 			vertical = new List<Node>();
@@ -829,7 +829,7 @@ namespace SFMLEngine.Entities.Collision {
 		private Dictionary<ICollider, List<ICollider>> newCollisions;
 		private Dictionary<ICollider, List<ICollider>> oldCollisions;
 
-		public CollisionMapOLD(EntitySet entities) {
+		public CollisionMapOLD(Scene entities) {
 			horizontal = new CollisionList(
 				n => { var bb = n.getBoundingBox(); return bb.x + bb.left; },
 				n => { var bb = n.getBoundingBox(); return bb.x + bb.right; });

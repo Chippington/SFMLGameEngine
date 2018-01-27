@@ -11,7 +11,7 @@ namespace SFMLEngine.Entities {
 		public IEntity entity;
 		public IComponent component;
 	}
-	public class EntitySet {
+	public class Scene {
 		private int _id = 0;
 		private int id {
 			get { return ++_id; }
@@ -24,7 +24,7 @@ namespace SFMLEngine.Entities {
 		public Dictionary<int, IEntity> entityMap;
 		public List<IEntity> entityList;
 
-		public EntitySet() {
+		public Scene() {
 			entityMap = new Dictionary<int, IEntity>();
 			entityList = new List<IEntity>();
 		}

@@ -13,6 +13,6 @@ namespace SFMLEngine.Entities {
 		void onDraw(GameContext context);
 		void onDestroy();
 		ComponentSet getComponents();
-		void setOwner(EntitySet owner);
+		void setOwner(Scene owner);
 	}
 }
