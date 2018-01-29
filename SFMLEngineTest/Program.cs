@@ -19,7 +19,7 @@ namespace SFMLEngineTest {
 					test.components.Get<Transform>().y = 50 + (50 * i);
 					test.components.Get<RigidBody>().setDebugDraw(true);
 				}
-				for (int i = 0; i < 100; i++) {
+				for (int i = 0; i < 1; i++) {
 					var player = context.entities.instantiate<TestPlayer>();
 					player.components.Get<Transform>().x = i * 6;
 				}
@@ -40,9 +40,15 @@ namespace SFMLEngineTest {
 
 			public TestPlayer() {
 				var rb = components.Add<RigidBody>();
-				rb.setBoundingBox(new BoundingBox(-5f, -5f, 5f, 5f));
+				rb.setBoundingBox(new BoundingBox(-16f, -16f, 16f, 16f));
 				rb.setDebugDraw(true);
 				pos = components.Add<Transform>();
+
+				var tex = new SFML.Graphics.Texture("Resources/Sprites/sprite.png");
+				var spr = new SFML.Graphics.Sprite(tex);
+				var sr = components.Add<SpriteRenderer>();
+				sr.setOrigin(new SFML.System.Vector2f(16f, 16f));
+				sr.setSprite(spr);
 			}
 
 			public override void onUpdate(GameContext context) {

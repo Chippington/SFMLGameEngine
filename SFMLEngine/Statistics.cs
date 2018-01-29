@@ -81,6 +81,9 @@ namespace SFMLEngine {
 			}
 
 			window.Draw(text);
+			if (logicLines == null || graphicLines == null)
+				return;
+
 			if (logicLines.Length > 0)
 				window.Draw(logicLines, PrimitiveType.LineStrip);
 			if (graphicLines.Length > 0)
