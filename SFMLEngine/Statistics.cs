@@ -48,7 +48,7 @@ namespace SFMLEngine {
 
 		private static Vertex[] logicLines;
 		private static Vertex[] graphicLines;
-		public static void debugDraw(RenderWindow window) {
+		public static void debugDraw(RenderTarget window) {
 			text.DisplayedString = $"CPU: {(int)getLogicFramesPerSecond()}{Environment.NewLine}GPU: {(int)getGraphicsFramesPerSecond()}";
 			if(Environment.TickCount - dbgGraphLastSample > dbgGraphSampleDelay) {
 				dbgLogicGraphQueue.Add(new KeyValuePair<long, float>(Environment.TickCount, getLogicFramesPerSecond()));

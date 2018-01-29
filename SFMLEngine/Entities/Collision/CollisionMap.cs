@@ -422,7 +422,7 @@ namespace SFMLEngine.Entities.Collision {
 			return (x4 > x1 && x3 < x2) && (y4 > y1 && y3 < y2);
 		}
 
-		private void onEntityCreated(EntitySetEventArgs args) {
+		private void onEntityCreated(SceneEventArgs args) {
 			var comps = args.entity.getComponents();
 			foreach (var comp in comps.Values) {
 				var collider = comp as ICollider;
@@ -442,7 +442,7 @@ namespace SFMLEngine.Entities.Collision {
 		private void onEntityComponentAdded(ComponentEventArgs args) {
 		}
 
-		private void onEntityDestroyed(EntitySetEventArgs args) {
+		private void onEntityDestroyed(SceneEventArgs args) {
 		}
 	}
 
@@ -907,7 +907,7 @@ namespace SFMLEngine.Entities.Collision {
 			newCollisions[two].Add(one);
 		}
 
-		private void onEntityCreated(EntitySetEventArgs args) {
+		private void onEntityCreated(SceneEventArgs args) {
 			var comps = args.entity.getComponents();
 			foreach (var comp in comps.Values) {
 				var collider = comp as ICollider;
@@ -929,7 +929,7 @@ namespace SFMLEngine.Entities.Collision {
 
 		}
 
-		private void onEntityDestroyed(EntitySetEventArgs args) {
+		private void onEntityDestroyed(SceneEventArgs args) {
 
 		}
 

@@ -1,15 +1,16 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using SFMLEngine.Entities.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Entities.Components {
+namespace SFMLEngine.Entities.Graphics.Components {
 	public class SpriteRenderer : Component {
 		private Sprite sprite;
-		private Transform transform;
+		private Position transform;
 		private Vector2f origin;
 		private Vector2f scale;
 
@@ -17,7 +18,7 @@ namespace SFMLEngine.Entities.Components {
 			base.onInitialize();
 			scale = new Vector2f(1f, 1f);
 			origin = new Vector2f(0f, 0f);
-			transform = entity.components.Add<Transform>();
+			transform = entity.components.Add<Position>();
 		}
 
 		public void setSprite(Sprite sprite) {

@@ -59,13 +59,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Components\Camera\CameraComponent.cs" />
     <Compile Include="Entities\Collision\CollisionMap.cs" />
     <Compile Include="Entities\Components\Component.cs" />
     <Compile Include="Entities\Components\ComponentSet.cs" />
+    <Compile Include="Entities\Components\Graphics\AnimationController.cs" />
     <Compile Include="Entities\Components\IComponent.cs" />
-    <Compile Include="Entities\Components\Position.cs" />
     <Compile Include="Entities\Components\RigidBody.cs" />
-    <Compile Include="Entities\Components\SpriteRenderer.cs" />
+    <Compile Include="Entities\Components\Graphics\SpriteRenderer.cs" />
+    <Compile Include="Entities\Components\Position.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Scene.cs" />
     <Compile Include="Entities\IEntity.cs" />

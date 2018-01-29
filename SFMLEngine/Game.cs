@@ -31,19 +31,19 @@ namespace SFMLEngine {
 			CollisionMap map = new CollisionMap(set);
 			
 			logicThread = new Thread(() => {
-				Stopwatch sw = new Stopwatch();
 				GameContext context = new GameContext();
+				SFML.System.Clock clock = new SFML.System.Clock();
+
 				context.input = input;
 				context.entities = set;
 				context.collision = map;
 				logicInitialized(context);
 
-				sw.Start();
-				long last = 0;
+				clock.Restart();
 				while (!exitFlag) {
 					Thread.Sleep(1);
-					context.deltaTime = ((float)(sw.ElapsedTicks - last)) / 10000f;
-					last = sw.ElapsedTicks;
+					var t = clock.Restart();
+					context.deltaTime = ((float)t.AsMicroseconds()) / 100000f;
 
 					set.updateEntities(context);
 					map.updateMap();
@@ -54,13 +54,15 @@ namespace SFMLEngine {
 
 			graphicsThread = new Thread(() => {
 				RenderWindow window = new RenderWindow(new SFML.Window.VideoMode(800, 600), name);
-				//window.SetVerticalSyncEnabled(true);
+				window.SetVerticalSyncEnabled(true);
 				window.Closed += (sender, args) => {
 					var win = sender as RenderWindow;
 					exitFlag = true;
 					if (win != null)
 						win.Close();
 				};
+
+				SFML.System.Clock clock = new SFML.System.Clock();
 				GameContext context = new GameContext();
 				context.input = input;
 				context.window = window;
@@ -70,9 +72,12 @@ namespace SFMLEngine {
 				input.setHooks(window);
 				graphicsInitialized(context);
 				while (!exitFlag) {
+					Thread.Sleep(1);
+					var t = clock.Restart();
+					context.deltaTime = ((float)t.AsMicroseconds()) / 100000f;
+
 					window.DispatchEvents();
 					input.updateInput();
-					Thread.Sleep(1);
 
 					window.Clear();
 					set.drawEntities(context);
@@ -118,7 +123,7 @@ namespace SFMLEngine {
 	}
 
 	public class GameContext {
-		public RenderWindow window;
+		public RenderTarget window;
 		public CollisionMap collision;
 		public InputController input;
 		public Scene entities;

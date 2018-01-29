@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Entities.Components {
-	public class Position : Component{
-		public float x, y, angle;
+namespace SFMLEngine.Entities.Components.Graphics {
+	public class AnimationController : Component {
 	}
 }

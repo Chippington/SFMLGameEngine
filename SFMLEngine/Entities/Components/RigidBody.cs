@@ -39,13 +39,13 @@ namespace SFMLEngine.Entities.Components {
 		}
 
 		private bool hasChangedData;
-		private Transform transform;
+		private Position transform;
 
 		public override void onInitialize() {
 			base.onInitialize();
 			hasChangedData = true;
 			dbgCols = new HashSet<ICollider>();
-			transform = entity.components.Add<Transform>();
+			transform = entity.components.Add<Position>();
 
 			dbgPosition = new Vector2f(transform.x + _bounds.left, transform.y + _bounds.top);
 			dbgSize = new Vector2f(_bounds.right - _bounds.left, _bounds.bottom - _bounds.top);
