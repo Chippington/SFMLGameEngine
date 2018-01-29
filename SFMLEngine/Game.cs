@@ -54,6 +54,8 @@ namespace SFMLEngine {
 
 			graphicsThread = new Thread(() => {
 				RenderWindow window = new RenderWindow(new SFML.Window.VideoMode(800, 600), name);
+				RenderTexture uilayer = new RenderTexture(800, 600);
+
 				window.SetVerticalSyncEnabled(true);
 				window.Closed += (sender, args) => {
 					var win = sender as RenderWindow;
@@ -68,6 +70,7 @@ namespace SFMLEngine {
 				context.window = window;
 				context.entities = set;
 				context.collision = map;
+				context.ui = uilayer;
 
 				input.setHooks(window);
 				graphicsInitialized(context);
@@ -124,6 +127,7 @@ namespace SFMLEngine {
 
 	public class GameContext {
 		public RenderTarget window;
+		public RenderTarget ui;
 		public CollisionMap collision;
 		public InputController input;
 		public Scene entities;

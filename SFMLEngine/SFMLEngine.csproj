@@ -72,6 +72,13 @@
     <Compile Include="Entities\Scene.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Graphics\UI\Controls\Button.cs" />
+    <Compile Include="Graphics\UI\Controls\Checkbox.cs" />
+    <Compile Include="Graphics\UI\Controls\Label.cs" />
+    <Compile Include="Graphics\UI\Controls\Radiobutton.cs" />
+    <Compile Include="Graphics\UI\Controls\Textbox.cs" />
+    <Compile Include="Graphics\UI\UIControl.cs" />
+    <Compile Include="Graphics\UI\UIWindow.cs" />
     <Compile Include="Input\InputController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Statistics.cs" />
