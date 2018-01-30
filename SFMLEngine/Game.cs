@@ -61,7 +61,7 @@ namespace SFMLEngine {
 				RenderTexture uilayer = new RenderTexture(800, 600);
 				uiwindow.onGraphicsInitialize();
 
-				window.SetVerticalSyncEnabled(true);
+				//window.SetVerticalSyncEnabled(true);
 				window.Closed += (sender, args) => {
 					var win = sender as RenderWindow;
 					exitFlag = true;

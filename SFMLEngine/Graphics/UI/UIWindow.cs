@@ -24,6 +24,7 @@ namespace SFMLEngine.Graphics.UI {
 		private RenderTexture renderTexture;
 		private RenderTexture tempRenderTexture;
 		private uint width, height;
+		private Queue<Drawable> drawQueue;
 
 		public UIWindow()
 			: this("", 0, 0, Style.DEFAULT) { }
@@ -34,6 +35,9 @@ namespace SFMLEngine.Graphics.UI {
 		public UIWindow(string title, uint width, uint height, Style style) {
 			this.width = width;
 			this.height = height;
+
+			drawQueue = new Queue<Drawable>();
+			clearColor = new Color(0, 0, 0, 0);
 		}
 
 		public override void onGraphicsInitialize() {
@@ -41,11 +45,22 @@ namespace SFMLEngine.Graphics.UI {
 			renderTexture = new RenderTexture(width, height);
 			sprite = new Sprite(renderTexture.Texture);
 			sprite.Position = this.Position;
-			clearColor = new Color(0, 0, 0, 0);
 		}
 
 		public void setSize(uint width, uint height) {
 			tempRenderTexture = new RenderTexture(width, height);
+		}
+
+		public Vector2u getSize() {
+			return new Vector2u(width, height);
+		}
+
+		public uint getWidth() {
+			return width;
+		}
+
+		public uint getHeight() {
+			return height;
 		}
 
 		public void setClearColor(Color color) {
@@ -56,34 +71,23 @@ namespace SFMLEngine.Graphics.UI {
 			return clearColor;
 		}
 
-		public override void onUpdate(GameContext context) {
-			if (controls == null)
-				return;
-
-			for (int i = 0; i < controls.Count; i++) {
-				controls[i].onUpdate(context);
-			}
-		}
-
 		public override void onDraw(GameContext context, RenderTarget target) {
-			if (controls == null)
-				return;
-
-			while (graphicsInitQueue.Count > 0)
-				graphicsInitQueue.Dequeue().onGraphicsInitialize();
-
 			if (tempRenderTexture != null) {
 				renderTexture = tempRenderTexture;
 				tempRenderTexture = null;
 			}
 
-			renderTexture.Clear(new Color(0,0,0,0));
-			for(int i = 0; i < controls.Count; i++) {
-				controls[i].onDraw(context, renderTexture);
-			}
-
+			renderTexture.Clear(clearColor);
+			base.onDraw(context, renderTexture);
 			renderTexture.Display();
+			while (drawQueue.Count > 0)
+				renderTexture.Draw(drawQueue.Dequeue());
+
 			target.Draw(sprite);
+		}
+
+		public virtual void draw(Drawable item) {
+			drawQueue.Enqueue(item);
 		}
 	}
 }

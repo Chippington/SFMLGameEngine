@@ -51,6 +51,14 @@ namespace SFMLEngine.Graphics.UI.Controls {
 			return this.text.Font;
 		}
 
+		public void setFontSize(uint size) {
+			text.CharacterSize = size;
+		}
+
+		public uint getFontSize() {
+			return text.CharacterSize;
+		}
+
 		public override void onDraw(GameContext context, RenderTarget uiWindow) {
 			base.onDraw(context, uiWindow);
 			if (text == null)

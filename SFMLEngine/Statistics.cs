@@ -11,16 +11,37 @@ using System.Threading.Tasks;
 namespace SFMLEngine {
 	public class StatisticsDebugWindow : UIWindow {
 		private Label cpuLabel, gpuLabel;
+		private RectangleShape borderRectangle;
 		public StatisticsGraphControl graph;
 
-		public StatisticsDebugWindow() : base("Debug Statistics", 500, 300) {
+		public StatisticsDebugWindow() : base("Debug Statistics", 300, 100) {
 			cpuLabel = new Label();
 			gpuLabel = new Label();
-			graph = new StatisticsGraphControl(500, new Vector2f(490f, 290f));
+			graph = new StatisticsGraphControl(200, 
+				new Vector2f(
+					-10f + (float)getWidth(), 
+					-10f + (float)getHeight()));
 
-			cpuLabel.Position = new Vector2f(5f, 5f);
-			gpuLabel.Position = new Vector2f(5f, 30f);
+			cpuLabel.Position = new Vector2f(5f, 2f);
+			gpuLabel.Position = new Vector2f(5f, 20f);
+			cpuLabel.setFontSize(16);
+			gpuLabel.setFontSize(16);
+			cpuLabel.setDepth(1);
+			gpuLabel.setDepth(1);
+
 			graph.Position = new Vector2f(5f, 5f);
+			graph.setDepth(0);
+
+			float thickness = 2f;
+			setClearColor(new Color(255, 255, 255, 122));
+			borderRectangle = new RectangleShape();
+			borderRectangle.OutlineColor = new Color(255, 255, 255);
+			borderRectangle.OutlineThickness = thickness;
+			borderRectangle.Position = new Vector2f(thickness, thickness);
+			borderRectangle.FillColor = new Color(0, 0, 0, 0);
+			borderRectangle.Size = new Vector2f(
+				getWidth() - (thickness * 2f), 
+				getHeight() - (thickness * 2f));
 		}
 
 		public override void onInitialize() {
@@ -36,6 +57,11 @@ namespace SFMLEngine {
 
 		public void setGPURate(string rate) {
 			gpuLabel.setText(rate);
+		}
+
+		public override void onDraw(GameContext context, RenderTarget target) {
+			this.draw(borderRectangle);
+			base.onDraw(context, target);
 		}
 	}
 
@@ -119,7 +145,6 @@ namespace SFMLEngine {
 
 		private static long startTickTime;
 		private static long lastTickTime;
-		private static Text text;
 		private static StatisticsDebugWindow dbgWindow;
 
 		static Statistics() {
@@ -134,9 +159,6 @@ namespace SFMLEngine {
 
 			startTickTime = Environment.TickCount;
 			lastTickTime = Environment.TickCount;
-			text = new Text("", new Font("Resources/Fonts/MavenPro-Regular.ttf"));
-			text.FillColor = new Color(255,255,255);
-			text.Position = new SFML.System.Vector2f(5f, 5f);
 
 			dbgPosition = new Vector2f(5f, 5f);
 			dbgSize = new Vector2f(500f, 300f);
@@ -146,57 +168,22 @@ namespace SFMLEngine {
 			}
 
 			dbgWindow = new StatisticsDebugWindow();
+			dbgWindow.Position = new Vector2f(10f, 10f);
 		}
 
 		public static void initializeDebugDraw(GameContext context) {
 			context.ui.addControl(dbgWindow);
 		}
 
-		private static Vertex[] logicLines;
-		private static Vertex[] graphicLines;
 		public static void debugDraw(RenderTarget window) {
-			text.DisplayedString = $"CPU: {(int)getLogicFramesPerSecond()}{Environment.NewLine}GPU: {(int)getGraphicsFramesPerSecond()}";
 			if(Environment.TickCount - dbgGraphLastSample > dbgGraphSampleDelay) {
-				//dbgLogicGraphQueue.Add(new KeyValuePair<long, float>(Environment.TickCount, getLogicFramesPerSecond()));
-				//dbgGraphicGraphQueue.Add(new KeyValuePair<long, float>(Environment.TickCount, getGraphicsFramesPerSecond()));
 				dbgWindow.graph.addCPUPoint(Environment.TickCount, getLogicFramesPerSecond());
 				dbgWindow.graph.addGPUPoint(Environment.TickCount, getGraphicsFramesPerSecond());
 				dbgWindow.setCPURate($"CPU: {(int)getLogicFramesPerSecond()}");
 				dbgWindow.setGPURate($"GPU: {(int)getGraphicsFramesPerSecond()}");
 
 				dbgGraphLastSample = Environment.TickCount;
-
-				//logicLines = new Vertex[dbgLogicGraphQueue.Count];
-				//graphicLines = new Vertex[dbgGraphicGraphQueue.Count];
-
-				//for (int i = 0; i < logicLines.Length; i++) {
-				//	float x = (dbgSize.X / dbgGraphHistoryLength) * ((float)i);
-				//	float y = Math.Min(dbgLogicGraphQueue[i].Value, 1000f) / 1000f;
-				//	y *= dbgSize.Y;
-
-				//	logicLines[i].Position = dbgPosition + new Vector2f(x, dbgSize.Y - y);
-				//	logicLines[i].Color = new Color(0, 255, 0, 255);
-				//}
-
-				//for (int i = 0; i < graphicLines.Length; i++) {
-				//	float x = (dbgSize.X / dbgGraphHistoryLength) * ((float)i);
-				//	float y = Math.Min(dbgGraphicGraphQueue[i].Value, 1000f) / 1000f;
-				//	y *= dbgSize.Y;
-
-				//	graphicLines[i].Position = dbgPosition + new Vector2f(x, dbgSize.Y - y);
-				//	graphicLines[i].Color = new Color(255, 0, 0, 255);
-				//}
 			}
-
-			return;
-			window.Draw(text);
-			if (logicLines == null || graphicLines == null)
-				return;
-
-			if (logicLines.Length > 0)
-				window.Draw(logicLines, PrimitiveType.LineStrip);
-			if (graphicLines.Length > 0)
-				window.Draw(graphicLines, PrimitiveType.LineStrip);
 		}
 
 		public static void onLogicUpdate() {
