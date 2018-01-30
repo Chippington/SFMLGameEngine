@@ -59,6 +59,14 @@ namespace SFMLEngine.Graphics.UI.Controls {
 			return text.CharacterSize;
 		}
 
+		public void setColor(Color color) {
+			text.FillColor = color;
+		}
+
+		public Color getColor() {
+			return text.FillColor;
+		}
+
 		public override void onDraw(GameContext context, RenderTarget uiWindow) {
 			base.onDraw(context, uiWindow);
 			if (text == null)
