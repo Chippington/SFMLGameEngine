@@ -1,5 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using SFMLEngine.Graphics.UI;
+using SFMLEngine.Graphics.UI.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +9,103 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine {
+	public class StatisticsDebugWindow : UIWindow {
+		private Label cpuLabel, gpuLabel;
+		public StatisticsGraphControl graph;
+
+		public StatisticsDebugWindow() : base("Debug Statistics", 500, 300) {
+			cpuLabel = new Label();
+			gpuLabel = new Label();
+			graph = new StatisticsGraphControl(500, new Vector2f(490f, 290f));
+
+			cpuLabel.Position = new Vector2f(5f, 5f);
+			gpuLabel.Position = new Vector2f(5f, 30f);
+			graph.Position = new Vector2f(5f, 5f);
+		}
+
+		public override void onInitialize() {
+			base.onInitialize();
+			addControl(cpuLabel);
+			addControl(gpuLabel);
+			addControl(graph);
+		}
+
+		public void setCPURate(string rate) {
+			cpuLabel.setText(rate);
+		}
+
+		public void setGPURate(string rate) {
+			gpuLabel.setText(rate);
+		}
+	}
+
+	public class StatisticsGraphControl : UIControl {
+		private List<KeyValuePair<long, float>> dbgLogicGraphQueue;
+		private List<KeyValuePair<long, float>> dbgGraphicGraphQueue;
+
+		private Vertex[] logicLines;
+		private Vertex[] graphicLines;
+
+		private int historyLength;
+		private Vector2f size;
+
+		public StatisticsGraphControl(int historyLength, Vector2f size) {
+			dbgLogicGraphQueue = new List<KeyValuePair<long, float>>();
+			dbgGraphicGraphQueue = new List<KeyValuePair<long, float>>();
+			this.historyLength = historyLength;
+			this.size = size;
+
+			for(int i = 0; i < historyLength; i++) {
+				addCPUPoint(0, 0f);
+				addGPUPoint(0, 0f);
+			}
+		}
+
+		public void addCPUPoint(long tick, float rate) {
+			dbgLogicGraphQueue.Add(new KeyValuePair<long, float>(tick, rate));
+			logicLines = new Vertex[dbgLogicGraphQueue.Count];
+
+			for (int i = 0; i < logicLines.Length; i++) {
+				float x = (size.X / historyLength) * ((float)i);
+				float y = Math.Min(dbgLogicGraphQueue[i].Value, 1000f) / 1000f;
+				y *= size.Y;
+
+				logicLines[i].Position = Position + new Vector2f(x, size.Y - y);
+				logicLines[i].Color = new Color(0, 255, 0, 255);
+			}
+
+			if (dbgLogicGraphQueue.Count > historyLength) dbgLogicGraphQueue.RemoveAt(0);
+		}
+
+		public void addGPUPoint(long tick, float rate) {
+			dbgGraphicGraphQueue.Add(new KeyValuePair<long, float>(tick, rate));
+			graphicLines = new Vertex[dbgGraphicGraphQueue.Count];
+
+			for (int i = 0; i < graphicLines.Length; i++) {
+				float x = (size.X / historyLength) * ((float)i);
+				float y = Math.Min(dbgGraphicGraphQueue[i].Value, 1000f) / 1000f;
+				y *= size.Y;
+
+				graphicLines[i].Position = Position + new Vector2f(x, size.Y - y);
+				graphicLines[i].Color = new Color(255, 0, 0, 255);
+			}
+
+			if (dbgGraphicGraphQueue.Count > historyLength) dbgGraphicGraphQueue.RemoveAt(0);
+		}
+
+		public override void onDraw(GameContext context, RenderTarget target) {
+			base.onDraw(context, target);
+
+			if (logicLines == null || graphicLines == null)
+				return;
+
+			if (logicLines.Length > 0)
+				target.Draw(logicLines, PrimitiveType.LineStrip);
+			if (graphicLines.Length > 0)
+				target.Draw(graphicLines, PrimitiveType.LineStrip);
+		}
+	}
+
 	public static class Statistics {
 		private static Queue<long> logicFrameQueue;
 		private static Queue<long> graphicsFrameQueue;
@@ -21,6 +120,7 @@ namespace SFMLEngine {
 		private static long startTickTime;
 		private static long lastTickTime;
 		private static Text text;
+		private static StatisticsDebugWindow dbgWindow;
 
 		static Statistics() {
 			logicFrameQueue = new Queue<long>();
@@ -44,6 +144,12 @@ namespace SFMLEngine {
 				dbgLogicGraphQueue.Add(new KeyValuePair<long, float>(0,0));
 				dbgGraphicGraphQueue.Add(new KeyValuePair<long, float>(0,0));
 			}
+
+			dbgWindow = new StatisticsDebugWindow();
+		}
+
+		public static void initializeDebugDraw(GameContext context) {
+			context.ui.addControl(dbgWindow);
 		}
 
 		private static Vertex[] logicLines;
@@ -51,35 +157,38 @@ namespace SFMLEngine {
 		public static void debugDraw(RenderTarget window) {
 			text.DisplayedString = $"CPU: {(int)getLogicFramesPerSecond()}{Environment.NewLine}GPU: {(int)getGraphicsFramesPerSecond()}";
 			if(Environment.TickCount - dbgGraphLastSample > dbgGraphSampleDelay) {
-				dbgLogicGraphQueue.Add(new KeyValuePair<long, float>(Environment.TickCount, getLogicFramesPerSecond()));
-				dbgGraphicGraphQueue.Add(new KeyValuePair<long, float>(Environment.TickCount, getGraphicsFramesPerSecond()));
+				//dbgLogicGraphQueue.Add(new KeyValuePair<long, float>(Environment.TickCount, getLogicFramesPerSecond()));
+				//dbgGraphicGraphQueue.Add(new KeyValuePair<long, float>(Environment.TickCount, getGraphicsFramesPerSecond()));
+				dbgWindow.graph.addCPUPoint(Environment.TickCount, getLogicFramesPerSecond());
+				dbgWindow.graph.addGPUPoint(Environment.TickCount, getGraphicsFramesPerSecond());
+				dbgWindow.setCPURate($"CPU: {(int)getLogicFramesPerSecond()}");
+				dbgWindow.setGPURate($"GPU: {(int)getGraphicsFramesPerSecond()}");
 
-				if (dbgLogicGraphQueue.Count > dbgGraphHistoryLength) dbgLogicGraphQueue.RemoveAt(0);
-				if (dbgGraphicGraphQueue.Count > dbgGraphHistoryLength) dbgGraphicGraphQueue.RemoveAt(0);
 				dbgGraphLastSample = Environment.TickCount;
 
-				logicLines = new Vertex[dbgLogicGraphQueue.Count];
-				graphicLines = new Vertex[dbgGraphicGraphQueue.Count];
+				//logicLines = new Vertex[dbgLogicGraphQueue.Count];
+				//graphicLines = new Vertex[dbgGraphicGraphQueue.Count];
 
-				for (int i = 0; i < logicLines.Length; i++) {
-					float x = (dbgSize.X / dbgGraphHistoryLength) * ((float)i);
-					float y = Math.Min(dbgLogicGraphQueue[i].Value, 1000f) / 1000f;
-					y *= dbgSize.Y;
+				//for (int i = 0; i < logicLines.Length; i++) {
+				//	float x = (dbgSize.X / dbgGraphHistoryLength) * ((float)i);
+				//	float y = Math.Min(dbgLogicGraphQueue[i].Value, 1000f) / 1000f;
+				//	y *= dbgSize.Y;
 
-					logicLines[i].Position = dbgPosition + new Vector2f(x, dbgSize.Y - y);
-					logicLines[i].Color = new Color(0, 255, 0, 255);
-				}
+				//	logicLines[i].Position = dbgPosition + new Vector2f(x, dbgSize.Y - y);
+				//	logicLines[i].Color = new Color(0, 255, 0, 255);
+				//}
 
-				for (int i = 0; i < graphicLines.Length; i++) {
-					float x = (dbgSize.X / dbgGraphHistoryLength) * ((float)i);
-					float y = Math.Min(dbgGraphicGraphQueue[i].Value, 1000f) / 1000f;
-					y *= dbgSize.Y;
+				//for (int i = 0; i < graphicLines.Length; i++) {
+				//	float x = (dbgSize.X / dbgGraphHistoryLength) * ((float)i);
+				//	float y = Math.Min(dbgGraphicGraphQueue[i].Value, 1000f) / 1000f;
+				//	y *= dbgSize.Y;
 
-					graphicLines[i].Position = dbgPosition + new Vector2f(x, dbgSize.Y - y);
-					graphicLines[i].Color = new Color(255, 0, 0, 255);
-				}
+				//	graphicLines[i].Position = dbgPosition + new Vector2f(x, dbgSize.Y - y);
+				//	graphicLines[i].Color = new Color(255, 0, 0, 255);
+				//}
 			}
 
+			return;
 			window.Draw(text);
 			if (logicLines == null || graphicLines == null)
 				return;

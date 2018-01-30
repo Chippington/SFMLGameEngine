@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace SFMLEngine.Entities.Components.Camera {
 	public class CameraComponent : Component {
-		private RenderTexture renderTexture;
 		private View view;
 
 		public override void onInitialize() {

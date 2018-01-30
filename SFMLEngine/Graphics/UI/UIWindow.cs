@@ -4,16 +4,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SFML.System;
 
 namespace SFMLEngine.Graphics.UI {
-	public class UIWindow {
+	public class UIWindow : UIControl {
 		public enum Style {
 			DEFAULT, NONE,
 		}
 
-		private List<UIControl> controls;
+		public override Vector2f Position { get => base.Position; set {
+				base.Position = value;
+				if (sprite != null)
+					sprite.Position = value;
+			}
+		}
+
+		private Sprite sprite;
+		private Color clearColor;
 		private RenderTexture renderTexture;
 		private RenderTexture tempRenderTexture;
+		private uint width, height;
 
 		public UIWindow()
 			: this("", 0, 0, Style.DEFAULT) { }
@@ -22,39 +32,58 @@ namespace SFMLEngine.Graphics.UI {
 			: this(title, width, height, Style.DEFAULT) { }
 
 		public UIWindow(string title, uint width, uint height, Style style) {
-			controls = new List<UIControl>();
+			this.width = width;
+			this.height = height;
+		}
+
+		public override void onGraphicsInitialize() {
+			base.onGraphicsInitialize();
 			renderTexture = new RenderTexture(width, height);
+			sprite = new Sprite(renderTexture.Texture);
+			sprite.Position = this.Position;
+			clearColor = new Color(0, 0, 0, 0);
 		}
 
 		public void setSize(uint width, uint height) {
 			tempRenderTexture = new RenderTexture(width, height);
 		}
 
-		public void addControl(UIControl control) {
-			controls.Add(control);
+		public void setClearColor(Color color) {
+			clearColor = color;
 		}
 
-		public IEnumerable<T> getControls<T>() where T : UIControl {
-			return getControls(typeof(T)).Cast<T>();
+		public Color getClearColor() {
+			return clearColor;
 		}
 
-		public IEnumerable<UIControl> getControls(Type type) {
-			var ret = from c in controls
-					  where c.GetType() == type
-					  select c;
+		public override void onUpdate(GameContext context) {
+			if (controls == null)
+				return;
 
-			return ret;
+			for (int i = 0; i < controls.Count; i++) {
+				controls[i].onUpdate(context);
+			}
 		}
 
-		public IEnumerable<UIControl> getControls() {
-			return controls;
-		}
+		public override void onDraw(GameContext context, RenderTarget target) {
+			if (controls == null)
+				return;
 
-		public void onDraw(GameContext context) {
-			if(tempRenderTexture != null) {
+			while (graphicsInitQueue.Count > 0)
+				graphicsInitQueue.Dequeue().onGraphicsInitialize();
+
+			if (tempRenderTexture != null) {
 				renderTexture = tempRenderTexture;
 				tempRenderTexture = null;
 			}
+
+			renderTexture.Clear(new Color(0,0,0,0));
+			for(int i = 0; i < controls.Count; i++) {
+				controls[i].onDraw(context, renderTexture);
+			}
+
+			renderTexture.Display();
+			target.Draw(sprite);
 		}
 	}
 }
