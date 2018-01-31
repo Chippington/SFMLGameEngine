@@ -1,12 +1,13 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using SFMLEngine.Entities.Components.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Entities.Components {
+namespace SFMLEngine.Entities.Components.Physics {
 	public interface ICollider : IComponent {
 		BoundingBox getBoundingBox();
 		void onEnterCollision(ICollider other);

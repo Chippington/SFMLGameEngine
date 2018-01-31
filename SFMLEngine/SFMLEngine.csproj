@@ -64,16 +64,19 @@
     <Compile Include="Entities\Components\Component.cs" />
     <Compile Include="Entities\Components\ComponentSet.cs" />
     <Compile Include="Entities\Components\Graphics\AnimationController.cs" />
+    <Compile Include="Entities\Components\Graphics\ParticleController.cs" />
     <Compile Include="Entities\Components\IComponent.cs" />
-    <Compile Include="Entities\Components\RigidBody.cs" />
+    <Compile Include="Entities\Components\Physics\Gravity.cs" />
+    <Compile Include="Entities\Components\Physics\RigidBody.cs" />
     <Compile Include="Entities\Components\Graphics\SpriteRenderer.cs" />
-    <Compile Include="Entities\Components\Position.cs" />
+    <Compile Include="Entities\Components\Common\Position.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Scene.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Graphics\UI\Controls\Button.cs" />
     <Compile Include="Graphics\UI\Controls\Checkbox.cs" />
+    <Compile Include="Graphics\UI\Controls\Image.cs" />
     <Compile Include="Graphics\UI\Controls\Label.cs" />
     <Compile Include="Graphics\UI\Controls\Radiobutton.cs" />
     <Compile Include="Graphics\UI\Controls\Textbox.cs" />
@@ -82,6 +85,10 @@
     <Compile Include="Input\InputController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Statistics.cs" />
+    <Compile Include="Utilities\Grids\Grid.cs" />
+    <Compile Include="Utilities\Grids\HexGrid.cs" />
+    <Compile Include="Utilities\Pathfinding\PathNode.cs" />
+    <Compile Include="Utilities\Pathfinding\PathNodeMap.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

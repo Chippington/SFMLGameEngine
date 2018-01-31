@@ -2,6 +2,8 @@
 using SFMLEngine.Entities;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Entities.Components.Camera;
+using SFMLEngine.Entities.Components.Common;
+using SFMLEngine.Entities.Components.Physics;
 using SFMLEngine.Entities.Graphics.Components;
 using System;
 using System.Collections.Generic;

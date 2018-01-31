@@ -1,6 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using SFMLEngine.Entities.Components;
+using SFMLEngine.Entities.Components.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;

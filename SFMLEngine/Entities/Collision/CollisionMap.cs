@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
+using SFMLEngine.Entities.Components.Physics;
 
 namespace SFMLEngine.Entities.Collision {
 
