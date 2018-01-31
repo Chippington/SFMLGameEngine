@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace SFMLEngineTest {
 	class Program {
-		public class TestGame : Game {
+		public class TestGame : GameWindow {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
 				for(int i = 0; i < 300; i++) {

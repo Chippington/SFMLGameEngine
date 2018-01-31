@@ -13,17 +13,19 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFMLEngine {
-	public class Game {
+	public class GameWindow {
 		private string name;
 		private bool exitFlag;
+		private bool vsyncEnabled;
 		private Thread logicThread;
 		private Thread graphicsThread;
-
-		public Game() : this("") {
+		private RenderWindow window;
+		public GameWindow() : this("") {
 		}
 
-		public Game(string name) {
+		public GameWindow(string name) {
 			this.name = name;
+			vsyncEnabled = false;
 		}
 
 		public void start() {
@@ -49,19 +51,17 @@ namespace SFMLEngine {
 					var t = clock.Restart();
 					context.deltaTime = ((float)t.AsMicroseconds()) / 100000f;
 
-					set.updateEntities(context);
-					map.updateMap();
 					_logicUpdate(context);
 					uiwindow.onUpdate(context);
 				}
 			});
 
 			graphicsThread = new Thread(() => {
-				RenderWindow window = new RenderWindow(new SFML.Window.VideoMode(800, 600), name);
+				window = new RenderWindow(new SFML.Window.VideoMode(800, 600), name);
 				RenderTexture uilayer = new RenderTexture(800, 600);
 				uiwindow.onGraphicsInitialize();
 
-				//window.SetVerticalSyncEnabled(true);
+				window.SetVerticalSyncEnabled(vsyncEnabled);
 				window.Closed += (sender, args) => {
 					var win = sender as RenderWindow;
 					exitFlag = true;
@@ -93,9 +93,7 @@ namespace SFMLEngine {
 
 					window.Clear();
 					uilayer.Clear(new Color(0,0,0,0));
-					set.drawEntities(context);
 					_graphicsUpdate(context);
-					uiwindow.onDraw(context, uilayer);
 
 					uisprite.Position = window.GetView().Center - (window.GetView().Size / 2);
 					uilayer.Display();
@@ -108,6 +106,12 @@ namespace SFMLEngine {
 			graphicsThread.Start();
 		}
 
+		public void setVerticalSyncEnabled(bool v) {
+			vsyncEnabled = v;
+			if (window != null)
+				window.SetVerticalSyncEnabled(v);
+		}
+
 		public bool isRunning() {
 			return (logicThread.IsAlive || graphicsThread.IsAlive);
 		}
@@ -115,29 +119,27 @@ namespace SFMLEngine {
 		private void _logicUpdate(GameContext context) {
 			Statistics.onLogicUpdate();
 			logicUpdate(context);
+			context.entities.updateEntities(context);
+			context.collision.updateCollision(context);
+			context.ui.onUpdate(context);
 		}
 
 		private void _graphicsUpdate(GameContext context) {
 			Statistics.onGraphicsUpdate();
 			Statistics.debugDraw(context.uiLayer);
+
+			context.entities.drawEntities(context);
+			context.ui.onDraw(context, context.uiLayer);
 			graphicsUpdate(context);
 		}
 
-		protected virtual void logicInitialized(GameContext context) {
+		protected virtual void logicInitialized(GameContext context) { }
 
-		}
+		protected virtual void graphicsInitialized(GameContext context) { }
 
-		protected virtual void graphicsInitialized(GameContext context) {
+		protected virtual void logicUpdate(GameContext context) { }
 
-		}
-
-		protected virtual void logicUpdate(GameContext context) {
-
-		}
-
-		protected virtual void graphicsUpdate(GameContext context) {
-
-		}
+		protected virtual void graphicsUpdate(GameContext context) { }
 	}
 
 	public class GameContext {

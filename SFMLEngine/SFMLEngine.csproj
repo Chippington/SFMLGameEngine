@@ -73,7 +73,7 @@
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Scene.cs" />
     <Compile Include="Entities\IEntity.cs" />
-    <Compile Include="Game.cs" />
+    <Compile Include="GameWindow.cs" />
     <Compile Include="Graphics\UI\Controls\Button.cs" />
     <Compile Include="Graphics\UI\Controls\Checkbox.cs" />
     <Compile Include="Graphics\UI\Controls\Image.cs" />
@@ -89,6 +89,8 @@
     <Compile Include="Utilities\Grids\HexGrid.cs" />
     <Compile Include="Utilities\Pathfinding\PathNode.cs" />
     <Compile Include="Utilities\Pathfinding\PathNodeMap.cs" />
+    <Compile Include="Utilities\Trees\DynamicQuadTree.cs" />
+    <Compile Include="Utilities\Trees\QuadTree.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

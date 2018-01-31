@@ -114,7 +114,7 @@ namespace SFMLEngine.Entities.Collision {
 		}
 
 		HashSet<Node> changed;
-		public void updateMap() {
+		public void updateCollision(GameContext context) {
 			changed.Clear();
 			foreach (var n in nodeMap.Values)
 				if (n.refresh()) {

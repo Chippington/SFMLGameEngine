@@ -36,7 +36,6 @@ namespace SFMLEngine.Input {
 		public bool isPressed(Keyboard.Key key) {
 			lock (pressedMap)
 				return pressedMap.Contains(key);
-
 		}
 
 		public bool isReleased(Keyboard.Key key) {
