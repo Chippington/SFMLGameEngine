@@ -14,6 +14,7 @@ namespace SFMLEngine.Entities.Components {
 	public class ComponentSet {
 		public ComponentEvent OnComponentAdded;
 		public ComponentEvent OnComponentRemoved;
+		private List<IComponent> componentList;
 		private Dictionary<Type, IComponent> source;
 		private IEntity owner;
 
@@ -26,23 +27,26 @@ namespace SFMLEngine.Entities.Components {
 		//public IComponent this[Type key] { get => source[key]; set => source[key] = value; }
 
 		public ComponentSet(IEntity owner) {
+			componentList = new List<IComponent>();
 			this.source = new Dictionary<Type, IComponent>();
 			this.owner = owner;
 		}
 
 		public void updateComponents(GameContext context) {
-			foreach (var c in Values)
-				c.onUpdate(context);
+			for (int i = 0; i < componentList.Count; i++)
+				componentList[i].onUpdate(context);
 		}
 
 		public void drawComponents(GameContext context) {
-			foreach (var c in Values)
-				c.onDraw(context);
+			for (int i = 0; i < componentList.Count; i++)
+				componentList[i].onDraw(context);
 		}
 
 
 		public T Add<T>() where T : IComponent {
-			return (T)Add(typeof(T));
+			var n = (T)Add(typeof(T));
+			componentList.Add(n);
+			return n;
 		}
 
 		public bool Remove<T>() where T : IComponent {
@@ -55,6 +59,7 @@ namespace SFMLEngine.Entities.Components {
 
 			var inst = (IComponent)Activator.CreateInstance(key);
 			source.Add(key, inst);
+			componentList.Add(inst);
 			inst.setEntity(owner);
 			inst.onInitialize();
 
@@ -83,6 +88,8 @@ namespace SFMLEngine.Entities.Components {
 				OnComponentRemoved?.Invoke(new ComponentEventArgs() {
 					component = inst,
 				});
+
+				componentList.Remove(inst);
 			}
 
 			return source.Remove(key);

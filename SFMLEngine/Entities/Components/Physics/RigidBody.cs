@@ -33,8 +33,6 @@ namespace SFMLEngine.Entities.Components.Physics {
 		private BoundingBox _bounds;
 		private BoundingBox bounds {
 			get {
-				_bounds.x = transform.x;
-				_bounds.y = transform.y;
 				return _bounds;
 			}
 		}
@@ -44,6 +42,10 @@ namespace SFMLEngine.Entities.Components.Physics {
 
 		public override void onInitialize() {
 			base.onInitialize();
+
+			if(_bounds == null)
+				_bounds = new BoundingBox();
+
 			hasChangedData = true;
 			dbgCols = new HashSet<ICollider>();
 			transform = entity.components.Add<Position>();
@@ -53,10 +55,19 @@ namespace SFMLEngine.Entities.Components.Physics {
 		}
 
 		public override void onUpdate(GameContext context) {
-			base.onUpdate(context);
-			dbgPosition.X = transform.x + _bounds.left;
-			dbgPosition.Y = transform.y + _bounds.top;
-			dbgRect.Position = dbgPosition;
+			if (_bounds.x != transform.x || _bounds.y != transform.y)
+				_bounds.hasChanged = true;
+
+			if (_bounds.hasChanged) {
+				_bounds.x = transform.x;
+				_bounds.y = transform.y;
+
+				if (dbgRect != null) {
+					dbgPosition.X = transform.x + _bounds.left;
+					dbgPosition.Y = transform.y + _bounds.top;
+					dbgRect.Position = dbgPosition;
+				}
+			}
 		}
 
 		public virtual BoundingBox getBoundingBox() {
@@ -65,7 +76,8 @@ namespace SFMLEngine.Entities.Components.Physics {
 
 		public virtual void setBoundingBox(BoundingBox newBounds) {
 			hasChangedData = true;
-			_bounds = newBounds;
+			_bounds.copy(newBounds);
+			newBounds.hasChanged = true;
 
 			dbgSize.X = _bounds.right - _bounds.left;
 			dbgSize.Y = _bounds.bottom - _bounds.top;
@@ -138,7 +150,10 @@ namespace SFMLEngine.Entities.Components.Physics {
 		}
 	}
 
-	public struct BoundingBox {
+	public class BoundingBox {
+		public BoundingBox() : this(0f, 0f, 0f, 0f) {
+		}
+
 		public BoundingBox(float left, float top, float right, float bottom) {
 			this.top = top;
 			this.left = left;
@@ -146,6 +161,7 @@ namespace SFMLEngine.Entities.Components.Physics {
 			this.right = right;
 
 			this.x = this.y = 0f;
+			hasChanged = true;
 		}
 
 		public BoundingBox(float left, float top, float right, float bottom, float x, float y) 
@@ -159,10 +175,20 @@ namespace SFMLEngine.Entities.Components.Physics {
 			return ((other.x + other.right > x + left) 
 				&& (other.x + other.left < x + right) 
 				&& (other.y + other.bottom > y + top) 
-				&& (y + top < y + bottom));
+				&& (other.y + other.top < y + bottom));
 		}
 
-		public float top, left, bottom, right;
-		public float x, y;
+		public void copy(BoundingBox other) {
+			this.top = other.top;
+			this.left = other.left;
+			this.right = other.right;
+			this.bottom = other.bottom;
+			this.x = other.x;
+			this.y = other.y;
+			hasChanged = true;
+		}
+
+		public float top, left, bottom, right, x, y;
+		public bool hasChanged;
 	}
 }

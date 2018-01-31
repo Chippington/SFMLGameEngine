@@ -17,11 +17,14 @@ namespace SFMLEngineTest {
 		public class TestGame : GameWindow {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
-				for(int i = 0; i < 300; i++) {
+				for(int i = 0; i < 100; i++) 
+					for(int j = 0; j < 100; j++) {
 					var test = context.entities.instantiate<TestEntity>("Test"+i);
 					test.components.Get<Position>().x = 50 + (50 * i);
-					test.components.Get<Position>().y = 50 + (50 * i);
-					test.components.Get<RigidBody>().setDebugDraw(true);
+					test.components.Get<Position>().y = 50 + (50 * j);
+
+					if(i == 0 || i == 99 || j == 0 || j == 99)
+						test.components.Get<RigidBody>().setDebugDraw(true);
 				}
 				for (int i = 0; i < 1; i++) {
 					var player = context.entities.instantiate<TestPlayer>();
@@ -66,10 +69,10 @@ namespace SFMLEngineTest {
 			public override void onUpdate(GameContext context) {
 				base.onUpdate(context);
 				vx = vy = 0;
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.W)) { vy -= 10f; }
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.A)) { vx -= 10f; }
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.S)) { vy += 10f; }
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.D)) { vx += 10f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.W)) { vy -= 30f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.A)) { vx -= 30f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.S)) { vy += 30f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.D)) { vx += 30f; }
 
 				var col = components.Get<RigidBody>();
 				if (context.collision.testCollision<TestEntity>(
@@ -84,7 +87,11 @@ namespace SFMLEngineTest {
 
 				pos.x += vx * context.deltaTime;
 				pos.y += vy * context.deltaTime;
-				cam.setPosition(new SFML.System.Vector2f(pos.x, pos.y));
+
+				var newPos = new SFML.System.Vector2f(pos.x, pos.y);
+				var diff = newPos - cam.getPosition();
+				diff *= 0.02f;
+				cam.setPosition(cam.getPosition() + diff);
 			}
 		}
 

@@ -9,23 +9,21 @@ using System.Collections;
 using SFMLEngine.Entities.Components.Physics;
 
 namespace SFMLEngine.Entities.Collision {
-
-
-	public class CollisionMap {
+	public class CollisionMapNEWNEW {
 		public class Node {
 			public Node() {
-				activeCollisions = new HashSet<Node>();
-				newCollisions = new HashSet<Node>();
-				oldCollisions = new HashSet<Node>();
+				activeCollisions = new List<Node>();
+				newCollisions = new List<Node>();
+				oldCollisions = new List<Node>();
 				horizontals = new HashSet<Node>();
 			}
 
 			public IEntity entity;
 			public ICollider collider;
 			public BoundingBox boundingBox;
-			public HashSet<Node> activeCollisions;
-			public HashSet<Node> newCollisions;
-			public HashSet<Node> oldCollisions;
+			public List<Node> activeCollisions;
+			public List<Node> newCollisions;
+			public List<Node> oldCollisions;
 			HashSet<Node> horizontals;
 			public bool hasChanged;
 
@@ -33,25 +31,35 @@ namespace SFMLEngine.Entities.Collision {
 				if (entity == null)
 					entity = collider.getEntity();
 
-				var _boundingBox = collider.getBoundingBox();
+				if (boundingBox == null)
+					boundingBox = collider.getBoundingBox();
+
+				if (boundingBox == null)
+					return false;
+
+				hasChanged = boundingBox.hasChanged;
+				boundingBox.hasChanged = false;
+
+				//var _boundingBox = collider.getBoundingBox();
 				horizontals.Clear();
 
-				hasChanged = false;
-				if (boundingBox.x != _boundingBox.x || boundingBox.y != _boundingBox.y)
-					hasChanged = true;
-				else if (boundingBox.left != _boundingBox.left || boundingBox.right != _boundingBox.right)
-					hasChanged = true;
-				else if (boundingBox.top != _boundingBox.top || boundingBox.bottom != _boundingBox.bottom)
-					hasChanged = true;
+				//hasChanged = false;
+				//if (boundingBox.x != _boundingBox.x || boundingBox.y != _boundingBox.y)
+				//	hasChanged = true;
+				//else if (boundingBox.left != _boundingBox.left || boundingBox.right != _boundingBox.right)
+				//	hasChanged = true;
+				//else if (boundingBox.top != _boundingBox.top || boundingBox.bottom != _boundingBox.bottom)
+				//	hasChanged = true;
 
-				if(hasChanged) {
-					foreach (var c in activeCollisions) {
+				if (hasChanged) {
+					Node c;
+					for (int i = 0; i < activeCollisions.Count; i++) {
+						c = activeCollisions[i];
 						oldCollisions.Add(c);
 						c.oldCollisions.Add(this);
 					}
 				}
 
-				this.boundingBox = _boundingBox;
 				return hasChanged;
 			}
 
@@ -61,7 +69,7 @@ namespace SFMLEngine.Entities.Collision {
 			}
 
 			public void onVerticalFound(Node other) {
-				if(horizontals.Contains(other)) {
+				if (horizontals.Contains(other)) {
 					oldCollisions.Remove(other);
 					other.oldCollisions.Remove(this);
 
@@ -77,15 +85,20 @@ namespace SFMLEngine.Entities.Collision {
 			}
 
 			public void invokeCallbacks() {
-				foreach (var col in oldCollisions) {
+				Node col;
+				for (int i = 0; i < oldCollisions.Count; i++) {
+					col = oldCollisions[i];
 					collider.onLeaveCollision(col.collider);
 					activeCollisions.Remove(col);
 				}
 
-				foreach (var col in activeCollisions)
+				for (int i = 0; i < activeCollisions.Count; i++) {
+					col = activeCollisions[i];
 					collider.onStepCollision(col.collider);
+				}
 
-				foreach (var col in newCollisions) {
+				for (int i = 0; i < newCollisions.Count; i++) {
+					col = newCollisions[i];
 					collider.onEnterCollision(col.collider);
 					activeCollisions.Add(col);
 				}
@@ -96,15 +109,17 @@ namespace SFMLEngine.Entities.Collision {
 		}
 
 		private Dictionary<ICollider, Node> nodeMap;
+		private List<Node> nodeList;
 		private List<Node> horizontal;
 		private List<Node> vertical;
 
-		public CollisionMap(Scene entities) {
+		public CollisionMapNEWNEW(Scene entities) {
 			nodeMap = new Dictionary<ICollider, Node>();
+			nodeList = new List<Node>();
 			horizontal = new List<Node>();
 			vertical = new List<Node>();
 
-			changed = new HashSet<Node>();
+			changed = new List<Node>();
 			hTestCols = new HashSet<ICollider>();
 			_hcols = new List<Node>();
 			_vcols = new List<Node>();
@@ -113,12 +128,12 @@ namespace SFMLEngine.Entities.Collision {
 			entities.OnEntityDestroyed = onEntityDestroyed;
 		}
 
-		HashSet<Node> changed;
+		List<Node> changed;
 		public void updateCollision(GameContext context) {
 			changed.Clear();
-			foreach (var n in nodeMap.Values)
-				if (n.refresh()) {
-					changed.Add(n);
+			for (int i = 0; i < nodeList.Count; i++)
+				if (nodeList[i].refresh()) {
+					changed.Add(nodeList[i]);
 				}
 
 			for (int i = horizontal.Count - 1; i >= 0; i--) {
@@ -132,7 +147,9 @@ namespace SFMLEngine.Entities.Collision {
 				}
 			}
 
-			foreach(var change in changed) {
+			Node change;
+			for (int k = 0; k < changed.Count; k++) {
+				change = changed[k];
 				if (horizontal.Count == 0) {
 					horizontal.Add(change);
 				} else {
@@ -141,7 +158,7 @@ namespace SFMLEngine.Entities.Collision {
 						if (change.boundingBox.x + change.boundingBox.left < cur.boundingBox.x + cur.boundingBox.left) {
 							horizontal.Insert(i, change);
 							break;
-						} else if(i == horizontal.Count - 1) {
+						} else if (i == horizontal.Count - 1) {
 							horizontal.Add(change);
 							break;
 						}
@@ -156,7 +173,7 @@ namespace SFMLEngine.Entities.Collision {
 						if (change.boundingBox.y + change.boundingBox.top < cur.boundingBox.y + cur.boundingBox.top) {
 							vertical.Insert(i, change);
 							break;
-						} else if(i == vertical.Count - 1) {
+						} else if (i == vertical.Count - 1) {
 							vertical.Add(change);
 							break;
 						}
@@ -166,19 +183,20 @@ namespace SFMLEngine.Entities.Collision {
 
 			_hcols.Clear();
 			_vcols.Clear();
-			foreach(var ch in changed) {
-				var hh = getHCols(ch);
-				var vv = getVCols(ch, hh);
+			for (int k = 0; k < changed.Count; k++) {
+				change = changed[k];
+				var hh = getHCols(change);
+				var vv = getVCols(change, hh);
 
-				foreach (var h in hh)
-					ch.onHorizontalFound(h);
+				for (int i = 0; i < hh.Count; i++)
+					change.onHorizontalFound(hh[i]);
 
-				foreach (var v in vv)
-					ch.onVerticalFound(v);
+				for (int i = 0; i < vv.Count; i++)
+					change.onVerticalFound(vv[i]);
 			}
 
-			foreach (var n in horizontal)
-				n.invokeCallbacks();
+			for (int i = 0; i < horizontal.Count; i++)
+				horizontal[i].invokeCallbacks();
 		}
 
 		List<Node> _vcols;
@@ -375,6 +393,745 @@ namespace SFMLEngine.Entities.Collision {
 
 				if (y4 > y1 && y3 < y2) {
 					if (hTestCols.Contains(vertical[i].collider))
+						if (vertical[i].entity.GetType() == typeof(T))
+							return true;
+				} else {
+					break;
+				}
+			}
+
+			for (int i = vind; i >= 0; i--) {
+				if (vertical[i].collider == collider)
+					continue;
+
+				if (vertical[i].entity.GetType() != typeof(T))
+					continue;
+
+				var otherBB = vertical[i].collider.getBoundingBox();
+
+				float y1, y2, y3, y4;
+				y1 = newBB.y + newBB.top;
+				y2 = newBB.y + newBB.bottom;
+				y3 = otherBB.y + otherBB.top;
+				y4 = otherBB.y + otherBB.bottom;
+
+				if (y4 > y1 && y3 < y2) {
+					if (hTestCols.Contains(vertical[i].collider))
+						if (vertical[i].entity.GetType() == typeof(T))
+							return true;
+				} else {
+					break;
+				}
+			}
+
+			return false;
+		}
+
+		public bool testCollision(BoundingBox bb1, BoundingBox bb2) {
+			float x1, x2, x3, x4, y1, y2, y3, y4;
+			x1 = bb1.x + bb1.left;
+			x2 = bb1.x + bb1.right;
+			x3 = bb2.x + bb2.left;
+			x4 = bb2.x + bb2.right;
+			y1 = bb1.y + bb1.top;
+			y2 = bb1.y + bb1.bottom;
+			y3 = bb2.y + bb2.top;
+			y4 = bb2.y + bb2.bottom;
+
+			return (x4 > x1 && x3 < x2) && (y4 > y1 && y3 < y2);
+		}
+
+		private void onEntityCreated(SceneEventArgs args) {
+			var comps = args.entity.getComponents();
+			foreach (var comp in comps.Values) {
+				var collider = comp as ICollider;
+				if (collider != null) {
+					var newNode = new Node() {
+						collider = collider,
+					};
+
+					nodeMap.Add(collider, newNode);
+					nodeList.Add(newNode);
+					return;
+				}
+			}
+
+			args.entity.components.OnComponentAdded += onEntityComponentAdded;
+		}
+
+		private void onEntityComponentAdded(ComponentEventArgs args) {
+		}
+
+		private void onEntityDestroyed(SceneEventArgs args) {
+		}
+	}
+	public class CollisionMapNEW {
+		public class Node {
+			public Node(ICollider collider) {
+				this.collider = collider;
+				this.entity = collider.getEntity();
+				this.bounds = collider.getBoundingBox();
+
+				activeCollisions = new List<Node>();
+				oldCollisions = new List<Node>();
+				newCollisions = new List<Node>();
+				pendingCollisions = new List<Node>();
+				check = new HashSet<Node>();
+			}
+
+			public BoundingBox bounds;
+			public ICollider collider;
+			public IEntity entity;
+
+			public Node left, right, top, bottom;
+
+			public List<Node> activeCollisions;
+			public List<Node> oldCollisions;
+			public List<Node> newCollisions;
+			public List<Node> pendingCollisions;
+			private HashSet<Node> check;
+			static int ii = 0;
+			public void update() {
+				bounds = collider.getBoundingBox();
+
+				if (bounds.hasChanged == false)
+					return;
+
+				while (right != null && right.bounds.x + right.bounds.left < bounds.x + bounds.left)
+					shiftRight();
+
+				while (left != null && left.bounds.x + left.bounds.left > bounds.x + bounds.left)
+					shiftLeft();
+
+				while (top != null && top.bounds.y + top.bounds.top > bounds.y + bounds.top)
+					shiftUp();
+
+				while (bottom != null && bottom.bounds.y + bottom.bounds.top < bounds.y + bounds.top)
+					shiftDown();
+
+				check.Clear();
+				pendingCollisions.Clear();
+
+				Node cur = right;
+				while (cur != null && cur.bounds.intersects(bounds)) {
+					if (check.Contains(cur) == false) {
+						pendingCollisions.Add(cur);
+						check.Add(cur);
+					}
+
+					cur = cur.right;
+				}
+
+				cur = bottom;
+				while (cur != null && cur.bounds.intersects(bounds)) {
+					if (check.Contains(cur) == false) {
+						pendingCollisions.Add(cur);
+						check.Add(cur);
+					}
+
+					cur = cur.bottom;
+				}
+
+				cur = left;
+				while (cur != null && cur.bounds.intersects(bounds)) {
+					if (check.Contains(cur) == false) {
+						pendingCollisions.Add(cur);
+						check.Add(cur);
+					}
+
+					cur = cur.left;
+				}
+
+				cur = top;
+				while (cur != null && cur.bounds.intersects(bounds)) {
+					if (check.Contains(cur) == false) {
+						pendingCollisions.Add(cur);
+						check.Add(cur);
+					}
+
+					cur = cur.top;
+				}
+			}
+
+			public void updatePending() {
+				if (pendingCollisions.Count == 0)
+					return;
+
+				oldCollisions.Clear();
+
+				Node cur;
+				for (int i = 0; i < activeCollisions.Count; i++) {
+					cur = activeCollisions[i];
+					if (pendingCollisions.Contains(cur) == false) {
+						oldCollisions.Add(cur);
+						activeCollisions.Remove(cur);
+					}
+				}
+
+				for (int i = 0; i < pendingCollisions.Count; i++) {
+					cur = pendingCollisions[i];
+					if (newCollisions.Contains(cur)) {
+						newCollisions.Remove(cur);
+						activeCollisions.Add(cur);
+					} else {
+						if (activeCollisions.Contains(cur) == false)
+							newCollisions.Add(cur);
+					}
+				}
+			}
+
+			public void invokeCallbacks() {
+				Node col;
+				for (int i = 0; i < oldCollisions.Count; i++) {
+					col = oldCollisions[i];
+					collider.onLeaveCollision(col.collider);
+				}
+
+				for (int i = 0; i < activeCollisions.Count; i++) {
+					col = activeCollisions[i];
+					collider.onStepCollision(col.collider);
+				}
+
+				for (int i = 0; i < newCollisions.Count; i++) {
+					col = newCollisions[i];
+					collider.onEnterCollision(col.collider);
+				}
+			}
+
+			private void shiftRight() {
+				Console.WriteLine("{0} shift right", entity.GetType().Name);
+				var l = left;
+				var r = right;
+				var rr = right.right;
+
+				if (l != null)
+					l.right = r;
+				if (r != null)
+					r.left = l;
+
+				this.left = r.right;
+				this.right = rr;
+				r.right = this;
+			}
+
+			private void shiftLeft() {
+				Console.WriteLine("{0} shift left", entity.GetType().Name);
+				var l = left;
+				var r = right;
+				var ll = left.left;
+
+				if (l != null)
+					l.right = r;
+				if (r != null)
+					r.left = l;
+
+				this.right = l;
+				this.left = ll;
+				l.left = this;
+			}
+
+			private void shiftUp() {
+				Console.WriteLine("{0} shift up", entity.GetType().Name);
+				var t = top;
+				var b = bottom;
+				var tt = top.top;
+
+				if (t != null)
+					t.bottom = b;
+				if (b != null)
+					b.top = t;
+
+				this.bottom = t;
+				this.top = tt;
+				t.top = this;
+			}
+
+			private void shiftDown() {
+				Console.WriteLine("{0} shift down", entity.GetType().Name);
+				var t = top;
+				var b = bottom;
+				var bb = bottom.bottom;
+
+				if (t != null)
+					t.bottom = b;
+				if (b != null)
+					b.top = t;
+
+				this.top = b;
+				this.bottom = bb;
+				b.bottom = this;
+			}
+		}
+
+		Node leftMost;
+		Node topMost;
+		List<Node> nodeList;
+		Dictionary<ICollider, Node> nodeMap;
+
+		public CollisionMapNEW(Scene scene) {
+			nodeMap = new Dictionary<ICollider, Node>();
+			nodeList = new List<Node>();
+
+			scene.OnEntityCreated += onEntityCreated;
+		}
+
+		private void onEntityCreated(SceneEventArgs args) {
+			if (nodeList.Count == 0) {
+				var firstNode = new Node(args.entity.components.Get<RigidBody>());
+				nodeMap.Add(firstNode.collider, firstNode);
+				nodeList.Add(firstNode);
+				leftMost = topMost = nodeList[0];
+				return;
+			}
+
+			var newNode = new Node(args.entity.components.Get<RigidBody>());
+			leftMost.left = newNode;
+			topMost.top = newNode;
+
+			newNode.right = leftMost;
+			newNode.bottom = topMost;
+
+			leftMost = topMost = newNode;
+			nodeMap.Add(newNode.collider, newNode);
+			nodeList.Add(newNode);
+
+			for (int i = 0; i < nodeList.Count; i++) {
+				nodeList[i].update();
+			}
+		}
+
+		public void updateCollision(GameContext context) {
+			for (int i = 0; i < nodeList.Count; i++) {
+				nodeList[i].update();
+			}
+
+			for (int i = 0; i < nodeList.Count; i++) {
+				nodeList[i].updatePending();
+			}
+
+			for (int i = 0; i < nodeList.Count; i++) {
+				nodeList[i].invokeCallbacks();
+			}
+		}
+
+		public bool testCollision<T>(ICollider collider, float newX, float newY) where T : IEntity {
+			var node = nodeMap[collider];
+			float oldX = node.bounds.x;
+			float oldY = node.bounds.y;
+
+			node.bounds.x = newX;
+			node.bounds.y = newY;
+			node.update();
+
+			bool ret = false;
+			if(node.pendingCollisions.Count > 0) {
+				for(int i = 0; i < node.pendingCollisions.Count; i++) {
+					var type = node.pendingCollisions[i].entity.GetType();
+					if (type == typeof(T) || type.IsSubclassOf(typeof(T)))
+						ret = true;
+				}
+			}
+
+			node.bounds.x = oldX;
+			node.bounds.y = oldY;
+			node.pendingCollisions.Clear();
+			node.update();
+
+			return ret;
+		}
+	}
+
+	public class CollisionMap {
+		public class Node {
+			public Node() {
+				activeCollisions = new List<Node>();
+				newCollisions = new List<Node>();
+				oldCollisions = new List<Node>();
+				horizontals = new HashSet<Node>();
+			}
+
+			public IEntity entity;
+			public ICollider collider;
+			public BoundingBox boundingBox;
+			public List<Node> activeCollisions;
+			public List<Node> newCollisions;
+			public List<Node> oldCollisions;
+			HashSet<Node> horizontals;
+			public bool hasChanged;
+
+			public bool refresh() {
+				if (entity == null)
+					entity = collider.getEntity();
+
+				if (boundingBox == null)
+					boundingBox = collider.getBoundingBox();
+
+				if (boundingBox == null)
+					return false;
+
+				hasChanged = boundingBox.hasChanged;
+				boundingBox.hasChanged = false;
+
+				//var _boundingBox = collider.getBoundingBox();
+				horizontals.Clear();
+
+				//hasChanged = false;
+				//if (boundingBox.x != _boundingBox.x || boundingBox.y != _boundingBox.y)
+				//	hasChanged = true;
+				//else if (boundingBox.left != _boundingBox.left || boundingBox.right != _boundingBox.right)
+				//	hasChanged = true;
+				//else if (boundingBox.top != _boundingBox.top || boundingBox.bottom != _boundingBox.bottom)
+				//	hasChanged = true;
+
+				if(hasChanged) {
+					Node c;
+					for (int i = 0; i < activeCollisions.Count; i++) { 
+						c = activeCollisions[i];
+						oldCollisions.Add(c);
+						c.oldCollisions.Add(this);
+					}
+				}
+
+				return hasChanged;
+			}
+
+			public void onHorizontalFound(Node other) {
+				horizontals.Add(other);
+				other.horizontals.Add(this);
+			}
+
+			public void onVerticalFound(Node other) {
+				if(horizontals.Contains(other)) {
+					oldCollisions.Remove(other);
+					other.oldCollisions.Remove(this);
+
+					if (activeCollisions.Contains(other) == false) {
+						newCollisions.Add(other);
+						other.newCollisions.Add(this);
+					}
+				}
+			}
+
+			public void updateCollisions() {
+
+			}
+
+			public void invokeCallbacks() {
+				Node col;
+				for (int i = 0; i < oldCollisions.Count; i++) { 
+					col = oldCollisions[i];
+					collider.onLeaveCollision(col.collider);
+					activeCollisions.Remove(col);
+				}
+
+				for (int i = 0; i < activeCollisions.Count; i++) {
+					col = activeCollisions[i];
+					collider.onStepCollision(col.collider);
+				}
+
+				for (int i = 0; i < newCollisions.Count; i++) {
+					col = newCollisions[i];
+					collider.onEnterCollision(col.collider);
+					activeCollisions.Add(col);
+				}
+
+				newCollisions.Clear();
+				oldCollisions.Clear();
+			}
+		}
+
+		private Dictionary<ICollider, Node> nodeMap;
+		private List<Node> nodeList;
+		private List<Node> horizontal;
+		private List<Node> vertical;
+
+		public CollisionMap(Scene entities) {
+			nodeMap = new Dictionary<ICollider, Node>();
+			nodeList = new List<Node>();
+			horizontal = new List<Node>();
+			vertical = new List<Node>();
+
+			changed = new List<Node>();
+			hTestCols = new HashSet<ICollider>();
+			_hcols = new List<Node>();
+			_vcols = new List<Node>();
+
+			entities.OnEntityCreated += onEntityCreated;
+			entities.OnEntityDestroyed = onEntityDestroyed;
+		}
+
+		List<Node> changed;
+		public void updateCollision(GameContext context) {
+			changed.Clear();
+			Parallel.For(0, nodeList.Count, (i) => {
+				if (nodeList[i].refresh()) {
+					changed.Add(nodeList[i]);
+				}
+			});
+
+			//for(int i = 0; i < nodeList.Count; i++)
+			//	if (nodeList[i].refresh()) {
+			//		changed.Add(nodeList[i]);
+			//	}
+
+			for (int i = horizontal.Count - 1; i >= 0; i--) {
+				var n1 = horizontal[i];
+				var n2 = vertical[i];
+				if (n1.hasChanged) {
+					horizontal.RemoveAt(i);
+				}
+				if (n2.hasChanged) {
+					vertical.RemoveAt(i);
+				}
+			}
+
+			Node change;
+			for(int k = 0; k < changed.Count; k++) {
+				change = changed[k];
+				if (horizontal.Count == 0) {
+					horizontal.Add(change);
+				} else {
+					for (int i = 0; i < horizontal.Count; i++) {
+						var cur = horizontal[i];
+						if (change.boundingBox.x + change.boundingBox.left < cur.boundingBox.x + cur.boundingBox.left) {
+							horizontal.Insert(i, change);
+							break;
+						} else if(i == horizontal.Count - 1) {
+							horizontal.Add(change);
+							break;
+						}
+					}
+				}
+
+				if (vertical.Count == 0) {
+					vertical.Add(change);
+				} else {
+					for (int i = 0; i < vertical.Count; i++) {
+						var cur = vertical[i];
+						if (change.boundingBox.y + change.boundingBox.top < cur.boundingBox.y + cur.boundingBox.top) {
+							vertical.Insert(i, change);
+							break;
+						} else if(i == vertical.Count - 1) {
+							vertical.Add(change);
+							break;
+						}
+					}
+				}
+			}
+
+			_hcols.Clear();
+			_vcols.Clear();
+			for (int k = 0; k < changed.Count; k++) {
+				change = changed[k];
+				var hh = getHCols(change);
+				var vv = getVCols(change, hh);
+
+				for(int i = 0; i < hh.Count; i++)
+					change.onHorizontalFound(hh[i]);
+
+				for(int i = 0; i < vv.Count; i++)
+					change.onVerticalFound(vv[i]);
+			}
+
+			for(int i = 0; i < horizontal.Count; i++)
+				horizontal[i].invokeCallbacks();
+		}
+
+		List<Node> _vcols;
+		private List<Node> getVCols(Node node, List<Node> hCollisions) {
+			var collider = node.collider;
+			var newBB = node.boundingBox;
+
+			_vcols.Clear();
+			if (hCollisions.Count == 0)
+				return _vcols;
+
+			int vind;
+			for (vind = 0; vind < vertical.Count; vind++)
+				if (vertical[vind].collider == collider)
+					break;
+
+			for (int i = vind; i < vertical.Count; i++) {
+				if (vertical[i].collider == collider)
+					continue;
+
+				var otherBB = vertical[i].collider.getBoundingBox();
+
+				float y1, y2, y3, y4;
+				y1 = newBB.y + newBB.top;
+				y2 = newBB.y + newBB.bottom;
+				y3 = otherBB.y + otherBB.top;
+				y4 = otherBB.y + otherBB.bottom;
+
+				if (y4 > y1 && y3 < y2) {
+					_vcols.Add(vertical[i]);
+				} else {
+					break;
+				}
+			}
+
+			for (int i = vind; i >= 0; i--) {
+				if (vertical[i].collider == collider)
+					continue;
+
+				var otherBB = vertical[i].collider.getBoundingBox();
+
+				float y1, y2, y3, y4;
+				y1 = newBB.y + newBB.top;
+				y2 = newBB.y + newBB.bottom;
+				y3 = otherBB.y + otherBB.top;
+				y4 = otherBB.y + otherBB.bottom;
+
+				if (y4 > y1 && y3 < y2) {
+					_vcols.Add(vertical[i]);
+				} else {
+					break;
+				}
+			}
+
+			return _vcols;
+		}
+
+		List<Node> _hcols;
+		private List<Node> getHCols(Node node) {
+			var collider = node.collider;
+			var newBB = node.boundingBox;
+
+			int hind;
+			for (hind = 0; hind < horizontal.Count; hind++)
+				if (horizontal[hind].collider == collider)
+					break;
+
+			_hcols.Clear();
+			for (int i = hind; i < horizontal.Count; i++) {
+				if (horizontal[i].collider == collider)
+					continue;
+
+				var otherBB = horizontal[i].collider.getBoundingBox();
+
+				float x1, x2, x3, x4;
+				x1 = newBB.x + newBB.left;
+				x2 = newBB.x + newBB.right;
+				x3 = otherBB.x + otherBB.left;
+				x4 = otherBB.x + otherBB.right;
+
+				if (x4 > x1 && x3 < x2) {
+					_hcols.Add(horizontal[i]);
+				} else {
+					break;
+				}
+			}
+
+			for (int i = hind; i >= 0; i--) {
+				if (horizontal[i].collider == collider)
+					continue;
+
+				var otherBB = horizontal[i].collider.getBoundingBox();
+
+				float x1, x2, x3, x4;
+				x1 = newBB.x + newBB.left;
+				x2 = newBB.x + newBB.right;
+				x3 = otherBB.x + otherBB.left;
+				x4 = otherBB.x + otherBB.right;
+
+				if (x4 > x1 && x3 < x2) {
+					_hcols.Add(horizontal[i]);
+				} else {
+					break;
+				}
+			}
+
+			return _hcols;
+		}
+
+		public bool testCollision(ICollider one, ICollider two) {
+			var n1 = nodeMap[one];
+			var n2 = nodeMap[two];
+
+			return testCollision(n1.boundingBox, n2.boundingBox);
+		}
+
+		HashSet<ICollider> hTestCols;
+		public bool testCollision<T>(ICollider collider, float newX, float newY) {
+			if (horizontal.Count == 0) return false;
+			if (vertical.Count == 0) return false;
+
+			BoundingBox newBB = new BoundingBox();
+			newBB.copy(collider.getBoundingBox());
+			newBB.x = newX;
+			newBB.y = newY;
+
+			int hind, vind;
+			for (hind = 0; hind < horizontal.Count; hind++)
+				if (horizontal[hind].collider == collider)
+					break;
+
+			for (vind = 0; vind < vertical.Count; vind++)
+				if (vertical[vind].collider == collider)
+					break;
+
+			hTestCols.Clear();
+			for (int i = hind; i < horizontal.Count; i++) {
+				if (horizontal[i].collider == collider)
+					continue;
+
+				if (horizontal[i].entity.GetType() != typeof(T))
+					continue;
+
+				var otherBB = horizontal[i].collider.getBoundingBox();
+
+				float x1, x2, x3, x4;
+				x1 = newBB.x + newBB.left;
+				x2 = newBB.x + newBB.right;
+				x3 = otherBB.x + otherBB.left;
+				x4 = otherBB.x + otherBB.right;
+
+				if (x4 > x1 && x3 < x2) {
+					hTestCols.Add(horizontal[i].collider);
+				} else {
+					break;
+				}
+			}
+
+			for (int i = hind; i >= 0; i--) {
+				if (horizontal[i].collider == collider)
+					continue;
+
+				if (horizontal[i].entity.GetType() != typeof(T))
+					continue;
+
+				var otherBB = horizontal[i].collider.getBoundingBox();
+
+				float x1, x2, x3, x4;
+				x1 = newBB.x + newBB.left;
+				x2 = newBB.x + newBB.right;
+				x3 = otherBB.x + otherBB.left;
+				x4 = otherBB.x + otherBB.right;
+
+				if (x4 > x1 && x3 < x2) {
+					hTestCols.Add(horizontal[i].collider);
+				} else {
+					break;
+				}
+			}
+
+			for (int i = vind; i < vertical.Count; i++) {
+				if (vertical[i].collider == collider)
+					continue;
+
+				if (vertical[i].entity.GetType() != typeof(T))
+					continue;
+
+				var otherBB = vertical[i].collider.getBoundingBox();
+
+				float y1, y2, y3, y4;
+				y1 = newBB.y + newBB.top;
+				y2 = newBB.y + newBB.bottom;
+				y3 = otherBB.y + otherBB.top;
+				y4 = otherBB.y + otherBB.bottom;
+
+				if (y4 > y1 && y3 < y2) {
+					if (hTestCols.Contains(vertical[i].collider))
 						if(vertical[i].entity.GetType() == typeof(T))
 							return true;
 				} else {
@@ -433,6 +1190,7 @@ namespace SFMLEngine.Entities.Collision {
 					};
 
 					nodeMap.Add(collider, newNode);
+					nodeList.Add(newNode);
 					return;
 				}
 			}
