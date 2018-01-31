@@ -862,17 +862,10 @@ namespace SFMLEngine.Entities.Collision {
 
 		List<Node> changed;
 		public void updateCollision(GameContext context) {
-			changed.Clear();
-			Parallel.For(0, nodeList.Count, (i) => {
+			for (int i = 0; i < nodeList.Count; i++)
 				if (nodeList[i].refresh()) {
 					changed.Add(nodeList[i]);
 				}
-			});
-
-			//for(int i = 0; i < nodeList.Count; i++)
-			//	if (nodeList[i].refresh()) {
-			//		changed.Add(nodeList[i]);
-			//	}
 
 			for (int i = horizontal.Count - 1; i >= 0; i--) {
 				var n1 = horizontal[i];
