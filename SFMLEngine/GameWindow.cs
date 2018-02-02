@@ -31,7 +31,7 @@ namespace SFMLEngine {
 		public void start() {
 			InputController input = new InputController();
 			Scene set = new Scene();
-			CollisionMap map = new CollisionMap(set);
+			ICollisionMap map = new SweepAndPrune();
 			UIWindow uiwindow = new UIWindow("", 800, 600, UIWindow.Style.NONE);
 
 			logicThread = new Thread(() => {
@@ -43,6 +43,12 @@ namespace SFMLEngine {
 				context.input = input;
 				context.entities = set;
 				context.collision = map;
+
+				if (context.entities != null && context.collision != null) {
+					context.entities.OnEntityCreated += context.collision.onEntityCreated;
+					context.entities.OnEntityDestroyed += context.collision.onEntityCreated;
+				}
+
 				logicInitialized(context);
 
 				clock.Restart();
@@ -75,9 +81,9 @@ namespace SFMLEngine {
 				context.input = input;
 				context.entities = set;
 				context.window = window;
-				context.collision = map;
 				context.uiLayer = uilayer;
 				context.ui = uiwindow;
+				context.collision = map;
 
 				input.setHooks(window);
 				graphicsInitialized(context);
@@ -93,7 +99,7 @@ namespace SFMLEngine {
 					window.Clear();
 					uilayer.Clear(new Color(0,0,0,0));
 					_graphicsUpdate(context);
-
+					//context.collision.drawCollisionMap(context);
 					uisprite.Position = window.GetView().Center - (window.GetView().Size / 2);
 					uilayer.Display();
 					window.Draw(uisprite);
@@ -119,7 +125,10 @@ namespace SFMLEngine {
 			Statistics.onLogicUpdate();
 			logicUpdate(context);
 			context.entities.updateEntities(context);
-			context.collision.updateCollision(context);
+
+			if(context.collision != null)
+				context.collision.updateCollisionMap(context);
+
 			context.ui.onUpdate(context);
 		}
 
@@ -145,7 +154,7 @@ namespace SFMLEngine {
 		public RenderTarget window;
 		public RenderTarget uiLayer;
 		public UIWindow ui;
-		public CollisionMap collision;
+		public ICollisionMap collision;
 		public InputController input;
 		public Scene entities;
 		public float deltaTime;

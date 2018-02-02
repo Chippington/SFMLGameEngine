@@ -19,12 +19,12 @@ namespace SFMLEngineTest {
 				base.logicInitialized(context);
 				for(int i = 0; i < 100; i++) 
 					for(int j = 0; j < 100; j++) {
-					var test = context.entities.instantiate<TestEntity>("Test"+i);
-					test.components.Get<Position>().x = 50 + (50 * i);
-					test.components.Get<Position>().y = 50 + (50 * j);
+					var test = context.entities.instantiate<TestEntity>(string.Format("Test[{0},{1}]", i, j));
+					test.components.Get<Position>().x = 52 + (52 * i);
+					test.components.Get<Position>().y = 52 + (52 * j);
 
 					if(i == 0 || i == 99 || j == 0 || j == 99)
-						test.components.Get<RigidBody>().setDebugDraw(true);
+					test.components.Get<RigidBody>().setDebugDraw(true);
 				}
 				for (int i = 0; i < 1; i++) {
 					var player = context.entities.instantiate<TestPlayer>();
@@ -75,15 +75,15 @@ namespace SFMLEngineTest {
 				if(context.input.isHeld(SFML.Window.Keyboard.Key.D)) { vx += 30f; }
 
 				var col = components.Get<RigidBody>();
-				if (context.collision.testCollision<TestEntity>(
-					col, pos.x + (vx * context.deltaTime), pos.y)) {
-					vx = 0f;
-				}
+				//if (context.collision.testCollision<TestEntity>(
+				//	col, pos.x + (vx * context.deltaTime), pos.y)) {
+				//	vx = 0f;
+				//}
 
-				if (context.collision.testCollision<TestEntity>(
-					col, pos.x, pos.y + (vy * context.deltaTime))) {
-					vy = 0f;
-				}
+				//if (context.collision.testCollision<TestEntity>(
+				//	col, pos.x, pos.y + (vy * context.deltaTime))) {
+				//	vy = 0f;
+				//}
 
 				pos.x += vx * context.deltaTime;
 				pos.y += vy * context.deltaTime;

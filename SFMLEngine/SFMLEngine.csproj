@@ -59,8 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Collision\ICollisionMap.cs" />
+    <Compile Include="Entities\Collision\SweepAndPrune.cs" />
     <Compile Include="Entities\Components\Camera\CameraComponent.cs" />
-    <Compile Include="Entities\Collision\CollisionMap.cs" />
     <Compile Include="Entities\Components\Component.cs" />
     <Compile Include="Entities\Components\ComponentSet.cs" />
     <Compile Include="Entities\Components\Graphics\AnimationController.cs" />
@@ -92,7 +93,9 @@
     <Compile Include="Utilities\Trees\DynamicQuadTree.cs" />
     <Compile Include="Utilities\Trees\QuadTree.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Entities\Collision\New\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Fonts\MavenPro-Regular.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
