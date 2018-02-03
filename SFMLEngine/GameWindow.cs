@@ -14,28 +14,34 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFMLEngine {
-	public class GameWindow {
+	public class GameWindow : ObjectBase {
 		private string name;
 		private bool exitFlag;
 		private bool vsyncEnabled;
+		private uint width, height;
 		private Thread logicThread;
 		private Thread graphicsThread;
 		private RenderWindow window;
-		public GameWindow() : this("") {
-		}
+		public GameWindow() : this("") { }
 
-		public GameWindow(string name) {
+		public GameWindow(string name) : this(name, 800, 600) { }
+
+		public GameWindow(string name, uint width, uint height) {
 			this.name = name;
+			this.width = width;
+			this.height = height;
 			vsyncEnabled = false;
 		}
 
 		public void start() {
+			log("Initializing Game Context...");
 			Clock time = new Clock();
 			InputController input = new InputController();
 			Scene set = new Scene();
 			ICollisionMap map = new SweepAndPrune();
-			UIWindow uiwindow = new UIWindow("", 800, 600, UIWindow.Style.NONE);
+			UIWindow uiwindow = new UIWindow("", width, height, UIWindow.Style.NONE);
 
+			log("Initializing Game Threads...");
 			logicThread = new Thread(() => {
 				GameContext context = new GameContext();
 				SFML.System.Clock clock = new SFML.System.Clock();
@@ -47,6 +53,7 @@ namespace SFMLEngine {
 				context.collision = map;
 				context.time = time;
 
+				log("Creating hooks...");
 				if (context.entities != null && context.collision != null) {
 					context.entities.OnEntityCreated += context.collision.onEntityCreated;
 					context.entities.OnEntityDestroyed += context.collision.onEntityCreated;
@@ -55,8 +62,9 @@ namespace SFMLEngine {
 				logicInitialized(context);
 
 				clock.Restart();
+				log("Logic initialized.");
 				while (!exitFlag) {
-					//Thread.Sleep(1);
+					Thread.Sleep(1);
 					var t = clock.Restart();
 					context.deltaTime = ((float)t.AsMicroseconds()) / 100000f;
 					_logicUpdate(context);
@@ -81,8 +89,12 @@ namespace SFMLEngine {
 			});
 
 			graphicsThread = new Thread(() => {
-				window = new RenderWindow(new SFML.Window.VideoMode(800, 600), name);
-				RenderTexture uilayer = new RenderTexture(800, 600);
+				log(string.Format("Creating window... [Resolution: {0}x{1}]", width, height));
+				window = new RenderWindow(new SFML.Window.VideoMode(width, height), name);
+
+				log("Initializing UI Layer...");
+				RenderTexture uilayer = new RenderTexture(width, height);
+				Sprite uisprite = new Sprite(uilayer.Texture);
 				uiwindow.onGraphicsInitialize();
 
 				window.SetVerticalSyncEnabled(vsyncEnabled);
@@ -92,8 +104,6 @@ namespace SFMLEngine {
 					if (win != null)
 						win.Close();
 				};
-
-				Sprite uisprite = new Sprite(uilayer.Texture);
 
 				SFML.System.Clock clock = new SFML.System.Clock();
 				GameContext context = new GameContext();
@@ -108,6 +118,7 @@ namespace SFMLEngine {
 				input.setHooks(window);
 				graphicsInitialized(context);
 				Statistics.initializeDebugDraw(context);
+				log("Graphics initialized.");
 				while (!exitFlag) {
 					Thread.Sleep(1);
 					var t = clock.Restart();
@@ -119,7 +130,7 @@ namespace SFMLEngine {
 					window.Clear();
 					uilayer.Clear(new Color(0,0,0,0));
 					_graphicsUpdate(context);
-					//context.collision.drawCollisionMap(context);
+					context.collision.drawCollisionMap(context);
 					uisprite.Position = window.GetView().Center - (window.GetView().Size / 2);
 					uilayer.Display();
 					window.Draw(uisprite);
@@ -127,6 +138,7 @@ namespace SFMLEngine {
 				}
 			});
 
+			log("Starting threads...");
 			logicThread.Start();
 			graphicsThread.Start();
 		}

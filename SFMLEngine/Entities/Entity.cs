@@ -13,7 +13,7 @@ namespace SFMLEngine.Entities {
 		public IComponent component;
 	}
 
-	public class Entity : IEntity {
+	public class Entity : ObjectBase, IEntity {
 		public EntityEvent OnDestroyEvent;
 		public EntityEvent OnUpdateEvent;
 		public EntityEvent OnDrawEvent;

@@ -6,8 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Entities.Collision {
-	public class SweepAndPrune : ICollisionMap {
-		public class Node {
+	public class SweepAndPrune : ObjectBase, ICollisionMap {
+		public class Node : ObjectBase {
 			private Node col;
 			public SweepPoint top, left, bottom, right;
 
@@ -113,6 +113,8 @@ namespace SFMLEngine.Entities.Collision {
 			nodeList = new List<Node>();
 			haxis = new List<SweepPoint>();
 			vaxis = new List<SweepPoint>();
+
+			log("SAP Collision Map initialized");
 		}
 
 		private void sortAxis(List<SweepPoint> axis) {

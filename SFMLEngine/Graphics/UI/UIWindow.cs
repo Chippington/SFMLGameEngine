@@ -46,6 +46,8 @@ namespace SFMLEngine.Graphics.UI {
 			renderTexture = new RenderTexture(width, height);
 			sprite = new Sprite(renderTexture.Texture);
 			sprite.Position = this.Position;
+
+			log("UI Window initialized");
 		}
 
 		public void setSize(uint width, uint height) {

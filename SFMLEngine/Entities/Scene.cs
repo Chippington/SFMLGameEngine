@@ -13,12 +13,8 @@ namespace SFMLEngine.Entities {
 		public IEntity entity;
 		public IComponent component;
 	}
-	public class Scene {
-		private int _id = 0;
-		private int id {
-			get { return ++_id; }
-		}
-
+	public class Scene : ObjectBase {
+		private static int id = 0;
 		public EntitySetEvent OnEntityCreated;
 		public EntitySetEvent OnEntityDestroyed;
 		public EntitySetEvent OnEntityComponentAdded;
@@ -26,10 +22,13 @@ namespace SFMLEngine.Entities {
 		public Dictionary<int, IEntity> entityMap;
 		public List<IEntity> entityList;
 		private CameraComponent camera;
-
+		private int sceneID;
 		public Scene() {
 			entityMap = new Dictionary<int, IEntity>();
 			entityList = new List<IEntity>();
+			sceneID = id++;
+
+			log(string.Format("Scene created [ID:{0}]", sceneID));
 		}
 
 		public void updateEntities(GameContext context) {
@@ -76,7 +75,12 @@ namespace SFMLEngine.Entities {
 			return camera;
 		}
 
+		public int getSceneID() {
+			return sceneID;
+		}
+
 		private void onEntityDestroyed(EntityEventArgs args) {
+			log(string.Format("Entity destroyed [Type:{0}]", args.entity.GetType().Name));
 			OnEntityDestroyed?.Invoke(new SceneEventArgs() {
 				entity = args.entity,
 			});

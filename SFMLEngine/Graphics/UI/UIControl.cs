@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Graphics.UI {
-	public class UIControl {
+	public class UIControl : ObjectBase {
 		private Dictionary<int, List<UIControl>> controlMap;
 		private Queue<UIControl> graphicsInitQueue;
 		private List<UIControl> controls;
@@ -25,6 +25,8 @@ namespace SFMLEngine.Graphics.UI {
 			controls = new List<UIControl>();
 			controlMap = new Dictionary<int, List<UIControl>>();
 			indices = new List<int>();
+
+			log("UI Control initialized");
 		}
 
 		public virtual void onGraphicsInitialize() { }
