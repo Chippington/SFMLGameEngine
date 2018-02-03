@@ -72,7 +72,7 @@ namespace SFMLEngine.Graphics.UI.Controls {
 
 			if (width > getSize().X) {
 				//subtract text pos so x + width = 0
-				text.Position = new Vector2f(0f - width, 0f);
+				text.Position = new Vector2f(0f - width - offset.X - 3f, 0f);
 
 				//add text pos + (diff = width of textbox)
 				text.Position += new Vector2f(getSize().X, 0f);
@@ -95,6 +95,13 @@ namespace SFMLEngine.Graphics.UI.Controls {
 				return base.handleInput(key, context);
 
 			string ch = key.ToString().ToLower();
+			if(ch.Length > 1) {
+				ch = ch.Replace("num", "");
+			}
+
+			if (ch.Length > 1)
+				return base.handleInput(key, context);
+
 			if (context.input.isHeld(Keyboard.Key.LShift) || context.input.isHeld(Keyboard.Key.RShift))
 				ch = ch.ToUpper();
 
