@@ -56,7 +56,7 @@ namespace SFMLEngine {
 
 				clock.Restart();
 				while (!exitFlag) {
-					Thread.Sleep(1);
+					//Thread.Sleep(1);
 					var t = clock.Restart();
 					context.deltaTime = ((float)t.AsMicroseconds()) / 100000f;
 					_logicUpdate(context);

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Entities.Collision {
 	public class SweepAndPrune : ICollisionMap {
 		public class Node {
+			private Node col;
 			public SweepPoint top, left, bottom, right;
 
 			public IEntity entity;
@@ -67,7 +68,9 @@ namespace SFMLEngine.Entities.Collision {
 			}
 
 			public void invokeCallbacks() {
-				Node col;
+				if (collider.getIgnoreCallbacks())
+					return;
+
 				for (int i = 0; i < oldCollisions.Count; i++) {
 					col = oldCollisions[i];
 					collider.onLeaveCollision(col.collider);

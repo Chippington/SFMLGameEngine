@@ -20,8 +20,8 @@ namespace SFMLEngineTest {
 				for(int i = 0; i < 1; i++) 
 					for(int j = 0; j < 1000; j++) {
 					var test = context.entities.instantiate<TestEntity>(string.Format("Test[{0},{1}]", i, j));
-					test.components.Get<Position>().x = 52 + (52 * i);
-					test.components.Get<Position>().y = 52 + (52 * j);
+					test.components.Get<Position>().x = 50 + (52 * i);
+					test.components.Get<Position>().y = 50 + (52 * j);
 
 					if(i == 0 || i == 99 || j == 0 || j == 99)
 					test.components.Get<RigidBody>().setDebugDraw(true);
@@ -110,8 +110,9 @@ namespace SFMLEngineTest {
 					top = 0f, bottom = 50f,
 				});
 
-				r.onCollisionEnter += onCollisionEnter;
-				r.onCollisionLeave += onCollisionLeave;
+				r.setIgnoreCallbacks(true);
+				//r.onCollisionEnter += onCollisionEnter;
+				//r.onCollisionLeave += onCollisionLeave;
 
 				this.position = components.Add<Position>();
 			}

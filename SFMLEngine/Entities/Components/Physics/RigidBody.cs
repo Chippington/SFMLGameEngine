@@ -13,6 +13,8 @@ namespace SFMLEngine.Entities.Components.Physics {
 		void onEnterCollision(ICollider other);
 		void onLeaveCollision(ICollider other);
 		void onStepCollision(ICollider other);
+		void setIgnoreCallbacks(bool ignore);
+		bool getIgnoreCallbacks();
 		bool hasChanged();
 	}
 
@@ -25,6 +27,9 @@ namespace SFMLEngine.Entities.Components.Physics {
 		public CollisionEvent onCollisionEnter;
 		public CollisionEvent onCollisionLeave;
 		public CollisionEvent onCollisionStep;
+
+		internal bool ignoreCallbacksFlag;
+
 		private HashSet<ICollider> dbgCols;
 		private RectangleShape dbgRect;
 		private Vector2f dbgPosition;
@@ -147,6 +152,14 @@ namespace SFMLEngine.Entities.Components.Physics {
 
 		public void resetChangedFlag() {
 			hasChangedData = false;
+		}
+
+		public void setIgnoreCallbacks(bool ignore) {
+			this.ignoreCallbacksFlag = ignore;
+		}
+
+		public bool getIgnoreCallbacks() {
+			return this.ignoreCallbacksFlag;
 		}
 	}
 
