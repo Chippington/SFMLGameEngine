@@ -6,6 +6,8 @@ using SFMLEngine.Entities.Components.Camera;
 using SFMLEngine.Entities.Components.Common;
 using SFMLEngine.Entities.Components.Physics;
 using SFMLEngine.Entities.Graphics.Components;
+using SFMLEngine.Graphics.UI;
+using SFMLEngine.Graphics.UI.Controls;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,6 +33,11 @@ namespace SFMLEngineTest {
 					var player = context.entities.instantiate<TestPlayer>();
 					player.components.Get<Position>().x = i * 6;
 				}
+
+				TestUIWindow uitest = new TestUIWindow();
+				uitest.Position = new SFML.System.Vector2f(5f, 300f);
+
+				context.ui.addControl(uitest);
 			}
 
 			protected override void graphicsUpdate(GameContext context) {
@@ -39,6 +46,21 @@ namespace SFMLEngineTest {
 
 			protected override void logicUpdate(GameContext context) {
 				base.logicUpdate(context);
+			}
+		}
+
+		public class TestUIWindow : UIWindow {
+			public TestUIWindow() : base("", 175, 80, Style.DEFAULT) {
+
+			}
+
+			public override void onGraphicsInitialize() {
+				base.onGraphicsInitialize();
+				setClearColor(new Color(255, 255, 255, 122));
+
+				Textbox textbox = new Textbox("", "placeholder", new SFML.System.Vector2f(150f, 30f), new SFML.System.Vector2f(5f, 5f));
+				textbox.Position = new SFML.System.Vector2f(15f, 15f);
+				addControl(textbox);
 			}
 		}
 

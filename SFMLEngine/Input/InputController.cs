@@ -38,7 +38,6 @@ namespace SFMLEngine.Input {
 		}
 
 		public void resetFlags(Keyboard.Key key) {
-			Console.WriteLine("INPUT FLAG RESET {0}", key.ToString());
 			heldMap.Remove(key);
 			pressedMap.Remove(key);
 			releasedMap.Remove(key);
@@ -47,7 +46,6 @@ namespace SFMLEngine.Input {
 		}
 
 		public void resetFlags(Mouse.Button button) {
-			Console.WriteLine("INPUT FLAG RESET {0}", button.ToString());
 			mouseHeldMap.Remove(button);
 			mousePressedMap.Remove(button);
 			mouseReleasedMap.Remove(button);

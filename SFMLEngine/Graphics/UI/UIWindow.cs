@@ -20,6 +20,9 @@ namespace SFMLEngine.Graphics.UI {
 			}
 		}
 
+		private RectangleShape borderRectangle;
+
+		private Style style;
 		private Sprite sprite;
 		private Color clearColor;
 		private RenderTexture renderTexture;
@@ -36,6 +39,7 @@ namespace SFMLEngine.Graphics.UI {
 		public UIWindow(string title, uint width, uint height, Style style) {
 			this.width = width;
 			this.height = height;
+			this.style = style;
 
 			drawQueue = new Queue<Drawable>();
 			clearColor = new Color(0, 0, 0, 0);
@@ -46,6 +50,20 @@ namespace SFMLEngine.Graphics.UI {
 			renderTexture = new RenderTexture(width, height);
 			sprite = new Sprite(renderTexture.Texture);
 			sprite.Position = this.Position;
+
+			if (style == Style.DEFAULT) {
+				setClearColor(new Color(255, 255, 255, 122));
+
+				float thickness = 2f;
+				borderRectangle = new RectangleShape();
+				borderRectangle.OutlineColor = new Color(255, 255, 255);
+				borderRectangle.OutlineThickness = thickness;
+				borderRectangle.Position = new Vector2f(thickness, thickness);
+				borderRectangle.FillColor = new Color(0, 0, 0, 0);
+				borderRectangle.Size = new Vector2f(
+					getWidth() - (thickness * 2f),
+					getHeight() - (thickness * 2f));
+			}
 
 			log("UI Window initialized");
 		}
@@ -75,6 +93,9 @@ namespace SFMLEngine.Graphics.UI {
 		}
 
 		internal override void onDraw(GameContext context, RenderTarget target) {
+			if(borderRectangle != null)
+				this.draw(borderRectangle);
+
 			if (tempRenderTexture != null) {
 				renderTexture = tempRenderTexture;
 				tempRenderTexture = null;

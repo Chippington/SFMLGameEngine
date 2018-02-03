@@ -35,35 +35,35 @@ namespace SFMLEngine.Graphics.UI.Controls {
 			base.updateControl(context);
 		}
 
-		public void setText(string text) {
+		public virtual void setText(string text) {
 			this.text.DisplayedString = text;
 		}
 
-		public string getText() {
+		public virtual string getText() {
 			return text.DisplayedString;
 		}
 
-		public void setFont(Font font) {
+		public virtual void setFont(Font font) {
 			this.text.Font = font;
 		}
 
-		public Font getFont() {
+		public virtual Font getFont() {
 			return this.text.Font;
 		}
 
-		public void setFontSize(uint size) {
+		public virtual void setFontSize(uint size) {
 			text.CharacterSize = size;
 		}
 
-		public uint getFontSize() {
+		public virtual uint getFontSize() {
 			return text.CharacterSize;
 		}
 
-		public void setTextColor(Color color) {
+		public virtual void setTextColor(Color color) {
 			text.FillColor = color;
 		}
 
-		public Color getTextColor() {
+		public virtual Color getTextColor() {
 			return text.FillColor;
 		}
 
@@ -72,6 +72,10 @@ namespace SFMLEngine.Graphics.UI.Controls {
 			if (text == null)
 				return;
 
+			drawText(context, uiWindow);
+		}
+
+		protected virtual void drawText(GameContext context, RenderTarget uiWindow) {
 			uiWindow.Draw(text);
 		}
 	}

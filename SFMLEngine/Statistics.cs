@@ -11,10 +11,9 @@ using System.Threading.Tasks;
 namespace SFMLEngine {
 	public class StatisticsDebugWindow : UIWindow {
 		private Label cpuLabel, gpuLabel;
-		private RectangleShape borderRectangle;
 		public StatisticsGraphControl graph;
 
-		public StatisticsDebugWindow() : base("Debug Statistics", 300, 100) {
+		public StatisticsDebugWindow() : base("Debug Statistics", 300, 100, Style.DEFAULT) {
 			cpuLabel = new Label();
 			gpuLabel = new Label();
 			graph = new StatisticsGraphControl(200, 
@@ -31,17 +30,6 @@ namespace SFMLEngine {
 
 			graph.Position = new Vector2f(5f, 5f);
 			graph.setDepth(0);
-
-			float thickness = 2f;
-			setClearColor(new Color(255, 255, 255, 122));
-			borderRectangle = new RectangleShape();
-			borderRectangle.OutlineColor = new Color(255, 255, 255);
-			borderRectangle.OutlineThickness = thickness;
-			borderRectangle.Position = new Vector2f(thickness, thickness);
-			borderRectangle.FillColor = new Color(0, 0, 0, 0);
-			borderRectangle.Size = new Vector2f(
-				getWidth() - (thickness * 2f), 
-				getHeight() - (thickness * 2f));
 		}
 
 		public override void onInitialize() {
@@ -60,7 +48,6 @@ namespace SFMLEngine {
 		}
 
 		public override void drawControl(GameContext context, RenderTarget target) {
-			this.draw(borderRectangle);
 			base.drawControl(context, target);
 		}
 	}

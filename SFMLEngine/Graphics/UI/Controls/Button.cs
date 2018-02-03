@@ -14,10 +14,10 @@ namespace SFMLEngine.Graphics.UI.Controls {
 		public ButtonEvent OnButtonPressedEvent;
 		public ButtonEvent OnButtonReleasedEvent;
 
-		private RectangleShape rectangleShape;
-		private Vector2f offset;
-		private Vector2f size;
-		private bool pressed;
+		protected RectangleShape rectangleShape;
+		protected Vector2f offset;
+		protected Vector2f size;
+		protected bool pressed;
 
 		public override Vector2f Position { get => base.Position; set {
 				base.Position = value;
@@ -31,9 +31,9 @@ namespace SFMLEngine.Graphics.UI.Controls {
 
 		public Button(string text, Vector2f size, Vector2f offset) : base(text) {
 			this.rectangleShape = new RectangleShape();
-			this.rectangleShape.OutlineColor = new Color(0,0,0);
+			this.rectangleShape.OutlineColor = new Color(222,222,222);
 			this.rectangleShape.OutlineThickness = 2f;
-			this.rectangleShape.FillColor = new Color(222, 222, 222);
+			this.rectangleShape.FillColor = new Color(122, 122, 122);
 			this.offset = offset;
 			this.size = size;
 
@@ -42,30 +42,46 @@ namespace SFMLEngine.Graphics.UI.Controls {
 			resetRect();
 		}
 
-		public void setSize(Vector2f size) {
+		public virtual void setSize(Vector2f size) {
 			this.size = size;
 			resetRect();
 		}
 
-		public Vector2f getSize() {
+		public virtual Vector2f getSize() {
 			return size;
 		}
 
-		public void setOffset(Vector2f offset) {
+		public virtual void setOffset(Vector2f offset) {
 			this.offset = offset;
 			resetRect();
 		}
 
-		public Vector2f getOffset() {
+		public virtual Vector2f getOffset() {
 			return offset;
 		}
 
-		public void setBackgroundColor(Color color) {
+		public virtual void setBackgroundColor(Color color) {
 			this.rectangleShape.FillColor = color;
 		}
 
-		public Color getBackgroundColor() {
+		public virtual Color getBackgroundColor() {
 			return this.rectangleShape.FillColor;
+		}
+
+		public virtual void setBorderColor(Color color) {
+			this.rectangleShape.OutlineColor = color;
+		}
+
+		public virtual Color getBorderColor() {
+			return this.rectangleShape.OutlineColor;
+		}
+
+		public virtual void setBorderThickness(float thickness) {
+			this.rectangleShape.OutlineThickness = thickness;
+		}
+
+		public virtual float getBorderThickness() {
+			return this.rectangleShape.OutlineThickness;
 		}
 
 		private void resetRect() {
