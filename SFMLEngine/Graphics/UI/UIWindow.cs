@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SFML.System;
+using SFML.Window;
 
 namespace SFMLEngine.Graphics.UI {
 	public class UIWindow : UIControl {
@@ -71,7 +72,7 @@ namespace SFMLEngine.Graphics.UI {
 			return clearColor;
 		}
 
-		public override void onDraw(GameContext context, RenderTarget target) {
+		internal override void onDraw(GameContext context, RenderTarget target) {
 			if (tempRenderTexture != null) {
 				renderTexture = tempRenderTexture;
 				tempRenderTexture = null;

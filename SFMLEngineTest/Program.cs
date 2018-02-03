@@ -17,8 +17,8 @@ namespace SFMLEngineTest {
 		public class TestGame : GameWindow {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
-				for(int i = 0; i < 100; i++) 
-					for(int j = 0; j < 100; j++) {
+				for(int i = 0; i < 1; i++) 
+					for(int j = 0; j < 1000; j++) {
 					var test = context.entities.instantiate<TestEntity>(string.Format("Test[{0},{1}]", i, j));
 					test.components.Get<Position>().x = 52 + (52 * i);
 					test.components.Get<Position>().y = 52 + (52 * j);
@@ -97,6 +97,8 @@ namespace SFMLEngineTest {
 
 		public class TestEntity : Entity {
 			private string name;
+			Position position;
+
 			public TestEntity(string name) {
 				this.name = name;
 			}
@@ -110,6 +112,14 @@ namespace SFMLEngineTest {
 
 				r.onCollisionEnter += onCollisionEnter;
 				r.onCollisionLeave += onCollisionLeave;
+
+				this.position = components.Add<Position>();
+			}
+
+			public override void onUpdate(GameContext context) {
+				base.onUpdate(context);
+				var y = position.y / 100f;
+				position.x = (float)Math.Sin(y + ((float)context.time.ElapsedTime.AsMilliseconds()) / 1000f) * 100f;
 			}
 
 			private void onCollisionLeave(CollisionEventArgs args) {

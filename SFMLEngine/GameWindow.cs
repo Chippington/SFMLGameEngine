@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFMLEngine.Entities;
 using SFMLEngine.Entities.Collision;
 using SFMLEngine.Entities.Components;
@@ -29,6 +30,7 @@ namespace SFMLEngine {
 		}
 
 		public void start() {
+			Clock time = new Clock();
 			InputController input = new InputController();
 			Scene set = new Scene();
 			ICollisionMap map = new SweepAndPrune();
@@ -43,6 +45,7 @@ namespace SFMLEngine {
 				context.input = input;
 				context.entities = set;
 				context.collision = map;
+				context.time = time;
 
 				if (context.entities != null && context.collision != null) {
 					context.entities.OnEntityCreated += context.collision.onEntityCreated;
@@ -57,6 +60,22 @@ namespace SFMLEngine {
 					var t = clock.Restart();
 					context.deltaTime = ((float)t.AsMicroseconds()) / 100000f;
 					_logicUpdate(context);
+
+					var pressedKeys = context.input.getPressedKeyboardKeys().ToList();
+					foreach (var key in pressedKeys)
+						if (uiwindow.handleKeyboardInput(key, context))
+							context.input.resetFlags(key);
+
+					var pressedButtons = context.input.getPressedMouseButtons().ToList();
+					foreach (var btn in pressedButtons)
+						if (uiwindow.handleMouseInputPressed(btn, context))
+							context.input.resetFlags(btn);
+
+					var releasedButtons = context.input.getReleasedMouseButtons().ToList();
+					foreach (var btn in releasedButtons)
+						if (uiwindow.handleMouseInputReleased(btn, context))
+							context.input.resetFlags(btn);
+
 					uiwindow.onUpdate(context);
 				}
 			});
@@ -84,6 +103,7 @@ namespace SFMLEngine {
 				context.uiLayer = uilayer;
 				context.ui = uiwindow;
 				context.collision = map;
+				context.time = time;
 
 				input.setHooks(window);
 				graphicsInitialized(context);
@@ -158,5 +178,6 @@ namespace SFMLEngine {
 		public InputController input;
 		public Scene entities;
 		public float deltaTime;
+		public Clock time;
 	}
 }

@@ -59,9 +59,9 @@ namespace SFMLEngine {
 			gpuLabel.setText(rate);
 		}
 
-		public override void onDraw(GameContext context, RenderTarget target) {
+		public override void drawControl(GameContext context, RenderTarget target) {
 			this.draw(borderRectangle);
-			base.onDraw(context, target);
+			base.drawControl(context, target);
 		}
 	}
 
@@ -119,8 +119,8 @@ namespace SFMLEngine {
 			if (dbgGraphicGraphQueue.Count > historyLength) dbgGraphicGraphQueue.RemoveAt(0);
 		}
 
-		public override void onDraw(GameContext context, RenderTarget target) {
-			base.onDraw(context, target);
+		public override void drawControl(GameContext context, RenderTarget target) {
+			base.drawControl(context, target);
 
 			if (logicLines == null || graphicLines == null)
 				return;
@@ -198,6 +198,12 @@ namespace SFMLEngine {
 
 		public static void onGraphicsUpdate() {
 			graphicsFrameQueue.Enqueue(Environment.TickCount);
+
+			while (logicFrameQueue.Count > 0 && logicFrameQueue.Peek() < Environment.TickCount - 1000)
+				logicFrameQueue.Dequeue();
+
+			while (graphicsFrameQueue.Count > 0 && graphicsFrameQueue.Peek() < Environment.TickCount - 1000)
+				graphicsFrameQueue.Dequeue();
 		}
 
 		public static float getLogicFramesPerSecond() {

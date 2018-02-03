@@ -93,9 +93,7 @@
     <Compile Include="Utilities\Trees\DynamicQuadTree.cs" />
     <Compile Include="Utilities\Trees\QuadTree.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Entities\Collision\New\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Resources\Fonts\MavenPro-Regular.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

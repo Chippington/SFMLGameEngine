@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,8 @@ namespace SFMLEngine.Graphics.UI {
 
 		public virtual void onGraphicsInitialize() { }
 
-		public virtual void onUpdate(GameContext context) {
+		internal virtual void onUpdate(GameContext context) {
+			this.updateControl(context);
 			if (controls == null)
 				return;
 
@@ -37,19 +39,28 @@ namespace SFMLEngine.Graphics.UI {
 			}
 		}
 
-		public virtual void onDraw(GameContext context, RenderTarget target) {
+		internal virtual void onDraw(GameContext context, RenderTarget target) {
+			this.drawControl(context, target);
 			if (controls == null)
 				return;
 
 			while (graphicsInitQueue.Count > 0)
 				graphicsInitQueue.Dequeue().onGraphicsInitialize();
 
-			for(int i = 0; i < indices.Count; i++) {
+			for (int i = 0; i < indices.Count; i++) {
 				var list = controlMap[i];
-				for(int j = 0; j < list.Count; j++) {
+				for (int j = 0; j < list.Count; j++) {
 					list[j].onDraw(context, target);
 				}
 			}
+		}
+
+		public virtual void drawControl(GameContext context, RenderTarget target) {
+
+		}
+
+		public virtual void updateControl(GameContext context) {
+
 		}
 
 		public void addControl(UIControl control) {
@@ -114,6 +125,79 @@ namespace SFMLEngine.Graphics.UI {
 				controlMap.Add(ind, new List<UIControl>());
 
 			controlMap[ind].Add(control);
+		}
+
+		internal bool handleKeyboardInput(Keyboard.Key key, GameContext context) {
+			if (handleInput(key, context))
+				return true;
+
+			foreach (var control in getControls())
+				if (control.handleKeyboardInput(key, context))
+					return true;
+
+			return false;
+		}
+
+		internal bool handleMouseInputPressed(Mouse.Button button, GameContext context) {
+			if (handleInputPressed(button, context))
+				return true;
+
+			foreach (var control in getControls())
+				if (control.handleMouseInputPressed(button, context))
+					return true;
+
+			return false;
+		}
+
+		internal bool handleMouseInputReleased(Mouse.Button button, GameContext context) {
+			if (handleInputReleased(button, context))
+				return true;
+
+			foreach (var control in getControls())
+				if (control.handleMouseInputReleased(button, context))
+					return true;
+
+			return false;
+		}
+
+		internal bool handleMouseInput(Mouse.Wheel wheel, GameContext context) {
+			if (handleInput(wheel, context))
+				return true;
+
+			foreach (var control in getControls())
+				if (control.handleMouseInput(wheel, context))
+					return true;
+
+			return false;
+		}
+
+		protected virtual bool handleInput(Keyboard.Key key, GameContext context) {
+			return false;
+		}
+
+		protected virtual bool handleInputPressed(Mouse.Button button, GameContext context) {
+			return false;
+		}
+
+		protected virtual bool handleInputReleased(Mouse.Button button, GameContext context) {
+			return false;
+		}
+
+		protected virtual bool handleInput(Mouse.Wheel wheel, GameContext context) {
+			return false;
+		}
+
+		public virtual Vector2i getRelativeMousePosition(Vector2i rawMousePos) {
+			if (parent != null) {
+				Vector2i parentPos = parent.getRelativeMousePosition(rawMousePos);
+				return new Vector2i(
+					parentPos.X - (int)position.X, 
+					parentPos.Y - (int)position.Y);
+			}
+
+			return new Vector2i(
+				rawMousePos.X - (int)position.X, 
+				rawMousePos.Y - (int)position.Y);
 		}
 	}
 }

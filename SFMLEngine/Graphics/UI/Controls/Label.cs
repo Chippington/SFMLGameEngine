@@ -8,8 +8,8 @@ using SFML.System;
 
 namespace SFMLEngine.Graphics.UI.Controls {
 	public class Label : UIControl {
-		private static Font DefaultFont = new Font("Resources/Fonts/MavenPro-Regular.ttf");
-		private Text text;
+		protected static Font DefaultFont = new Font("Resources/Fonts/MavenPro-Regular.ttf");
+		protected Text text;
 
 		public override Vector2f Position { get => base.Position; set {
 				base.Position = value;
@@ -31,8 +31,8 @@ namespace SFMLEngine.Graphics.UI.Controls {
 			base.onInitialize();
 		}
 
-		public override void onUpdate(GameContext context) {
-			base.onUpdate(context);
+		public override void updateControl(GameContext context) {
+			base.updateControl(context);
 		}
 
 		public void setText(string text) {
@@ -59,16 +59,16 @@ namespace SFMLEngine.Graphics.UI.Controls {
 			return text.CharacterSize;
 		}
 
-		public void setColor(Color color) {
+		public void setTextColor(Color color) {
 			text.FillColor = color;
 		}
 
-		public Color getColor() {
+		public Color getTextColor() {
 			return text.FillColor;
 		}
 
-		public override void onDraw(GameContext context, RenderTarget uiWindow) {
-			base.onDraw(context, uiWindow);
+		public override void drawControl(GameContext context, RenderTarget uiWindow) {
+			base.drawControl(context, uiWindow);
 			if (text == null)
 				return;
 
