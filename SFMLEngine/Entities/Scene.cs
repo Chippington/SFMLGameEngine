@@ -40,8 +40,8 @@ namespace SFMLEngine.Entities {
 
 		public void drawEntities(GameContext context) {
 			for (int i = 0; i < entityList.Count; i++) {
-				entityList[i].onDraw(context);
 				entityList[i].components.drawComponents(context);
+				entityList[i].onDraw(context);
 			}
 
 			if (camera == null)

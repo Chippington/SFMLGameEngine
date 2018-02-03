@@ -124,7 +124,7 @@ namespace SFMLEngine.Entities.Collision {
 
 				int i = j - 1;
 
-				while (i >= 0 && axis[i].value > key) {
+				while (i >= 0 && axis[i].value >= key) {
 					SweepPoint swapper = axis[i];
 
 					if (keyelement.type == SweepPoint.Type.START && swapper.type == SweepPoint.Type.END) {

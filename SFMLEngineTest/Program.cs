@@ -1,4 +1,5 @@
-﻿using SFMLEngine;
+﻿using SFML.Graphics;
+using SFMLEngine;
 using SFMLEngine.Entities;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Entities.Components.Camera;
@@ -42,15 +43,17 @@ namespace SFMLEngineTest {
 		}
 
 		public class TestPlayer : Entity {
+			RigidBody rigidbody;
 			CameraComponent cam;
 			Position pos;
 			float vx, vy;
-
 			public override void onInitialize() {
 				base.onInitialize();
 				var rb = components.Add<RigidBody>();
 				rb.setBoundingBox(new BoundingBox(-16f, -16f, 16f, 16f));
 				rb.setDebugDraw(true);
+				rb.onCollisionStep += onCollisionStep;
+				rigidbody = rb;
 				pos = components.Add<Position>();
 
 				var tex = new SFML.Graphics.Texture("Resources/Sprites/sprite.png");
@@ -66,9 +69,39 @@ namespace SFMLEngineTest {
 				owner.setCamera(cam);
 			}
 
+			private void onCollisionStep(CollisionEventArgs args) {
+				var other = args.other.getBoundingBox();
+				var bounds = rigidbody.getBoundingBox();
+				var c1 = bounds.center;
+				var c2 = other.center;
+
+				float xdiff1 = bounds.max.X - other.min.X;
+				float xdiff2 = bounds.min.X - other.max.X;
+				float ydiff1 = bounds.max.Y - other.min.Y;
+				float ydiff2 = bounds.min.Y - other.max.Y;
+
+				float speed = 30f;
+				if (Math.Abs(c1.X - c2.X) > Math.Abs(c1.Y - c2.Y)) {
+					if(Math.Abs(xdiff1) >= Math.Abs(xdiff2)) {
+						vx -= xdiff2 * speed;
+					} else {
+						vx -= xdiff1 * speed; // push left
+					}
+				} else {
+					if (Math.Abs(ydiff1) >= Math.Abs(ydiff2)) {
+						vy -= ydiff2 * speed;
+					} else {
+						vy -= ydiff1 * speed; // push up
+					}
+				}
+			}
+
+			public override void onDraw(GameContext context) {
+				base.onDraw(context);
+			}
+
 			public override void onUpdate(GameContext context) {
 				base.onUpdate(context);
-				vx = vy = 0;
 				if(context.input.isHeld(SFML.Window.Keyboard.Key.W)) { vy -= 30f; }
 				if(context.input.isHeld(SFML.Window.Keyboard.Key.A)) { vx -= 30f; }
 				if(context.input.isHeld(SFML.Window.Keyboard.Key.S)) { vy += 30f; }
@@ -92,6 +125,7 @@ namespace SFMLEngineTest {
 				var diff = newPos - cam.getPosition();
 				diff *= 0.02f;
 				cam.setPosition(cam.getPosition() + diff);
+				vx = vy = 0;
 			}
 		}
 

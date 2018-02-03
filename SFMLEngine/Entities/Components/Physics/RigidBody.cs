@@ -185,10 +185,10 @@ namespace SFMLEngine.Entities.Components.Physics {
 		}
 
 		public bool intersects(BoundingBox other) {
-			return ((other.x + other.right > x + left) 
-				&& (other.x + other.left < x + right) 
-				&& (other.y + other.bottom > y + top) 
-				&& (other.y + other.top < y + bottom));
+			return ((other.x + other.right >= x + left) 
+				&& (other.x + other.left <= x + right) 
+				&& (other.y + other.bottom >= y + top) 
+				&& (other.y + other.top <= y + bottom));
 		}
 
 		public void copy(BoundingBox other) {
@@ -199,6 +199,26 @@ namespace SFMLEngine.Entities.Components.Physics {
 			this.x = other.x;
 			this.y = other.y;
 			hasChanged = true;
+		}
+
+		public Vector2f center {
+			get {
+				return new Vector2f(
+					((x + left) + (x + right)) / 2f,
+					((y + top) + (y + bottom)) / 2f);
+			}
+		}
+
+		public Vector2f min {
+			get {
+				return new Vector2f(x + left, y + top);
+			}
+		}
+
+		public Vector2f max {
+			get {
+				return new Vector2f(x + right, y + bottom);
+			}
 		}
 
 		public float top, left, bottom, right, x, y;
