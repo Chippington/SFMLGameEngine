@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Net.ENet {
+namespace SFMLEngine.Net.Providers {
 	public class ENetProvider : INetworkProvider {
 		public Peer clientPeer;
 		public Host host;
@@ -21,7 +21,7 @@ namespace SFMLEngine.Net.ENet {
 			public IDataBuffer buff;
 		}
 
-		public static int cfgPeer = 100;
+		public static int cfgPeer = -1;
 
 		public override void startServer(NetProviderConfig config) {
 			clientMap = new Dictionary<Peer, ClientInfo>();

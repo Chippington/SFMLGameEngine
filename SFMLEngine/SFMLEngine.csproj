@@ -90,7 +90,8 @@
     <Compile Include="Graphics\UI\UIControl.cs" />
     <Compile Include="Graphics\UI\UIWindow.cs" />
     <Compile Include="Input\InputController.cs" />
-    <Compile Include="Net\ENet\ENetProvider.cs" />
+    <Compile Include="Net\Entities\NetEntity.cs" />
+    <Compile Include="Net\Providers\ENetProvider.cs" />
     <Compile Include="ObjectBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Statistics.cs" />
