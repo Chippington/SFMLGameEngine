@@ -66,7 +66,7 @@ namespace SFMLEngine {
 				while (!exitFlag) {
 					Thread.Sleep(1);
 					var t = clock.Restart();
-					context.deltaTime = ((float)t.AsMicroseconds()) / 100000f;
+					context.deltaTime = ((float)t.AsMicroseconds()) / 1000000f;
 					_logicUpdate(context);
 
 					var pressedKeys = context.input.getPressedKeyboardKeys().ToList();
@@ -113,7 +113,7 @@ namespace SFMLEngine {
 				context.uiLayer = uilayer;
 				context.ui = uiwindow;
 				context.collision = map;
-				context.time = time;
+				context.time = clock;
 
 				input.setHooks(window);
 				graphicsInitialized(context);
@@ -122,7 +122,7 @@ namespace SFMLEngine {
 				while (!exitFlag) {
 					Thread.Sleep(1);
 					var t = clock.Restart();
-					context.deltaTime = ((float)t.AsMicroseconds()) / 100000f;
+					context.deltaTime = ((float)t.AsMicroseconds()) / 1000000f;
 
 					window.DispatchEvents();
 					input.updateInput();

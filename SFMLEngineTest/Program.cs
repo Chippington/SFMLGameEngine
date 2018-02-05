@@ -102,18 +102,22 @@ namespace SFMLEngineTest {
 				float ydiff1 = bounds.max.Y - other.min.Y;
 				float ydiff2 = bounds.min.Y - other.max.Y;
 
-				float speed = 30f;
+				float speed = 300f;
 				if (Math.Abs(c1.X - c2.X) > Math.Abs(c1.Y - c2.Y)) {
 					if(Math.Abs(xdiff1) >= Math.Abs(xdiff2)) {
-						vx -= xdiff2 * speed;
+						//vx -= xdiff2 * speed;
+						pos.x -= xdiff2;
 					} else {
-						vx -= xdiff1 * speed; // push left
+						//vx -= xdiff1 * speed; // push left
+						pos.x -= xdiff1;
 					}
 				} else {
 					if (Math.Abs(ydiff1) >= Math.Abs(ydiff2)) {
-						vy -= ydiff2 * speed;
+						//vy -= ydiff2 * speed;
+						pos.y -= ydiff2;
 					} else {
-						vy -= ydiff1 * speed; // push up
+						//vy -= ydiff1 * speed; // push up
+						pos.y -= ydiff1;
 					}
 				}
 			}
@@ -124,10 +128,10 @@ namespace SFMLEngineTest {
 
 			public override void onUpdate(GameContext context) {
 				base.onUpdate(context);
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.W)) { vy -= 30f; }
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.A)) { vx -= 30f; }
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.S)) { vy += 30f; }
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.D)) { vx += 30f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.W)) { vy -= 300f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.A)) { vx -= 300f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.S)) { vy += 300f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.D)) { vx += 300f; }
 
 				var col = components.Get<RigidBody>();
 				//if (context.collision.testCollision<TestEntity>(
@@ -201,10 +205,7 @@ namespace SFMLEngineTest {
 			TestGame g = new TestGame();
 			g.start();
 
-			var g2 = new TestGame();
-			g2.start();
-
-			while (g.isRunning() && g2.isRunning()) {
+			while (g.isRunning()) {
 				System.Threading.Thread.Sleep(100);
 			}
 		}
