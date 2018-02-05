@@ -31,14 +31,14 @@ namespace SFMLEngine.Entities {
 			log(string.Format("Scene created [ID:{0}]", sceneID));
 		}
 
-		public void updateEntities(GameContext context) {
+		public virtual void updateEntities(GameContext context) {
 			for(int i = 0; i < entityList.Count; i++) {
 				entityList[i].onUpdate(context);
 				entityList[i].components.updateComponents(context);
 			}
 		}
 
-		public void drawEntities(GameContext context) {
+		public virtual void drawEntities(GameContext context) {
 			for (int i = 0; i < entityList.Count; i++) {
 				entityList[i].components.drawComponents(context);
 				entityList[i].onDraw(context);
@@ -53,7 +53,7 @@ namespace SFMLEngine.Entities {
 			context.window.SetView(camera.getView());
 		}
 
-		public T instantiate<T>(params object[] args) where T : Entity {
+		public virtual T instantiate<T>(params object[] args) where T : Entity {
 			T ent = (T)Activator.CreateInstance(typeof(T), args);
 			entityList.Add(ent);
 
@@ -67,15 +67,15 @@ namespace SFMLEngine.Entities {
 			return ent;
 		}
 
-		public void setCamera(CameraComponent camera) {
+		public virtual void setCamera(CameraComponent camera) {
 			this.camera = camera;
 		}
 
-		public CameraComponent getCamera() {
+		public virtual CameraComponent getCamera() {
 			return camera;
 		}
 
-		public int getSceneID() {
+		public virtual int getSceneID() {
 			return sceneID;
 		}
 

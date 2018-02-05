@@ -201,7 +201,10 @@ namespace SFMLEngineTest {
 			TestGame g = new TestGame();
 			g.start();
 
-			while(g.isRunning()) {
+			var g2 = new TestGame();
+			g2.start();
+
+			while (g.isRunning() && g2.isRunning()) {
 				System.Threading.Thread.Sleep(100);
 			}
 		}

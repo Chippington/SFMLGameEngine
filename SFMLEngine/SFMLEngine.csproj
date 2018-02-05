@@ -91,6 +91,7 @@
     <Compile Include="Graphics\UI\UIWindow.cs" />
     <Compile Include="Input\InputController.cs" />
     <Compile Include="Net\Entities\NetEntity.cs" />
+    <Compile Include="Net\NetScene.cs" />
     <Compile Include="Net\Providers\ENetProvider.cs" />
     <Compile Include="ObjectBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
