@@ -152,7 +152,7 @@ namespace SFMLEngine.Entities.Collision {
 			}
 		}
 
-		public void updateCollisionMap(GameContext context) {
+		public void onUpdate(GameContext context) {
 			for (int i = 0; i < nodeList.Count; i++)
 				nodeList[i].update();
 
@@ -163,10 +163,10 @@ namespace SFMLEngine.Entities.Collision {
 			}
 		}
 
-		public void drawCollisionMap(GameContext context) {
+		public void onDraw(GameContext context) {
 		}
 
-		public void onEntityComponentCreated(SceneEventArgs args) {
+		public void onEntityComponentAdded(SceneEventArgs args) {
 			throw new NotImplementedException();
 		}
 
@@ -191,6 +191,12 @@ namespace SFMLEngine.Entities.Collision {
 			haxis.Add(newNode.right);
 			vaxis.Add(newNode.bottom);
 			return newNode;
+		}
+
+		public void onInitialize(GameContext context) {
+		}
+
+		public void onDispose(GameContext context) {
 		}
 	}
 }

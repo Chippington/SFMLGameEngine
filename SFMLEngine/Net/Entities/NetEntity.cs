@@ -26,6 +26,7 @@ namespace SFMLEngine.Net.Entities {
 		/*-------------------------------------------------------------------------------------------*/
 		/*-------------------------------------------------------------------------------------------*/
 		/*-------------------------------------------------------------------------------------------*/
+
 		#region SFML ENGINE IENTITY
 		public ComponentSet components { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
@@ -33,7 +34,7 @@ namespace SFMLEngine.Net.Entities {
 			throw new NotImplementedException();
 		}
 
-		public void onDestroy() {
+		public void onDispose(GameContext context) {
 			throw new NotImplementedException();
 		}
 
@@ -41,7 +42,7 @@ namespace SFMLEngine.Net.Entities {
 			throw new NotImplementedException();
 		}
 
-		public void onInitialize() {
+		public void onInitialize(GameContext context) {
 			throw new NotImplementedException();
 		}
 
@@ -53,6 +54,10 @@ namespace SFMLEngine.Net.Entities {
 			throw new NotImplementedException();
 		}
 		#endregion
+
+		/*-------------------------------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------------------------------*/
 
 		#region NETUTILS INETENTITY
 

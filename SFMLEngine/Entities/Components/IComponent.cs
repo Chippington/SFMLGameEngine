@@ -5,11 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Entities.Components {
-	public interface IComponent {
-		void onInitialize();
-		void onUpdate(GameContext context);
-		void onDraw(GameContext context);
-		void onDestroy();
+	public interface IComponent : IGameObject, IUpdatable, IRenderable{
 		void setEntity(IEntity owner);
 		IEntity getEntity();
 	}

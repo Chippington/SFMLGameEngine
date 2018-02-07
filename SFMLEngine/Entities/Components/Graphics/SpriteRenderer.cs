@@ -15,8 +15,8 @@ namespace SFMLEngine.Entities.Graphics.Components {
 		private Vector2f origin;
 		private Vector2f scale;
 
-		public override void onInitialize() {
-			base.onInitialize();
+		public override void onInitialize(GameContext context) {
+			base.onInitialize(context);
 			scale = new Vector2f(1f, 1f);
 			origin = new Vector2f(0f, 0f);
 			transform = entity.components.Add<Position>();

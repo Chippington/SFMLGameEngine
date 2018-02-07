@@ -29,7 +29,9 @@ namespace SFMLEngine.Entities {
 			destroyed = false;
 		}
 
-		public virtual void onInitialize() { }
+		public virtual void onInitialize(GameContext context) {
+			_components.onInitialize(context);
+		}
 
 		public virtual void onUpdate(GameContext context) {
 			OnUpdateEvent?.Invoke(new EntityEventArgs() {
@@ -63,6 +65,10 @@ namespace SFMLEngine.Entities {
 
 		public ComponentSet getComponents() {
 			return _components;
+		}
+
+		public virtual void onDispose(GameContext context) {
+			_components.onDispose(context);
 		}
 	}
 }

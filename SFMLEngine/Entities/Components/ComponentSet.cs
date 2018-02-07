@@ -11,12 +11,13 @@ namespace SFMLEngine.Entities.Components {
 		public IComponent component;
 	}
 
-	public class ComponentSet {
+	public class ComponentSet : IGameObject, IRenderable, IUpdatable {
 		public ComponentEvent OnComponentAdded;
 		public ComponentEvent OnComponentRemoved;
 		private List<IComponent> componentList;
 		private Dictionary<Type, IComponent> source;
 		private IEntity owner;
+		protected GameContext context;
 
 		public ICollection<Type> Keys => source.Keys;
 
@@ -24,20 +25,22 @@ namespace SFMLEngine.Entities.Components {
 
 		public int Count => source.Count;
 
-		//public IComponent this[Type key] { get => source[key]; set => source[key] = value; }
-
 		public ComponentSet(IEntity owner) {
 			componentList = new List<IComponent>();
 			this.source = new Dictionary<Type, IComponent>();
 			this.owner = owner;
 		}
 
-		public void updateComponents(GameContext context) {
+		public void onInitialize(GameContext context) {
+			this.context = context;
+		}
+
+		public void onUpdate(GameContext context) {
 			for (int i = 0; i < componentList.Count; i++)
 				componentList[i].onUpdate(context);
 		}
 
-		public void drawComponents(GameContext context) {
+		public void onDraw(GameContext context) {
 			for (int i = 0; i < componentList.Count; i++)
 				componentList[i].onDraw(context);
 		}
@@ -61,7 +64,7 @@ namespace SFMLEngine.Entities.Components {
 			source.Add(key, inst);
 			componentList.Add(inst);
 			inst.setEntity(owner);
-			inst.onInitialize();
+			inst.onInitialize(context);
 
 			OnComponentAdded?.Invoke(new ComponentEventArgs() {
 				component = inst,
@@ -84,7 +87,7 @@ namespace SFMLEngine.Entities.Components {
 		public bool Remove(Type key) {
 			if (source.ContainsKey(key)) {
 				var inst = source[key];
-				inst.onDestroy();
+				inst.onDispose(context);
 				OnComponentRemoved?.Invoke(new ComponentEventArgs() {
 					component = inst,
 				});
@@ -98,5 +101,9 @@ namespace SFMLEngine.Entities.Components {
 		public bool TryGetValue(Type key, out IComponent value) => source.TryGetValue(key, out value);
 
 		public IEnumerator<KeyValuePair<Type, IComponent>> GetEnumerator() => source.GetEnumerator();
+
+		public void onDispose(GameContext context) {
+			throw new NotImplementedException();
+		}
 	}
 }

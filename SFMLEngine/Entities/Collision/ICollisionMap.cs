@@ -5,16 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Entities.Collision {
-	public interface ICollisionMap {
-		void updateCollisionMap(GameContext context);
-
-		void drawCollisionMap(GameContext context);
-
+	public interface ICollisionMap : IRenderable, IUpdatable {
 		void onEntityCreated(SceneEventArgs args);
 
 		void onEntityDestroyed(SceneEventArgs args);
 
-		void onEntityComponentCreated(SceneEventArgs args);
+		void onEntityComponentAdded(SceneEventArgs args);
 
 		void onEntityComponentDestroyed(SceneEventArgs args);
 	}

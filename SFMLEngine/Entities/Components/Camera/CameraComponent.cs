@@ -11,8 +11,8 @@ namespace SFMLEngine.Entities.Components.Camera {
 	public class CameraComponent : Component {
 		private View view;
 
-		public override void onInitialize() {
-			base.onInitialize();
+		public override void onInitialize(GameContext context) {
+			base.onInitialize(context);
 			view = new View();
 		}
 

@@ -45,8 +45,8 @@ namespace SFMLEngine.Entities.Components.Physics {
 		private bool hasChangedData;
 		private Position transform;
 
-		public override void onInitialize() {
-			base.onInitialize();
+		public override void onInitialize(GameContext context) {
+			base.onInitialize(context);
 
 			if(_bounds == null)
 				_bounds = new BoundingBox();

@@ -8,8 +8,8 @@ namespace SFMLEngine.Entities.Components {
 	public class Component : IComponent {
 		public IEntity entity;
 
-		public virtual void onInitialize() { }
-		public virtual void onDestroy() { }
+		public virtual void onInitialize(GameContext context) { }
+		public virtual void onDispose(GameContext context) { }
 		public virtual void onUpdate(GameContext context) { }
 		public virtual void onDraw(GameContext context) { }
 		public void setEntity(IEntity owner) {

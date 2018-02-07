@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFMLEngine;
 using SFMLEngine.Entities;
 using SFMLEngine.Entities.Components;
@@ -20,17 +21,21 @@ namespace SFMLEngineTest {
 		public class TestGame : GameWindow {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
+				Scene mainScene = new Scene();
+				context.sceneManager.addScene(mainScene);
+				context.sceneManager.setSceneActive(mainScene, true);
+
 				for(int i = 0; i < 1; i++) 
-					for(int j = 0; j < 1000; j++) {
-					var test = context.entities.instantiate<TestEntity>(string.Format("Test[{0},{1}]", i, j));
-					test.components.Get<Position>().x = 50 + (52 * i);
-					test.components.Get<Position>().y = 50 + (52 * j);
+					for(int j = 0; j < 2000; j++) {
+					var test = mainScene.instantiate<TestEntity>(string.Format("Test[{0},{1}]", i, j));
+					test.components.Get<Position>().x = 50 + (10 * i);
+					test.components.Get<Position>().y = 50 + (10 * j);
 
 					if(i == 0 || i == 99 || j == 0 || j == 99)
 					test.components.Get<RigidBody>().setDebugDraw(true);
 				}
 				for (int i = 0; i < 1; i++) {
-					var player = context.entities.instantiate<TestPlayer>();
+					var player = mainScene.instantiate<TestPlayer>();
 					player.components.Get<Position>().x = i * 6;
 				}
 
@@ -69,8 +74,8 @@ namespace SFMLEngineTest {
 			CameraComponent cam;
 			Position pos;
 			float vx, vy;
-			public override void onInitialize() {
-				base.onInitialize();
+			public override void onInitialize(GameContext context) {
+				base.onInitialize(context);
 				var rb = components.Add<RigidBody>();
 				rb.setBoundingBox(new BoundingBox(-16f, -16f, 16f, 16f));
 				rb.setDebugDraw(true);
@@ -102,24 +107,12 @@ namespace SFMLEngineTest {
 				float ydiff1 = bounds.max.Y - other.min.Y;
 				float ydiff2 = bounds.min.Y - other.max.Y;
 
-				float speed = 300f;
-				if (Math.Abs(c1.X - c2.X) > Math.Abs(c1.Y - c2.Y)) {
-					if(Math.Abs(xdiff1) >= Math.Abs(xdiff2)) {
-						//vx -= xdiff2 * speed;
-						pos.x -= xdiff2;
-					} else {
-						//vx -= xdiff1 * speed; // push left
-						pos.x -= xdiff1;
-					}
-				} else {
-					if (Math.Abs(ydiff1) >= Math.Abs(ydiff2)) {
-						//vy -= ydiff2 * speed;
-						pos.y -= ydiff2;
-					} else {
-						//vy -= ydiff1 * speed; // push up
-						pos.y -= ydiff1;
-					}
-				}
+				Vector2f disp = new Vector2f(xdiff1, ydiff1);
+				if (Math.Abs(xdiff2) < Math.Abs(xdiff1)) disp.X = xdiff2;
+				if (Math.Abs(ydiff2) < Math.Abs(ydiff1)) disp.Y = ydiff2;
+				if (Math.Abs(disp.X) < Math.Abs(disp.Y)) disp.Y = 0f; else disp.X = 0f;
+				pos.x -= disp.X;
+				pos.y -= disp.Y;
 			}
 
 			public override void onDraw(GameContext context) {
@@ -128,10 +121,10 @@ namespace SFMLEngineTest {
 
 			public override void onUpdate(GameContext context) {
 				base.onUpdate(context);
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.W)) { vy -= 300f; }
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.A)) { vx -= 300f; }
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.S)) { vy += 300f; }
-				if(context.input.isHeld(SFML.Window.Keyboard.Key.D)) { vx += 300f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.W)) { vy -= 200f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.A)) { vx -= 200f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.S)) { vy += 200f; }
+				if(context.input.isHeld(SFML.Window.Keyboard.Key.D)) { vx += 200f; }
 
 				var col = components.Get<RigidBody>();
 				//if (context.collision.testCollision<TestEntity>(
@@ -163,11 +156,11 @@ namespace SFMLEngineTest {
 				this.name = name;
 			}
 
-			public override void onInitialize() {
+			public override void onInitialize(GameContext context) {
 				var r = components.Add<RigidBody>();
 				r.setBoundingBox(new BoundingBox() {
-					left = 0f, right = 50f,
-					top = 0f, bottom = 50f,
+					left = 0f, right = 10f,
+					top = 0f, bottom = 10f,
 				});
 
 				r.setIgnoreCallbacks(true);

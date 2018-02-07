@@ -90,8 +90,11 @@
     <Compile Include="Graphics\UI\Controls\Textbox.cs" />
     <Compile Include="Graphics\UI\UIControl.cs" />
     <Compile Include="Graphics\UI\UIWindow.cs" />
+    <Compile Include="IGameObject.cs" />
     <Compile Include="IGameService.cs" />
     <Compile Include="Input\InputController.cs" />
+    <Compile Include="IRenderable.cs" />
+    <Compile Include="IUpdatable.cs" />
     <Compile Include="Net\Entities\NetEntity.cs" />
     <Compile Include="Net\NetScene.cs" />
     <Compile Include="Net\Providers\ENetProvider.cs" />

@@ -31,8 +31,8 @@ namespace SFMLEngine.Net {
 			return inst;
 		}
 
-		public override void updateEntities(GameContext context) {
-			base.updateEntities(context);
+		public override void onUpdate(GameContext context) {
+			base.onUpdate(context);
 			for(int i = 0; i < netEntityList.Count; i++) {
 				if (netEntityList[i].isClient()) netEntityList[i].onClientUpdate();
 				if (netEntityList[i].isServer()) netEntityList[i].onServerUpdate();

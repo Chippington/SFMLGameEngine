@@ -37,7 +37,7 @@ namespace SFMLEngine {
 			log("Initializing Game Context...");
 			Clock time = new Clock();
 			InputController input = new InputController();
-			Scene set = new Scene();
+			SceneManager scenes = new SceneManager();
 			ICollisionMap map = new SweepAndPrune();
 			UIWindow uiwindow = new UIWindow("", width, height, UIWindow.Style.NONE);
 
@@ -47,17 +47,10 @@ namespace SFMLEngine {
 				SFML.System.Clock clock = new SFML.System.Clock();
 				uiwindow.onInitialize();
 
-				context.ui = uiwindow;
+				context.sceneManager = scenes;
 				context.input = input;
-				context.entities = set;
-				context.collision = map;
+				context.ui = uiwindow;
 				context.time = time;
-
-				log("Creating hooks...");
-				if (context.entities != null && context.collision != null) {
-					context.entities.OnEntityCreated += context.collision.onEntityCreated;
-					context.entities.OnEntityDestroyed += context.collision.onEntityCreated;
-				}
 
 				logicInitialized(context);
 
@@ -107,12 +100,11 @@ namespace SFMLEngine {
 
 				SFML.System.Clock clock = new SFML.System.Clock();
 				GameContext context = new GameContext();
-				context.input = input;
-				context.entities = set;
-				context.window = window;
+				context.sceneManager = scenes;
 				context.uiLayer = uilayer;
+				context.window = window;
+				context.input = input;
 				context.ui = uiwindow;
-				context.collision = map;
 				context.time = clock;
 
 				input.setHooks(window);
@@ -130,7 +122,6 @@ namespace SFMLEngine {
 					window.Clear();
 					uilayer.Clear(new Color(0,0,0,0));
 					_graphicsUpdate(context);
-					context.collision.drawCollisionMap(context);
 					uisprite.Position = window.GetView().Center - (window.GetView().Size / 2);
 					uilayer.Display();
 					window.Draw(uisprite);
@@ -156,11 +147,7 @@ namespace SFMLEngine {
 		private void _logicUpdate(GameContext context) {
 			Statistics.onLogicUpdate();
 			logicUpdate(context);
-			context.entities.updateEntities(context);
-
-			if(context.collision != null)
-				context.collision.updateCollisionMap(context);
-
+			context.sceneManager.onUpdate(context);
 			context.ui.onUpdate(context);
 		}
 
@@ -168,7 +155,7 @@ namespace SFMLEngine {
 			Statistics.onGraphicsUpdate();
 			Statistics.debugDraw(context.uiLayer);
 
-			context.entities.drawEntities(context);
+			context.sceneManager.onDraw(context);
 			context.ui.onDraw(context, context.uiLayer);
 			graphicsUpdate(context);
 		}
@@ -186,9 +173,9 @@ namespace SFMLEngine {
 		public RenderTarget window;
 		public RenderTarget uiLayer;
 		public UIWindow ui;
-		public ICollisionMap collision;
+
+		public SceneManager sceneManager;
 		public InputController input;
-		public Scene entities;
 		public float deltaTime;
 		public Clock time;
 	}
