@@ -137,8 +137,8 @@ namespace SFMLEngineTest {
 				//	vy = 0f;
 				//}
 
-				pos.x += vx * context.deltaTime;
-				pos.y += vy * context.deltaTime;
+				pos.x += vx * (float)context.time.delta;
+				pos.y += vy * (float)context.time.delta;
 
 				var newPos = new SFML.System.Vector2f(pos.x, pos.y);
 				var diff = newPos - cam.getPosition();
@@ -173,7 +173,7 @@ namespace SFMLEngineTest {
 			public override void onUpdate(GameContext context) {
 				base.onUpdate(context);
 				var y = position.y / 100f;
-				position.x = (float)Math.Sin(y + ((float)context.time.ElapsedTime.AsMilliseconds()) / 1000f) * 100f;
+				position.x = (float)Math.Sin(y + ((float)context.clock.ElapsedTime.AsMilliseconds()) / 1000f) * 100f;
 			}
 
 			private void onCollisionLeave(CollisionEventArgs args) {

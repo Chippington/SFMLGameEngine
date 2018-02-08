@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Net {
-	public class NetScene : Scene {
+	public class NetScene : Scene, INetScene {
 		private List<NetEntity> netEntityList;
 
 		public NetScene() {
@@ -31,11 +31,15 @@ namespace SFMLEngine.Net {
 			return inst;
 		}
 
-		public override void onUpdate(GameContext context) {
-			base.onUpdate(context);
-			for(int i = 0; i < netEntityList.Count; i++) {
-				if (netEntityList[i].isClient()) netEntityList[i].onClientUpdate();
-				if (netEntityList[i].isServer()) netEntityList[i].onServerUpdate();
+		public void onClientUpdate() {
+			for (int i = 0; i < netEntityList.Count; i++) {
+				netEntityList[i].onClientUpdate();
+			}
+		}
+
+		public void onServerUpdate() {
+			for (int i = 0; i < netEntityList.Count; i++) {
+				netEntityList[i].onServerUpdate();
 			}
 		}
 	}

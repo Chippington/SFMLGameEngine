@@ -50,7 +50,7 @@ namespace SFMLEngine {
 				context.sceneManager = scenes;
 				context.input = input;
 				context.ui = uiwindow;
-				context.time = time;
+				context.clock = time;
 
 				logicInitialized(context);
 
@@ -59,7 +59,9 @@ namespace SFMLEngine {
 				while (!exitFlag) {
 					Thread.Sleep(1);
 					var t = clock.Restart();
-					context.deltaTime = ((float)t.AsMicroseconds()) / 1000000f;
+					context.time = new GameContext.Time();
+					context.time.delta = ((double)t.AsMicroseconds()) / 1000000f;
+					context.time.seconds = context.clock.ElapsedTime.AsSeconds();
 					_logicUpdate(context);
 
 					var pressedKeys = context.input.getPressedKeyboardKeys().ToList();
@@ -105,7 +107,7 @@ namespace SFMLEngine {
 				context.window = window;
 				context.input = input;
 				context.ui = uiwindow;
-				context.time = clock;
+				context.clock = clock;
 
 				input.setHooks(window);
 				graphicsInitialized(context);
@@ -114,7 +116,9 @@ namespace SFMLEngine {
 				while (!exitFlag) {
 					Thread.Sleep(1);
 					var t = clock.Restart();
-					context.deltaTime = ((float)t.AsMicroseconds()) / 1000000f;
+					context.time = new GameContext.Time();
+					context.time.delta = ((double)t.AsMicroseconds()) / 1000000f;
+					context.time.seconds = context.clock.ElapsedTime.AsSeconds();
 
 					window.DispatchEvents();
 					input.updateInput();
@@ -170,13 +174,18 @@ namespace SFMLEngine {
 	}
 
 	public class GameContext {
+		public class Time {
+			public float seconds;
+			public double delta;
+		}
+
 		public RenderTarget window;
 		public RenderTarget uiLayer;
 		public UIWindow ui;
 
 		public SceneManager sceneManager;
 		public InputController input;
-		public float deltaTime;
-		public Clock time;
+		public Clock clock;
+		public Time time;
 	}
 }

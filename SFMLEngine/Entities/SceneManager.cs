@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Entities {
 	public delegate void SceneManagerEvent(SceneManagerEventArgs args);
 	public class SceneManagerEventArgs {
-		public Scene scene;
+		public IScene scene;
 		public bool active;
 	}
 
@@ -21,20 +21,20 @@ namespace SFMLEngine.Entities {
 		public SceneEvent OnEntityComponentAdded;
 		public SceneEvent OnEntityComponentRemoved;
 
-		private List<Scene> sceneList;
-		private List<Scene> activeList;
+		private List<IScene> sceneList;
+		private List<IScene> activeList;
 		protected GameContext context;
 
 		public SceneManager() {
-			activeList = new List<Scene>();
-			sceneList = new List<Scene>();
+			activeList = new List<IScene>();
+			sceneList = new List<IScene>();
 		}
 
 		public void onInitialize(GameContext context) {
 			this.context = context;
 		}
 
-		public bool addScene(Scene scene) {
+		public bool addScene(IScene scene) {
 			if (sceneList.Contains(scene))
 				return false;
 
@@ -49,11 +49,11 @@ namespace SFMLEngine.Entities {
 			return true;
 		}
 
-		public void addScene(Scene scene, bool active) {
+		public void addScene(IScene scene, bool active) {
 			if (addScene(scene)) setSceneActive(scene, active);
 		}
 
-		public void setSceneActive(Scene scene, bool active) {
+		public void setSceneActive(IScene scene, bool active) {
 			if (sceneList.Contains(scene) == false)
 				return;
 
@@ -91,7 +91,7 @@ namespace SFMLEngine.Entities {
 			activeList.Clear();
 		}
 
-		public void removeScene(Scene scene) {
+		public void removeScene(IScene scene) {
 			if (sceneList.Contains(scene) == false)
 				return;
 

@@ -78,6 +78,7 @@
     <Compile Include="Entities\Components\Graphics\SpriteRenderer.cs" />
     <Compile Include="Entities\Components\Common\Position.cs" />
     <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\IScene.cs" />
     <Compile Include="Entities\Scene.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="Entities\SceneManager.cs" />
@@ -95,9 +96,15 @@
     <Compile Include="Input\InputController.cs" />
     <Compile Include="IRenderable.cs" />
     <Compile Include="IUpdatable.cs" />
+    <Compile Include="Net\Entities\Components\INetComponent.cs" />
+    <Compile Include="Net\Entities\INetEntity.cs" />
+    <Compile Include="Net\Entities\Components\NetComponent.cs" />
     <Compile Include="Net\Entities\NetEntity.cs" />
+    <Compile Include="Net\INetScene.cs" />
+    <Compile Include="Net\INetUpdatable.cs" />
     <Compile Include="Net\NetScene.cs" />
     <Compile Include="Net\Providers\ENetProvider.cs" />
+    <Compile Include="Net\Providers\LidgrenProvider.cs" />
     <Compile Include="Net\Services\NetClientService.cs" />
     <Compile Include="Net\Services\NetServerService.cs" />
     <Compile Include="Net\Services\NetService.cs" />

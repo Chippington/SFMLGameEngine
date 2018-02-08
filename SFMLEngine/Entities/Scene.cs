@@ -14,13 +14,18 @@ namespace SFMLEngine.Entities {
 		public IEntity entity;
 		public IComponent component;
 	}
-	public class Scene : ObjectBase, IGameObject, IUpdatable, IRenderable {
+	public class Scene : ObjectBase, IScene, IGameObject, IUpdatable, IRenderable {
 		private static int id = 0;
 
-		public SceneEvent OnEntityCreated;
-		public SceneEvent OnEntityDestroyed;
-		public SceneEvent OnEntityComponentAdded;
-		public SceneEvent OnEntityComponentRemoved;
+		public SceneEvent _OnEntityCreated;
+		public SceneEvent _OnEntityDestroyed;
+		public SceneEvent _OnEntityComponentAdded;
+		public SceneEvent _OnEntityComponentRemoved;
+
+		public SceneEvent OnEntityCreated { get => _OnEntityCreated; set => _OnEntityCreated = value; }
+		public SceneEvent OnEntityDestroyed { get => _OnEntityDestroyed; set => _OnEntityDestroyed = value; }
+		public SceneEvent OnEntityComponentAdded { get => _OnEntityComponentAdded; set => _OnEntityComponentAdded = value; }
+		public SceneEvent OnEntityComponentRemoved { get => _OnEntityComponentRemoved; set => _OnEntityComponentRemoved = value; }
 
 		private ICollisionMap _collisionMap;
 		public ICollisionMap collisionMap;

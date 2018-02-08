@@ -70,5 +70,9 @@ namespace SFMLEngine.Entities {
 		public virtual void onDispose(GameContext context) {
 			_components.onDispose(context);
 		}
+
+		public Scene getOwner() {
+			return owner;
+		}
 	}
 }
