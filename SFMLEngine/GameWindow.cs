@@ -4,7 +4,8 @@ using SFMLEngine.Entities;
 using SFMLEngine.Entities.Collision;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Graphics.UI;
-using SFMLEngine.Input;
+using SFMLEngine.Services;
+using SFMLEngine.Services.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,6 +18,7 @@ namespace SFMLEngine {
 	public class GameWindow : ObjectBase {
 		private string name;
 		private bool exitFlag;
+		private bool logicInit;
 		private bool vsyncEnabled;
 		private uint width, height;
 		private Thread logicThread;
@@ -31,15 +33,17 @@ namespace SFMLEngine {
 			this.width = width;
 			this.height = height;
 			vsyncEnabled = false;
+			logicInit = false;
 		}
 
 		public void start() {
 			log("Initializing Game Context...");
-			Clock time = new Clock();
-			InputController input = new InputController();
-			SceneManager scenes = new SceneManager();
-			ICollisionMap map = new SweepAndPrune();
+
 			UIWindow uiwindow = new UIWindow("", width, height, UIWindow.Style.NONE);
+			ServiceManager services = new ServiceManager();
+			SceneManager scenes = new SceneManager();
+			SweepAndPrune map = new SweepAndPrune();
+			Clock time = new Clock();
 
 			log("Initializing Game Threads...");
 			logicThread = new Thread(() => {
@@ -48,14 +52,18 @@ namespace SFMLEngine {
 				uiwindow.onInitialize();
 
 				context.sceneManager = scenes;
-				context.input = input;
+				context.services = services;
 				context.ui = uiwindow;
 				context.clock = time;
 
+				services.onInitialize(context);
+				services.registerService<InputController>();
 				logicInitialized(context);
 
 				clock.Restart();
+				logicInit = true;
 				log("Logic initialized.");
+
 				while (!exitFlag) {
 					Thread.Sleep(1);
 					var t = clock.Restart();
@@ -84,6 +92,9 @@ namespace SFMLEngine {
 			});
 
 			graphicsThread = new Thread(() => {
+				log("Waiting for logic thread...");
+				while (logicInit == false) System.Threading.Thread.Sleep(10);
+
 				log(string.Format("Creating window... [Resolution: {0}x{1}]", width, height));
 				window = new RenderWindow(new SFML.Window.VideoMode(width, height), name);
 
@@ -103,13 +114,13 @@ namespace SFMLEngine {
 				SFML.System.Clock clock = new SFML.System.Clock();
 				GameContext context = new GameContext();
 				context.sceneManager = scenes;
+				context.services = services;
 				context.uiLayer = uilayer;
 				context.window = window;
-				context.input = input;
 				context.ui = uiwindow;
 				context.clock = clock;
 
-				input.setHooks(window);
+				context.input.setHooks(window);
 				graphicsInitialized(context);
 				Statistics.initializeDebugDraw(context);
 				log("Graphics initialized.");
@@ -121,8 +132,6 @@ namespace SFMLEngine {
 					context.time.seconds = context.clock.ElapsedTime.AsSeconds();
 
 					window.DispatchEvents();
-					input.updateInput();
-
 					window.Clear();
 					uilayer.Clear(new Color(0,0,0,0));
 					_graphicsUpdate(context);
@@ -151,6 +160,8 @@ namespace SFMLEngine {
 		private void _logicUpdate(GameContext context) {
 			Statistics.onLogicUpdate();
 			logicUpdate(context);
+
+			context.services.onUpdate(context);
 			context.sceneManager.onUpdate(context);
 			context.ui.onUpdate(context);
 		}
@@ -159,6 +170,7 @@ namespace SFMLEngine {
 			Statistics.onGraphicsUpdate();
 			Statistics.debugDraw(context.uiLayer);
 
+			context.services.onDraw(context);
 			context.sceneManager.onDraw(context);
 			context.ui.onDraw(context, context.uiLayer);
 			graphicsUpdate(context);
@@ -183,9 +195,11 @@ namespace SFMLEngine {
 		public RenderTarget uiLayer;
 		public UIWindow ui;
 
+		public ServiceManager services;
 		public SceneManager sceneManager;
-		public InputController input;
 		public Clock clock;
 		public Time time;
+
+		public InputController input => services.getService<InputController>();
 	}
 }

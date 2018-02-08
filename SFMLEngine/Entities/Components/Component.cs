@@ -12,10 +12,10 @@ namespace SFMLEngine.Entities.Components {
 		public virtual void onDispose(GameContext context) { }
 		public virtual void onUpdate(GameContext context) { }
 		public virtual void onDraw(GameContext context) { }
-		public void setEntity(IEntity owner) {
+		public virtual void setEntity(IEntity owner) {
 			this.entity = owner;
 		}
-		public IEntity getEntity() {
+		public virtual IEntity getEntity() {
 			return this.entity;
 		}
 	}

@@ -8,5 +8,7 @@ namespace SFMLEngine.Net {
 	public interface INetUpdatable {
 		void onClientUpdate();
 		void onServerUpdate();
+		bool isServer();
+		bool isClient();
 	}
 }

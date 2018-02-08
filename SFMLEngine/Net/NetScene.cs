@@ -31,6 +31,14 @@ namespace SFMLEngine.Net {
 			return inst;
 		}
 
+		private void instantiateServer(INetEntity entity) {
+
+		}
+
+		private void instantiateClient(INetEntity entity) {
+
+		}
+
 		public void onClientUpdate() {
 			for (int i = 0; i < netEntityList.Count; i++) {
 				netEntityList[i].onClientUpdate();
@@ -41,6 +49,14 @@ namespace SFMLEngine.Net {
 			for (int i = 0; i < netEntityList.Count; i++) {
 				netEntityList[i].onServerUpdate();
 			}
+		}
+
+		public bool isServer() {
+			throw new NotImplementedException();
+		}
+
+		public bool isClient() {
+			throw new NotImplementedException();
 		}
 	}
 }

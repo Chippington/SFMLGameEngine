@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using SFML.Window;
 using SFML.System;
 
-namespace SFMLEngine.Input {
-	public class InputController {
+namespace SFMLEngine.Services.Input {
+	public class InputController : IGameService {
 		private HashSet<Keyboard.Key> heldMap;
 		private HashSet<Keyboard.Key> pressedMap;
 		private HashSet<Keyboard.Key> releasedMap;
@@ -36,6 +36,46 @@ namespace SFMLEngine.Input {
 			tempMousePressedMap = new HashSet<Mouse.Button>();
 			tempMouseReleasedMap = new HashSet<Mouse.Button>();
 		}
+
+		public void onInitialize(GameContext context) {
+			throw new NotImplementedException();
+		}
+
+		public void onUpdate(GameContext context) {
+			lock (pressedMap)
+				lock (heldMap)
+					foreach (var v in pressedMap)
+						if (heldMap.Contains(v) == false)
+							heldMap.Add(v);
+
+			lock (releasedMap) lock (tempPressedMap) {
+					releasedMap = new HashSet<Keyboard.Key>(tempReleasedMap);
+					tempReleasedMap.Clear();
+				}
+
+			lock (pressedMap) lock (tempPressedMap) {
+					pressedMap = new HashSet<Keyboard.Key>(tempPressedMap);
+					tempPressedMap.Clear();
+				}
+
+			lock (mousePressedMap) lock (tempMousePressedMap) {
+					mousePressedMap = new HashSet<Mouse.Button>(tempMousePressedMap);
+					tempMousePressedMap.Clear();
+				}
+
+			lock (mouseReleasedMap) lock (tempMouseReleasedMap) {
+					mouseReleasedMap = new HashSet<Mouse.Button>(tempMouseReleasedMap);
+					tempMouseReleasedMap.Clear();
+				}
+
+			lock (releasedMap)
+				lock (heldMap)
+					foreach (var v in releasedMap)
+						if (heldMap.Contains(v))
+							heldMap.Remove(v);
+		}
+
+		public void onDraw(GameContext context) { }
 
 		public void resetFlags(Keyboard.Key key) {
 			heldMap.Remove(key);
@@ -117,40 +157,6 @@ namespace SFMLEngine.Input {
 			return mousePos;
 		}
 
-		public void updateInput() {
-			lock (pressedMap)
-				lock (heldMap)
-					foreach (var v in pressedMap)
-						if(heldMap.Contains(v) == false)
-							heldMap.Add(v);
-
-			lock (releasedMap) lock (tempPressedMap) {
-					releasedMap = new HashSet<Keyboard.Key>(tempReleasedMap);
-					tempReleasedMap.Clear();
-				}
-
-			lock (pressedMap) lock (tempPressedMap) {
-					pressedMap = new HashSet<Keyboard.Key>(tempPressedMap);
-					tempPressedMap.Clear();
-				}
-
-			lock (mousePressedMap) lock (tempMousePressedMap) {
-					mousePressedMap = new HashSet<Mouse.Button>(tempMousePressedMap);
-					tempMousePressedMap.Clear();
-				}
-
-			lock (mouseReleasedMap) lock (tempMouseReleasedMap) {
-					mouseReleasedMap = new HashSet<Mouse.Button>(tempMouseReleasedMap);
-					tempMouseReleasedMap.Clear();
-				}
-
-			lock (releasedMap)
-				lock (heldMap)
-					foreach (var v in releasedMap)
-						if (heldMap.Contains(v))
-							heldMap.Remove(v);
-		}
-
 		private void onKeyReleased(object sender, KeyEventArgs e) {
 			if (tempReleasedMap.Contains(e.Code))
 				return;
@@ -169,6 +175,10 @@ namespace SFMLEngine.Input {
 				return;
 
 			tempPressedMap.Add(e.Code);
+		}
+
+		public void onDispose(GameContext context) {
+			throw new NotImplementedException();
 		}
 	}
 }

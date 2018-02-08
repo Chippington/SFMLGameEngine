@@ -22,18 +22,19 @@ namespace SFMLEngineTest {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
 				Scene mainScene = new Scene();
-				context.sceneManager.addScene(mainScene);
-				context.sceneManager.setSceneActive(mainScene, true);
+				context.sceneManager.setActiveScene(mainScene);
 
-				for(int i = 0; i < 1; i++) 
-					for(int j = 0; j < 2000; j++) {
-					var test = mainScene.instantiate<TestEntity>(string.Format("Test[{0},{1}]", i, j));
-					test.components.Get<Position>().x = 50 + (10 * i);
-					test.components.Get<Position>().y = 50 + (10 * j);
+				for (int i = 0; i < 1; i++) {
+					for (int j = 0; j < 2000; j++) {
+						var test = mainScene.instantiate<TestEntity>(string.Format("Test[{0},{1}]", i, j));
+						test.components.Get<Position>().x = 50 + (10 * i);
+						test.components.Get<Position>().y = 50 + (10 * j);
 
-					if(i == 0 || i == 99 || j == 0 || j == 99)
-					test.components.Get<RigidBody>().setDebugDraw(true);
+						if (i == 0 || i == 99 || j == 0 || j == 99)
+							test.components.Get<RigidBody>().setDebugDraw(true);
+					}
 				}
+
 				for (int i = 0; i < 1; i++) {
 					var player = mainScene.instantiate<TestPlayer>();
 					player.components.Get<Position>().x = i * 6;

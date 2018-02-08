@@ -13,6 +13,7 @@ namespace SFMLEngine.Net.Entities {
 	public class NetEntity : Entity, INetEntity {
 		private List<INetComponent> netComponents;
 		private bool netInitialized;
+		private INetScene netScene;
 
 		public NetEntity() {
 			netComponents = new List<INetComponent>();
@@ -46,12 +47,27 @@ namespace SFMLEngine.Net.Entities {
 			}
 		}
 
+		public override void setOwner(Scene owner) {
+			base.setOwner(owner);
+			netScene = owner as INetScene;
+		}
+
 		public void onClientUpdate() {
 			throw new NotImplementedException();
 		}
 
 		public void onServerUpdate() {
 			throw new NotImplementedException();
+		}
+
+		public bool isServer() {
+			if (netScene != null) return netScene.isServer();
+			return false;
+		}
+
+		public bool isClient() {
+			if (netScene != null) return netScene.isClient();
+			return false;
 		}
 	}
 }
