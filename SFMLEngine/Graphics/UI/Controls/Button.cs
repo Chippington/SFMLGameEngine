@@ -30,6 +30,7 @@ namespace SFMLEngine.Graphics.UI.Controls {
 		public Button(string text, Vector2f size) : this(text, size, new Vector2f(5f, 5f)) { }
 
 		public Button(string text, Vector2f size, Vector2f offset) : base(text) {
+			log("Creating button drawable");
 			this.rectangleShape = new RectangleShape();
 			this.rectangleShape.OutlineColor = new Color(222,222,222);
 			this.rectangleShape.OutlineThickness = 2f;

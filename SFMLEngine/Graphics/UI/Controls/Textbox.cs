@@ -24,8 +24,9 @@ namespace SFMLEngine.Graphics.UI.Controls {
 		private Sprite sprite;
 		private static RenderTexture textTexture {
 			get {
-				if (_textTexture == null)
+				if (_textTexture == null) {
 					_textTexture = new RenderTexture(1000, 100);
+				}
 
 				return _textTexture;
 			}
@@ -46,6 +47,7 @@ namespace SFMLEngine.Graphics.UI.Controls {
 		public Textbox(string text, string placeholder, Vector2f size, Vector2f offset)
 			: base(text, size, offset) {
 
+			log("Creating target render texture ");
 			this.placeholder = placeholder;
 			this.sprite = new Sprite(
 				textTexture.Texture, 

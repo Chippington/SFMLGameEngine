@@ -196,6 +196,9 @@ namespace SFMLEngineTest {
 		}
 
 		static void Main(string[] args) {
+			Console.WindowWidth = 120;
+			Console.WindowHeight = 60;
+
 			TestGame g = new TestGame();
 			g.start();
 

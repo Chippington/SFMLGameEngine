@@ -23,6 +23,7 @@ namespace SFMLEngine.Graphics.UI.Controls {
 		public Label(string text) : this(text, DefaultFont) { }
 
 		public Label(string text, Font font) {
+			log("Creating text drawable");
 			this.text = new Text(text, font);
 			this.text.Position = this.Position;
 		}

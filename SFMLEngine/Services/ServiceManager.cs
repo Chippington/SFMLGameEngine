@@ -8,6 +8,7 @@ namespace SFMLEngine.Services {
 	public class ServiceManager : IUpdatable, IRenderable {
 		private Dictionary<Type, IGameService> serviceMap;
 		private List<IGameService> serviceList;
+		private GameContext context;
 
 		public ServiceManager() {
 			serviceMap = new Dictionary<Type, IGameService>();
@@ -15,13 +16,14 @@ namespace SFMLEngine.Services {
 		}
 
 		public void onInitialize(GameContext context) {
-
+			this.context = context;
 		}
 
 		public void registerService<T>() where T : IGameService {
 			var inst = (IGameService)Activator.CreateInstance<T>();
 			serviceMap.Add(typeof(T), inst);
 			serviceList.Add(inst);
+			inst.onInitialize(context);
 		}
 
 		public T getService<T>() where T : IGameService {

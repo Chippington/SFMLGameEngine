@@ -10,12 +10,15 @@ using System.Threading.Tasks;
 
 namespace SFMLEngine {
 	public class ObjectBase {
+		private static ObjectBase lastLogger = null;
+		private static List<string> logList = new List<string>();
+
 		public void log(string str) {
 			var name = GetType().Name;
 			ConsoleColor nameColor = ConsoleColor.White;
 
 			var sc = this as Scene;
-			if(sc != null) {
+			if (sc != null) {
 				name = name + " [" + sc.getSceneID() + "]";
 				nameColor = ConsoleColor.Green;
 			}
@@ -40,11 +43,43 @@ namespace SFMLEngine {
 			if (cp != null)
 				nameColor = ConsoleColor.DarkRed;
 
-			Console.ForegroundColor = nameColor;
-			Console.Write(name);
-			Console.ForegroundColor = ConsoleColor.White;
-			Console.WriteLine(" -> " + str);
+			lock(logList) {
+				string output = "";
+				Console.ForegroundColor = nameColor;
 
+				if (lastLogger == this) {
+					string str2 = "";
+					for (int i = 0; i < name.Length; i++)
+						str2 += " ";
+
+					Console.Write(str2);
+					output += str2;
+				} else {
+					if (lastLogger != null)
+						Console.WriteLine();
+
+					Console.Write(name);
+					output += name;
+				}
+
+				Console.ForegroundColor = ConsoleColor.White;
+				Console.WriteLine(" -> " + str);
+				output += " -> " + str;
+				lastLogger = this;
+				logList.Add(output);
+			}
+		}
+
+		public void write(string str) {
+			Console.Write(str);
+		}
+
+		public void writeLine(string str) {
+			Console.WriteLine(str);
+		}
+
+		public void writeLine() {
+			Console.WriteLine();
 		}
 	}
 }

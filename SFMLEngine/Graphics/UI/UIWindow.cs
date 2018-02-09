@@ -47,10 +47,13 @@ namespace SFMLEngine.Graphics.UI {
 
 		public override void onGraphicsInitialize() {
 			base.onGraphicsInitialize();
+
+			log(string.Format("Creating target render texture [Size: {0}x{1}]", width, height));
 			renderTexture = new RenderTexture(width, height);
 			sprite = new Sprite(renderTexture.Texture);
 			sprite.Position = this.Position;
 
+			log("Applying style " + style.ToString());
 			if (style == Style.DEFAULT) {
 				setClearColor(new Color(255, 255, 255, 122));
 

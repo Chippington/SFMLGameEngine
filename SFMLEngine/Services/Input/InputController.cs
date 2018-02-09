@@ -8,7 +8,7 @@ using SFML.Window;
 using SFML.System;
 
 namespace SFMLEngine.Services.Input {
-	public class InputController : IGameService {
+	public class InputController : ObjectBase, IGameService {
 		private HashSet<Keyboard.Key> heldMap;
 		private HashSet<Keyboard.Key> pressedMap;
 		private HashSet<Keyboard.Key> releasedMap;
@@ -38,7 +38,7 @@ namespace SFMLEngine.Services.Input {
 		}
 
 		public void onInitialize(GameContext context) {
-			throw new NotImplementedException();
+
 		}
 
 		public void onUpdate(GameContext context) {
@@ -178,7 +178,17 @@ namespace SFMLEngine.Services.Input {
 		}
 
 		public void onDispose(GameContext context) {
-			throw new NotImplementedException();
+			heldMap.Clear(); heldMap = null;
+			pressedMap.Clear(); pressedMap = null;
+			releasedMap.Clear(); releasedMap = null;
+			tempPressedMap.Clear(); tempPressedMap = null;
+			tempReleasedMap.Clear(); tempReleasedMap = null;
+
+			mouseHeldMap.Clear(); mouseHeldMap = null;
+			mousePressedMap.Clear(); mousePressedMap = null;
+			mouseReleasedMap.Clear(); mouseReleasedMap = null;
+			tempMousePressedMap.Clear(); tempMousePressedMap = null;
+			tempMouseReleasedMap.Clear(); tempMouseReleasedMap = null;
 		}
 	}
 }
