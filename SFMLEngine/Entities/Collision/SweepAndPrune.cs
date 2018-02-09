@@ -113,8 +113,6 @@ namespace SFMLEngine.Entities.Collision {
 			nodeList = new List<Node>();
 			haxis = new List<SweepPoint>();
 			vaxis = new List<SweepPoint>();
-
-			log("SAP Collision Map initialized");
 		}
 
 		private void sortAxis(List<SweepPoint> axis) {
@@ -194,9 +192,23 @@ namespace SFMLEngine.Entities.Collision {
 		}
 
 		public void onInitialize(GameContext context) {
+			fullOverlaps.Clear();
+			nodeList.Clear();
+			haxis.Clear();
+			vaxis.Clear();
+
+			log("SAP Collision Map initialized");
 		}
 
 		public void onDispose(GameContext context) {
+			fullOverlaps.Clear();
+			nodeList.Clear();
+			haxis.Clear();
+			vaxis.Clear();
+
+			fullOverlaps = null;
+			haxis = vaxis = null;
+			nodeList = null;
 		}
 	}
 }

@@ -24,6 +24,8 @@ namespace SFMLEngineTest {
 				Scene mainScene = new Scene();
 				context.sceneManager.setActiveScene(mainScene);
 
+				log("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+
 				for (int i = 0; i < 1; i++) {
 					for (int j = 0; j < 2000; j++) {
 						var test = mainScene.instantiate<TestEntity>(string.Format("Test[{0},{1}]", i, j));
@@ -198,7 +200,7 @@ namespace SFMLEngineTest {
 		static void Main(string[] args) {
 			Console.WindowWidth = 120;
 			Console.WindowHeight = 60;
-
+			Console.BufferHeight = 60;
 			TestGame g = new TestGame();
 			g.start();
 

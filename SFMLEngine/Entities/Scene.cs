@@ -42,7 +42,9 @@ namespace SFMLEngine.Entities {
 			entityList = new List<IEntity>();
 			sceneID = id++;
 
+			log("Creating collision map");
 			_collisionMap = new SweepAndPrune();
+
 			OnEntityCreated += _collisionMap.onEntityCreated;
 			OnEntityDestroyed += _collisionMap.onEntityDestroyed;
 			OnEntityComponentAdded += _collisionMap.onEntityComponentAdded;

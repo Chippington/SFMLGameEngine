@@ -12,8 +12,94 @@ namespace SFMLEngine {
 	public class ObjectBase {
 		private static ObjectBase lastLogger = null;
 		private static List<string> logList = new List<string>();
+		private static int nextId = 0;
 
+		private int _id = -1;
+		private int id {
+			get { if (_id == -1) _id = nextId++; return _id; }
+		}
 		public void log(string str) {
+			var name = GetType().Name;
+			string tag = string.Format(" [{0}]", id);
+			ConsoleColor nameColor = ConsoleColor.White;
+
+			var sc = this as Scene;
+			if (sc != null) {
+				//name = name + " [" + sc.getSceneID() + "]";
+				nameColor = ConsoleColor.Green;
+			}
+
+			var cm = this as ICollisionMap;
+			if (cm != null)
+				nameColor = ConsoleColor.Yellow;
+
+			var gm = this as GameWindow;
+			if (gm != null)
+				nameColor = ConsoleColor.DarkYellow;
+
+			var ct = this as UIControl;
+			if (ct != null)
+				nameColor = ConsoleColor.Magenta;
+
+			var en = this as IEntity;
+			if (en != null)
+				nameColor = ConsoleColor.Red;
+
+			var cp = this as IComponent;
+			if (cp != null)
+				nameColor = ConsoleColor.DarkRed;
+
+			lock(logList) {
+				int div = 25;
+				if (name.Length > div - tag.Length - 5)
+					name = name.Substring(0, div - tag.Length - 5) + "(...)";
+
+				name = name + tag;
+
+				int diff = div - name.Length;
+
+				string tmp = "";
+				for (int i = 0; i < diff; i++)
+					tmp += " ";
+
+				Console.Write(tmp);
+				Console.ForegroundColor = nameColor;
+				Console.Write(name);
+				Console.ForegroundColor = ConsoleColor.White;
+				Console.Write(" │ ");
+
+				string breakChars = " .,:;-";
+				Queue<string> outputList = new Queue<string>();
+				while(str.Length > Console.WindowWidth - div - 5) {
+					int ind = Math.Min(str.Length, Console.WindowWidth - div - 5);
+					while (ind > 1 && breakChars.Contains(str[ind]) == false)
+						ind--;
+
+					outputList.Enqueue(str.Substring(0, ind));
+					str = str.Substring(ind);
+				}
+
+				for (int i = 0; i < name.Length; i++)
+					tmp += " ";
+
+				if (str.Length > 0)
+					outputList.Enqueue(str);
+
+				bool first = true;
+				while(outputList.Count > 0) {
+					string line = outputList.Dequeue();
+
+					if(!first) {
+						Console.Write(tmp + " │ ");
+					}
+
+					Console.WriteLine(line.Trim());
+					first = false;
+				}
+			}
+		}
+
+		public void log2(string str) {
 			var name = GetType().Name;
 			ConsoleColor nameColor = ConsoleColor.White;
 
@@ -49,7 +135,7 @@ namespace SFMLEngine {
 
 				if (lastLogger == this) {
 					string str2 = "";
-					for (int i = 0; i < name.Length; i++)
+					for (int i = 0; i < name.Length + 2; i++)
 						str2 += " ";
 
 					Console.Write(str2);
@@ -58,13 +144,13 @@ namespace SFMLEngine {
 					if (lastLogger != null)
 						Console.WriteLine();
 
-					Console.Write(name);
-					output += name;
+					Console.Write(name + ": ");
+					output += name + ": ";
 				}
 
 				Console.ForegroundColor = ConsoleColor.White;
-				Console.WriteLine(" -> " + str);
-				output += " -> " + str;
+				Console.WriteLine(str);
+				output += str;
 				lastLogger = this;
 				logList.Add(output);
 			}
