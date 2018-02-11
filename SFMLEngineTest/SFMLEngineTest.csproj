@@ -34,6 +34,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ENet, Version=1.3.6.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ENet.1.3.6.3\lib\ENet.dll</HintPath>
+    </Reference>
+    <Reference Include="NetUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\NetUtilities\NetUtils\bin\Debug\NetUtils.dll</HintPath>
+    </Reference>
     <Reference Include="sfmlnet-audio-2, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Graphnode.SFML.Net.2.4\lib\sfmlnet-audio-2.dll</HintPath>
     </Reference>
@@ -61,6 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="libenet.dylib">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +81,12 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="ENetX64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ENetX86.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="Resources\Sprites\sprite.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

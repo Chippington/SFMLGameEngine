@@ -92,6 +92,7 @@
     <Compile Include="Graphics\UI\UIControl.cs" />
     <Compile Include="Graphics\UI\UIWindow.cs" />
     <Compile Include="IGameObject.cs" />
+    <Compile Include="Net\DebugLogger.cs" />
     <Compile Include="Services\IGameService.cs" />
     <Compile Include="Services\Input\InputController.cs" />
     <Compile Include="IRenderable.cs" />
@@ -107,7 +108,6 @@
     <Compile Include="Net\Providers\LidgrenProvider.cs" />
     <Compile Include="Net\Services\NetClientService.cs" />
     <Compile Include="Net\Services\NetServerService.cs" />
-    <Compile Include="Net\Services\NetService.cs" />
     <Compile Include="ObjectBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ServiceManager.cs" />

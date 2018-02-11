@@ -19,11 +19,13 @@ namespace SFMLEngine.Services {
 			this.context = context;
 		}
 
-		public void registerService<T>() where T : IGameService {
-			var inst = (IGameService)Activator.CreateInstance<T>();
+		public T registerService<T>() where T : IGameService {
+			var inst = (T)Activator.CreateInstance<T>();
 			serviceMap.Add(typeof(T), inst);
 			serviceList.Add(inst);
 			inst.onInitialize(context);
+
+			return inst;
 		}
 
 		public T getService<T>() where T : IGameService {

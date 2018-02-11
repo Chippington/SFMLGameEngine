@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using NetUtils.Net.Default.Providers.TCP;
+using SFML.Graphics;
 using SFML.System;
 using SFMLEngine;
 using SFMLEngine.Entities;
@@ -9,6 +10,7 @@ using SFMLEngine.Entities.Components.Physics;
 using SFMLEngine.Entities.Graphics.Components;
 using SFMLEngine.Graphics.UI;
 using SFMLEngine.Graphics.UI.Controls;
+using SFMLEngine.Net.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,8 +25,20 @@ namespace SFMLEngineTest {
 				base.logicInitialized(context);
 				Scene mainScene = new Scene();
 				context.sceneManager.setActiveScene(mainScene);
+				var sv = context.services.registerService<NetServerService>();
+				var cl = context.services.registerService<NetClientService>();
 
-				log("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+				sv.startServer(new NetUtils.Net.NetConfig() {
+					appname = "Test",
+					port = 12345,
+					maxclients = 32,
+				}, new TCPNetworkProvider());
+
+				cl.startClient((new NetUtils.Net.NetConfig() {
+					appname = "Test",
+					port = 12345,
+					ipaddress = "127.0.0.1"
+				}), new TCPNetworkProvider());
 
 				for (int i = 0; i < 1; i++) {
 					for (int j = 0; j < 2000; j++) {
@@ -55,6 +69,9 @@ namespace SFMLEngineTest {
 			protected override void logicUpdate(GameContext context) {
 				base.logicUpdate(context);
 			}
+		}
+
+		public class TestServer : NetServerService {
 		}
 
 		public class TestUIWindow : UIWindow {

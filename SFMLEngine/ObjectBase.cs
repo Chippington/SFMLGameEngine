@@ -19,7 +19,7 @@ namespace SFMLEngine {
 			get { if (_id == -1) _id = nextId++; return _id; }
 		}
 		public void log(string str) {
-			var name = GetType().Name;
+			var name = getName();
 			string tag = string.Format(" [{0}]", id);
 			ConsoleColor nameColor = ConsoleColor.White;
 
@@ -49,6 +49,12 @@ namespace SFMLEngine {
 			if (cp != null)
 				nameColor = ConsoleColor.DarkRed;
 
+			string newlineGap = "";
+			for (int i = 0; i < Console.WindowWidth; i++)
+				newlineGap += " ";
+
+			str = str.Replace("\r\n", newlineGap);
+
 			lock(logList) {
 				int div = 25;
 				if (name.Length > div - tag.Length - 5)
@@ -58,7 +64,7 @@ namespace SFMLEngine {
 
 				int diff = div - name.Length;
 
-				string tmp = "";
+				string tmp = " ";
 				for (int i = 0; i < diff; i++)
 					tmp += " ";
 
@@ -72,7 +78,7 @@ namespace SFMLEngine {
 				Queue<string> outputList = new Queue<string>();
 				while(str.Length > Console.WindowWidth - div - 5) {
 					int ind = Math.Min(str.Length, Console.WindowWidth - div - 5);
-					while (ind > 1 && breakChars.Contains(str[ind]) == false)
+					while (ind > 1 && breakChars.Contains(str[ind - 1]) == false)
 						ind--;
 
 					outputList.Enqueue(str.Substring(0, ind));
@@ -166,6 +172,10 @@ namespace SFMLEngine {
 
 		public void writeLine() {
 			Console.WriteLine();
+		}
+
+		protected virtual string getName() {
+			return GetType().Name;
 		}
 	}
 }
