@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Net {
+namespace SFMLEngine.Network {
 	public interface INetUpdatable {
 		void onClientUpdate();
 		void onServerUpdate();

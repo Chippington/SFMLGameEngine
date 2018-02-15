@@ -7,9 +7,9 @@ using NetUtils.Utilities;
 using NetUtils.Net.Default;
 using SFMLEngine.Entities;
 using SFMLEngine.Entities.Components;
-using SFMLEngine.Net.Entities.Components;
+using SFMLEngine.Network.Entities.Components;
 
-namespace SFMLEngine.Net.Entities {
+namespace SFMLEngine.Network.Entities {
 	public class NetEntity : Entity, INetEntity {
 		private List<INetComponent> netComponents;
 		private bool netInitialized;

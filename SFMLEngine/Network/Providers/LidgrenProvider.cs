@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Net.Providers {
+namespace SFMLEngine.Network.Providers {
 	class LidgrenProvider {
 	}
 }

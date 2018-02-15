@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Net.Entities.Components {
+namespace SFMLEngine.Network.Entities.Components {
 	public interface INetComponent : IComponent, INetUpdatable {
 		void onNetInitialize(INetEntity owner);
 	}

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Net {
+namespace SFMLEngine.Network {
 	public class NetScene : Scene, INetScene {
 		private List<NetEntity> netEntityList;
 

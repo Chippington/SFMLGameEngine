@@ -10,7 +10,7 @@ using SFMLEngine.Entities.Components.Physics;
 using SFMLEngine.Entities.Graphics.Components;
 using SFMLEngine.Graphics.UI;
 using SFMLEngine.Graphics.UI.Controls;
-using SFMLEngine.Net.Services;
+using SFMLEngine.Network.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

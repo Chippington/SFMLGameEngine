@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Net {
+namespace SFMLEngine.Network {
 	public class DebugLogger : IDebugLogger {
 		private List<string> logList;
 

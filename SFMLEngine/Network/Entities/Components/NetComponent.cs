@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NetUtils.Net.Services.Entities;
 using SFMLEngine.Entities;
+using SFMLEngine.Network.Entities.Components;
+using SFMLEngine.Network.Entities;
 
 namespace SFMLEngine.Net.Entities.Components {
 	public class NetComponent : Component, INetComponent {

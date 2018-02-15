@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Net.Entities {
+namespace SFMLEngine.Network.Entities {
 	public interface INetEntity : IEntity, INetUpdatable {
 	}
 }

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Net.Providers {
+namespace SFMLEngine.Network.Providers {
 	public class ENetProvider : INetworkProvider {
 		public Peer clientPeer;
 		public Host host;

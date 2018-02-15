@@ -2,7 +2,7 @@
 using SFMLEngine.Services;
 using NetUtils.Net.Default;
 using NetUtils.Net.Interfaces;
-using SFMLEngine.Net.Providers;
+using SFMLEngine.Network.Providers;
 
 using System;
 using System.Linq;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using NetUtils.Utilities.Logging;
 
-namespace SFMLEngine.Net.Services {
+namespace SFMLEngine.Network.Services {
 	public delegate void NetClientEvent(NetClientEventArgs args);
 	public class NetClientEventArgs {
 
