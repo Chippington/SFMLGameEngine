@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Utilities.Tilesets {
-	class OctreeTileset {
+namespace SFMLEngine.Utilities.Grids.Procedural {
+	public interface IProceduralGridBase<T> : IGridBase<T> {
 	}
 }

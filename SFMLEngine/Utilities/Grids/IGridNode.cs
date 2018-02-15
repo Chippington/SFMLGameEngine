@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SFMLEngine.Utilities.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,7 @@ namespace SFMLEngine.Utilities.Grids {
 	public interface IGridNode<T> {
 		T getValue();
 		void setValue(T val);
+
+		Dimension getDim();
 	}
 }

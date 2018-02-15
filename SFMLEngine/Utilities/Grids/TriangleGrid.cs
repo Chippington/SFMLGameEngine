@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Utilities.Tilesets {
-	public class GridTileset  : ITileset {
+namespace SFMLEngine.Utilities.Grids {
+	class TriangleGrid {
 	}
 }

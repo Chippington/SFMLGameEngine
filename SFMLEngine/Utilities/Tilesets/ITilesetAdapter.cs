@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Utilities.Tilesets {
-	public interface ITilesetRenderer<T> : IGameObject, IRenderable {
+	public interface ITilesetAdapter<T> : IGameObject, IGridEventListener<T> {
 		void setGrid(IGridBase<T> grid);
 		IGridBase<T> getGrid();
 	}

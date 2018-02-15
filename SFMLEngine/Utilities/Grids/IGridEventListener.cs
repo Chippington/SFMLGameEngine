@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Utilities.Grids {
-	class HexGrid {
+	public interface IGridEventListener<T> {
+		void onTileCreated(IGridNode<T> tile);
+		void onTileDeleted(IGridNode<T> tile);
 	}
 }

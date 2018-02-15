@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Utilities.Tilesets {
-	public interface ITileset {
+namespace SFMLEngine.Utilities.Grids.Default {
+	class OctreeGrid {
 	}
 }

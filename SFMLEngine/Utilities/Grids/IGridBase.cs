@@ -8,7 +8,11 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Utilities.Grids {
 	public interface IGridBase<T> : IGameObject {
 		void setSize(Dimension dim);
+		Dimension getSize();
 		IGridNode<T> getNode(Dimension dim);
-		void setNode(IGridNode<T> node, Dimension dim);
+		T getValue(Dimension dim);
+		void setValue(Dimension dim, T value);
+		void addListener(IGridEventListener<T> listener);
+		void removeListener(IGridEventListener<T> listener);
 	}
 }
