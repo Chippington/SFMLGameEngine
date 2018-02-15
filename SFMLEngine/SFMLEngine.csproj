@@ -112,11 +112,21 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ServiceManager.cs" />
     <Compile Include="Statistics.cs" />
+    <Compile Include="Utilities\Data\Dimension.cs" />
     <Compile Include="Utilities\Grids\Grid.cs" />
     <Compile Include="Utilities\Grids\HexGrid.cs" />
+    <Compile Include="Utilities\Grids\IGridBase.cs" />
+    <Compile Include="Utilities\Grids\IGridNode.cs" />
+    <Compile Include="Utilities\Grids\OctreeGrid.cs" />
     <Compile Include="Utilities\Pathfinding\PathNode.cs" />
     <Compile Include="Utilities\Pathfinding\PathNodeMap.cs" />
+    <Compile Include="Utilities\Tilesets\ITileset.cs" />
+    <Compile Include="Utilities\Tilesets\ITilesetRenderer.cs" />
+    <Compile Include="Utilities\Tilesets\GridTileset.cs" />
+    <Compile Include="Utilities\Tilesets\OctreeTileset.cs" />
+    <Compile Include="Utilities\Tilesets\TilesetRenderer.cs" />
     <Compile Include="Utilities\Trees\DynamicQuadTree.cs" />
+    <Compile Include="Utilities\Trees\ITreeBase.cs" />
     <Compile Include="Utilities\Trees\QuadTree.cs" />
   </ItemGroup>
   <ItemGroup>
