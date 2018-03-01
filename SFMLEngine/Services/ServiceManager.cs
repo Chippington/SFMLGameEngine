@@ -50,5 +50,8 @@ namespace SFMLEngine.Services {
 				serviceList[i].onDispose(context);
 		}
 
+		public bool hasService<T>() where T : IGameService {
+			return serviceMap.ContainsKey(typeof(T));
+		}
 	}
 }

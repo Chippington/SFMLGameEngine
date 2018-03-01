@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NetUtils.Net.Interfaces;
 
 namespace SFMLEngine.Network {
 	public class NetScene : Scene, INetScene {
 		private List<NetEntity> netEntityList;
+		private bool isServerFlag, isClientFlag;
 
 		public NetScene() {
 			netEntityList = new List<NetEntity>();
@@ -32,11 +34,15 @@ namespace SFMLEngine.Network {
 		}
 
 		private void instantiateServer(INetEntity entity) {
-
+			isServerFlag = true;
+			if (isClientFlag)
+				throw new Exception("NetScene cannot be utilized by both client and server services.");
 		}
 
 		private void instantiateClient(INetEntity entity) {
-
+			isClientFlag = true;
+			if(isServerFlag)
+				throw new Exception("NetScene cannot be utilized by both client and server services.");
 		}
 
 		public void onClientUpdate() {
@@ -52,10 +58,18 @@ namespace SFMLEngine.Network {
 		}
 
 		public bool isServer() {
-			throw new NotImplementedException();
+			return isServerFlag;
 		}
 
 		public bool isClient() {
+			return isClientFlag;
+		}
+
+		public void writeTo(IDataBuffer buffer) {
+			throw new NotImplementedException();
+		}
+
+		public void readFrom(IDataBuffer buffer) {
 			throw new NotImplementedException();
 		}
 	}

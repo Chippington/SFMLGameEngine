@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SFMLEngine.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace SFMLEngine.Entities {
 		public bool active;
 	}
 
-	public class SceneManager : IGameObject, IUpdatable, IRenderable {
+	public class SceneManager : IGameObject, IUpdatable, IRenderable, IGameService {
 		public SceneManagerEvent OnSceneActivated;
 		public SceneManagerEvent OnSceneDeactivated;
 
