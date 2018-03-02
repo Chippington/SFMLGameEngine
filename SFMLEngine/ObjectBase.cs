@@ -55,7 +55,7 @@ namespace SFMLEngine {
 
 			str = str.Replace("\r\n", newlineGap);
 
-			lock(logList) {
+			lock (logList) {
 				int div = 25;
 				if (name.Length > div - tag.Length - 5)
 					name = name.Substring(0, div - tag.Length - 5) + "(...)";
@@ -81,14 +81,17 @@ namespace SFMLEngine {
 					while (ind > 1 && breakChars.Contains(str[ind - 1]) == false)
 						ind--;
 
-					outputList.Enqueue(str.Substring(0, ind));
+					var substr = str.Substring(0, ind);
+					if(string.IsNullOrWhiteSpace(substr) == false)
+						outputList.Enqueue(str.Substring(0, ind));
+
 					str = str.Substring(ind);
 				}
 
 				for (int i = 0; i < name.Length; i++)
 					tmp += " ";
 
-				if (str.Length > 0)
+				if (str.Length > 0 && string.IsNullOrEmpty(str) == false)
 					outputList.Enqueue(str);
 
 				bool first = true;

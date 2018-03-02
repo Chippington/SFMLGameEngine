@@ -38,7 +38,7 @@ namespace SFMLEngine.Network.Services {
 
 		public virtual void startServer(NetConfig config, INetworkProvider provider) {
 			log("Starting net server");
-			log(string.Format("Config settings: \r\n    Port: {0}\r\n    Max clients: {1}",
+			log(string.Format("Config settings: \r\nPort: {0}\r\nMax clients: {1}",
 				config.port, config.maxclients));
 
 			this.provider = provider;
