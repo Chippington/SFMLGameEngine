@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFMLEngine.Entities;
 using SFMLEngine.Entities.Collision;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Entities.Components.Camera;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Entities {
+namespace SFMLEngine.Scenes {
 	public delegate void SceneEvent(SceneEventArgs args);
 	public class SceneEventArgs {
 		public IEntity entity;
@@ -34,6 +35,7 @@ namespace SFMLEngine.Entities {
 		private List<IEntity> entityList;
 		private int sceneID;
 
+		protected ISceneManager manager;
 		protected CameraComponent camera;
 		protected GameContext context;
 
@@ -97,11 +99,7 @@ namespace SFMLEngine.Entities {
 			context.window.SetView(camera.getView());
 		}
 
-		public virtual void onSceneAdded(SceneManager manager) { }
-
-		public virtual void onSceneRemoved(SceneManager manager) { }
-
-		public virtual T instantiate<T>(params object[] args) where T : Entity {
+		public virtual T instantiate<T>(params object[] args) where T : IEntity {
 			T ent = (T)Activator.CreateInstance(typeof(T), args);
 			entityList.Add(ent);
 
@@ -133,5 +131,15 @@ namespace SFMLEngine.Entities {
 				entity = args.entity,
 			});
 		}
+
+		public virtual void onSceneRegistered(SceneManager manager) {
+			this.manager = manager;
+		}
+
+		public virtual void onSceneDeactivated() { }
+
+		public virtual void onSceneActivated() { }
+
+		public virtual void onSceneReset() { }
 	}
 }

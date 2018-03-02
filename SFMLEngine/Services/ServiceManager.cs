@@ -22,6 +22,11 @@ namespace SFMLEngine.Services {
 		public T registerService<T>() where T : IGameService {
 			var inst = (T)Activator.CreateInstance<T>();
 			serviceMap.Add(typeof(T), inst);
+			var interfaces = typeof(T).GetInterfaces();
+			foreach (var i in interfaces)
+				if (i.GetInterfaces().Contains(typeof(IGameService)))
+					serviceMap.Add(i, inst);
+
 			serviceList.Add(inst);
 			inst.onInitialize(context);
 

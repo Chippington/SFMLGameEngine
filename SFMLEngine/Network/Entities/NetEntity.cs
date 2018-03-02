@@ -8,6 +8,7 @@ using NetUtils.Net.Default;
 using SFMLEngine.Entities;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Network.Entities.Components;
+using SFMLEngine.Scenes;
 
 namespace SFMLEngine.Network.Entities {
 	public class NetEntity : Entity, INetEntity {

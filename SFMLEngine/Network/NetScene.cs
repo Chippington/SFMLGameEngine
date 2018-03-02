@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NetUtils.Net.Interfaces;
+using SFMLEngine.Scenes;
 
 namespace SFMLEngine.Network {
 	public class NetScene : Scene, INetScene {

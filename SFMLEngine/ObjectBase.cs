@@ -2,6 +2,7 @@
 using SFMLEngine.Entities.Collision;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Graphics.UI;
+using SFMLEngine.Scenes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

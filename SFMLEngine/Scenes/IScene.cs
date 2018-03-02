@@ -1,22 +1,24 @@
-﻿using SFMLEngine.Entities.Components.Camera;
+﻿using SFMLEngine.Entities;
+using SFMLEngine.Entities.Components.Camera;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine.Entities {
+namespace SFMLEngine.Scenes {
 	public interface IScene : IGameObject, IRenderable, IUpdatable {
 		SceneEvent OnEntityCreated { get; set; }
 		SceneEvent OnEntityDestroyed { get; set; }
 		SceneEvent OnEntityComponentAdded { get; set; }
 		SceneEvent OnEntityComponentRemoved { get; set; }
 
-		void onSceneAdded(SceneManager manager);
+		void onSceneRegistered(SceneManager manager);
+		void onSceneDeactivated();
+		void onSceneActivated();
+		void onSceneReset();
 
-		void onSceneRemoved(SceneManager manager);
-
-		T instantiate<T>(params object[] args) where T : Entity;
+		T instantiate<T>(params object[] args) where T : IEntity;
 
 		void setCamera(CameraComponent camera);
 

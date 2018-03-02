@@ -5,6 +5,7 @@ using System.Text;
 using SFMLEngine.Entities.Components;
 using System.Threading.Tasks;
 using SFML.System;
+using SFMLEngine.Scenes;
 
 namespace SFMLEngine.Entities {
 	public delegate void EntityEvent(EntityEventArgs args);
@@ -14,9 +15,13 @@ namespace SFMLEngine.Entities {
 	}
 
 	public class Entity : ObjectBase, IEntity {
-		public EntityEvent OnDestroyEvent;
-		public EntityEvent OnUpdateEvent;
-		public EntityEvent OnDrawEvent;
+		public EntityEvent _onDestroyEvent;
+		public EntityEvent _onUpdateEvent;
+		public EntityEvent _onDrawEvent;
+
+		public EntityEvent OnDestroyEvent { get => _onDestroyEvent; set => _onDestroyEvent = value; }
+		public EntityEvent OnUpdateEvent { get => _onUpdateEvent; set => _onUpdateEvent = value; }
+		public EntityEvent OnDrawEvent { get => _onDrawEvent; set => _onDrawEvent = value; }
 
 		protected Scene owner;
 		private bool destroyed;

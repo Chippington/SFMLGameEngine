@@ -78,10 +78,11 @@
     <Compile Include="Entities\Components\Graphics\SpriteRenderer.cs" />
     <Compile Include="Entities\Components\Common\Position.cs" />
     <Compile Include="Entities\Entity.cs" />
-    <Compile Include="Entities\IScene.cs" />
-    <Compile Include="Entities\Scene.cs" />
+    <Compile Include="Scenes\IScene.cs" />
+    <Compile Include="Scenes\ISceneManager.cs" />
+    <Compile Include="Scenes\Scene.cs" />
     <Compile Include="Entities\IEntity.cs" />
-    <Compile Include="Entities\SceneManager.cs" />
+    <Compile Include="Scenes\SceneManager.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="Graphics\UI\Controls\Button.cs" />
     <Compile Include="Graphics\UI\Controls\Checkbox.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Graphics\UI\UIWindow.cs" />
     <Compile Include="IGameObject.cs" />
     <Compile Include="Network\DebugLogger.cs" />
+    <Compile Include="Network\Services\NetSceneManager.cs" />
     <Compile Include="Services\IGameService.cs" />
     <Compile Include="Services\Input\InputController.cs" />
     <Compile Include="IRenderable.cs" />

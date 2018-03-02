@@ -4,6 +4,7 @@ using SFMLEngine.Entities;
 using SFMLEngine.Entities.Collision;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Graphics.UI;
+using SFMLEngine.Scenes;
 using SFMLEngine.Services;
 using SFMLEngine.Services.Input;
 using System;
@@ -66,7 +67,7 @@ namespace SFMLEngine {
 			ServiceManager services = new ServiceManager();
 			context.services = services;
 
-			if (context.services.hasService<SceneManager>() == false)
+			if (context.services.hasService<ISceneManager>() == false)
 				context.services.registerService<SceneManager>();
 
 			if (context.services.hasService<InputController>() == false)
@@ -232,7 +233,7 @@ namespace SFMLEngine {
 		public Clock clock { get; internal set; }
 		public Time time { get; internal set; }
 
-		public SceneManager sceneManager => services.getService<SceneManager>();
+		public ISceneManager sceneManager => services.getService<ISceneManager>();
 		public InputController input => services.getService<InputController>();
 	}
 }

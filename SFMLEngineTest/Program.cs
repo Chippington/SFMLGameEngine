@@ -11,6 +11,7 @@ using SFMLEngine.Entities.Graphics.Components;
 using SFMLEngine.Graphics.UI;
 using SFMLEngine.Graphics.UI.Controls;
 using SFMLEngine.Network.Services;
+using SFMLEngine.Scenes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,8 +24,10 @@ namespace SFMLEngineTest {
 		public class TestGame : GameWindow {
 			protected override void logicInitialized(GameContext context) {
 				base.logicInitialized(context);
-				Scene mainScene = new Scene();
-				context.sceneManager.setActiveScene(mainScene);
+				context.sceneManager.registerScene<Scene>();
+				context.sceneManager.setActiveScene<Scene>();
+				Scene mainScene = context.sceneManager.getScene<Scene>();
+
 				var sv = context.services.registerService<NetServerService>();
 				var cl = context.services.registerService<NetClientService>();
 
