@@ -9,9 +9,11 @@ using SFMLEngine.Entities;
 using SFMLEngine.Entities.Components;
 using SFMLEngine.Network.Entities.Components;
 using SFMLEngine.Scenes;
+using NetUtils;
+using NetUtils.Net.Interfaces;
 
 namespace SFMLEngine.Network.Entities {
-	public class NetEntity : Entity, INetEntity {
+	public class NetEntity : Entity, INetEntity, ISerializable {
 		private List<INetComponent> netComponents;
 		private bool netInitialized;
 		private INetScene netScene;
@@ -69,6 +71,14 @@ namespace SFMLEngine.Network.Entities {
 		public bool isClient() {
 			if (netScene != null) return netScene.isClient();
 			return false;
+		}
+
+		public virtual void writeTo(IDataBuffer buffer) {
+
+		}
+
+		public virtual void readFrom(IDataBuffer buffer) {
+
 		}
 	}
 }

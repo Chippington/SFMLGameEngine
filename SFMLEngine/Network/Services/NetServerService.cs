@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using NetUtils.Utilities.Logging;
 using SFMLEngine.Scenes;
+using NetUtils.Net.Data;
 
 namespace SFMLEngine.Network.Services {
 	public delegate void NetServerEvent(NetServerEventArgs args);
@@ -18,7 +19,7 @@ namespace SFMLEngine.Network.Services {
 
 	}
 
-	public class NetServerService : ObjectBase, IGameService {
+	public class NetServerService : NetServiceBase, IGameService {
 		private INetworkProvider provider;
 		private NetServer _netServer;
 		private NetConfig config;
@@ -29,9 +30,12 @@ namespace SFMLEngine.Network.Services {
 
 		public NetServer netServer { get => _netServer; set { } }
 
-		public virtual void onInitialize(GameContext context) {
+		public override void onInitialize(GameContext context) {
 			DebugLog.setLogger(new DebugLogger());
-			context.services.registerService<NetSceneManager>();
+
+			if (context.services.hasService<NetSceneManager>() == false)
+				context.services.registerService<NetSceneManager>();
+
 			context.sceneManager.OnSceneReset += onSceneReset;
 			context.sceneManager.OnSceneActivated += onSceneActivated;
 			context.sceneManager.OnSceneDeactivated += onSceneDeactivated;
@@ -49,20 +53,40 @@ namespace SFMLEngine.Network.Services {
 			});
 		}
 
-		private void onSceneRegistered(SceneManagerEventArgs args) {
-			throw new NotImplementedException();
+		protected override void onSceneRegistered(SceneManagerEventArgs args) {
+			base.onSceneRegistered(args);
 		}
 
-		private void onSceneDeactivated(SceneManagerEventArgs args) {
-			throw new NotImplementedException();
+		protected override void onSceneDeactivated(SceneManagerEventArgs args) {
+			base.onSceneDeactivated(args);
 		}
 
-		private void onSceneActivated(SceneManagerEventArgs args) {
-			throw new NotImplementedException();
+		protected override void onSceneActivated(SceneManagerEventArgs args) {
+			base.onSceneActivated(args);
+
+			if (_netServer == null)
+				return;
+
+			var netScene = args.scene as INetScene;
+			if (netScene == null)
+				return;
+
+			var id = idFromScene(netScene);
+			if (id == null)
+				return;
+
+			DataBufferStream buff = new DataBufferStream();
+			netScene.writeTo(buff);
+
+			P_SceneChange packet = new P_SceneChange(id.Value, buff);
+			_netServer.sendToClients(new PacketInfo() {
+				packet = packet,
+				sendToAll = true,
+			});
 		}
 
-		private void onSceneReset(SceneManagerEventArgs args) {
-			throw new NotImplementedException();
+		protected override void onSceneReset(SceneManagerEventArgs args) {
+			base.onSceneReset(args);
 		}
 
 		public virtual void startServer(NetConfig config) {
@@ -76,6 +100,8 @@ namespace SFMLEngine.Network.Services {
 
 			this.provider = provider;
 			this.config = config;
+
+			config.registerPacket<P_SceneChange>();
 
 			_netServer = new NetServer(provider, config);
 			netServer.start();
@@ -91,16 +117,16 @@ namespace SFMLEngine.Network.Services {
 			OnClientConnected?.Invoke(new NetServerEventArgs());
 		}
 
-		public virtual void onDraw(GameContext context) {
+		public override void onDraw(GameContext context) {
 
 		}
 
-		public virtual void onUpdate(GameContext context) {
+		public override void onUpdate(GameContext context) {
 			if(netServer != null)
 				netServer.updateServer();
 		}
 
-		public virtual void onDispose(GameContext context) {
+		public override void onDispose(GameContext context) {
 			if(netServer != null)
 				netServer.stop();
 

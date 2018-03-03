@@ -18,7 +18,7 @@ namespace SFMLEngine.Network.Services {
 
 	}
 
-	public class NetClientService : ObjectBase, IGameService {
+	public class NetClientService : NetServiceBase, IGameService {
 		private INetworkProvider provider;
 		private NetClient _netClient;
 		private NetConfig config;
@@ -29,9 +29,12 @@ namespace SFMLEngine.Network.Services {
 
 		public NetClient netClient { get => _netClient; set { } }
 
-		public virtual void onInitialize(GameContext context) {
+		public override void onInitialize(GameContext context) {
 			DebugLog.setLogger(new DebugLogger());
-			context.services.registerService<NetSceneManager>();
+
+			if (context.services.hasService<NetSceneManager>() == false)
+				context.services.registerService<NetSceneManager>();
+
 			context.sceneManager.OnSceneReset += onSceneReset;
 			context.sceneManager.OnSceneActivated += onSceneActivated;
 			context.sceneManager.OnSceneDeactivated += onSceneDeactivated;
@@ -49,20 +52,20 @@ namespace SFMLEngine.Network.Services {
 			});
 		}
 
-		private void onSceneRegistered(SceneManagerEventArgs args) {
-			throw new NotImplementedException();
+		protected override void onSceneRegistered(SceneManagerEventArgs args) {
+			base.onSceneRegistered(args);
 		}
 
-		private void onSceneDeactivated(SceneManagerEventArgs args) {
-			throw new NotImplementedException();
+		protected override void onSceneDeactivated(SceneManagerEventArgs args) {
+			base.onSceneDeactivated(args);
 		}
 
-		private void onSceneActivated(SceneManagerEventArgs args) {
-			throw new NotImplementedException();
+		protected override void onSceneActivated(SceneManagerEventArgs args) {
+			base.onSceneActivated(args);
 		}
 
-		private void onSceneReset(SceneManagerEventArgs args) {
-			throw new NotImplementedException();
+		protected override void onSceneReset(SceneManagerEventArgs args) {
+			base.onSceneReset(args);
 		}
 
 		public virtual void startClient(NetConfig config) {
@@ -77,7 +80,10 @@ namespace SFMLEngine.Network.Services {
 			this.provider = provider;
 			this.config = config;
 
+			config.registerPacket<P_SceneChange>();
+
 			_netClient = new NetClient(provider, config);
+			_netClient.addClientPacketCallback<P_SceneChange>(cbOnSceneChange);
 			netClient.start();
 
 			netClient.onConnectedToServer += onConnectedToServer;
@@ -86,21 +92,24 @@ namespace SFMLEngine.Network.Services {
 			OnNetClientStart?.Invoke(new NetClientEventArgs());
 		}
 
+		private void cbOnSceneChange(P_SceneChange obj) {
+		}
+
 		protected virtual void onConnectedToServer(NetEventArgs args) {
 			log("Connected to server");
 			OnConnectedToServer?.Invoke(new NetClientEventArgs());
 		}
 
-		public virtual void onDraw(GameContext context) {
+		public override void onDraw(GameContext context) {
 
 		}
 
-		public virtual void onUpdate(GameContext context) {
+		public override void onUpdate(GameContext context) {
 			if(netClient != null)
 				netClient.updateClient();
 		}
 
-		public virtual void onDispose(GameContext context) {
+		public override void onDispose(GameContext context) {
 			if(netClient != null)
 				netClient.stop();
 

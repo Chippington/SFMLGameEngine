@@ -78,6 +78,8 @@
     <Compile Include="Entities\Components\Graphics\SpriteRenderer.cs" />
     <Compile Include="Entities\Components\Common\Position.cs" />
     <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Network\Services\NetServiceBase.cs" />
+    <Compile Include="Network\Services\NetServicePackets.cs" />
     <Compile Include="Scenes\IScene.cs" />
     <Compile Include="Scenes\ISceneManager.cs" />
     <Compile Include="Scenes\Scene.cs" />

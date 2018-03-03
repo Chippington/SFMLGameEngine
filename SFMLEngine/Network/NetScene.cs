@@ -1,5 +1,4 @@
-﻿using NetUtils.Net.Services.Entities;
-using SFMLEngine.Entities;
+﻿using SFMLEngine.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using NetUtils.Net.Interfaces;
 using SFMLEngine.Scenes;
+using SFMLEngine.Network.Entities;
+using NetUtils;
 
 namespace SFMLEngine.Network {
 	public class NetScene : Scene, INetScene {
@@ -67,11 +68,11 @@ namespace SFMLEngine.Network {
 		}
 
 		public void writeTo(IDataBuffer buffer) {
-			throw new NotImplementedException();
+
 		}
 
 		public void readFrom(IDataBuffer buffer) {
-			throw new NotImplementedException();
+
 		}
 	}
 }

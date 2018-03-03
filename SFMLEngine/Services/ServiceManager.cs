@@ -37,6 +37,26 @@ namespace SFMLEngine.Services {
 			return inst;
 		}
 
+		public T registerService<T>(bool inherit) where T : IGameService {
+			if (context.locked)
+				throw new Exception("Cannot register a service after logic has been initialized.");
+
+			log("Registering service of type " + typeof(T).Name);
+			var inst = (T)Activator.CreateInstance<T>();
+			serviceMap.Add(typeof(T), inst);
+			var interfaces = typeof(T).GetInterfaces();
+
+			if (inherit)
+				foreach (var i in interfaces)
+					if (i.GetInterfaces().Contains(typeof(IGameService)))
+						serviceMap.Add(i, inst);
+
+			serviceList.Add(inst);
+			inst.onInitialize(context);
+
+			return inst;
+		}
+
 		public T getService<T>() where T : IGameService {
 			if (serviceMap.ContainsKey(typeof(T)) == false)
 				return default(T);
