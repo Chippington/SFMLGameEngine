@@ -17,5 +17,7 @@ namespace SFMLEngine.Scenes {
 		void resetScene<T>() where T : IScene;
 		void setActiveScene<T>() where T : IScene;
 		T getScene<T>() where T : IScene;
+		IEnumerable<IScene> getScenes();
+		IScene getActiveScene();
 	}
 }

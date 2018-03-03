@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using NetUtils.Utilities.Logging;
+using SFMLEngine.Scenes;
 
 namespace SFMLEngine.Network.Services {
 	public delegate void NetClientEvent(NetClientEventArgs args);
@@ -30,6 +31,38 @@ namespace SFMLEngine.Network.Services {
 
 		public virtual void onInitialize(GameContext context) {
 			DebugLog.setLogger(new DebugLogger());
+			context.services.registerService<NetSceneManager>();
+			context.sceneManager.OnSceneReset += onSceneReset;
+			context.sceneManager.OnSceneActivated += onSceneActivated;
+			context.sceneManager.OnSceneDeactivated += onSceneDeactivated;
+			context.sceneManager.OnSceneRegistered += onSceneRegistered;
+
+			var scenes = context.sceneManager.getScenes();
+			foreach (var scene in scenes)
+				onSceneRegistered(new SceneManagerEventArgs() {
+					scene = scene,
+				});
+
+			var activeScene = context.sceneManager.getActiveScene();
+			onSceneActivated(new SceneManagerEventArgs() {
+				scene = activeScene,
+			});
+		}
+
+		private void onSceneRegistered(SceneManagerEventArgs args) {
+			throw new NotImplementedException();
+		}
+
+		private void onSceneDeactivated(SceneManagerEventArgs args) {
+			throw new NotImplementedException();
+		}
+
+		private void onSceneActivated(SceneManagerEventArgs args) {
+			throw new NotImplementedException();
+		}
+
+		private void onSceneReset(SceneManagerEventArgs args) {
+			throw new NotImplementedException();
 		}
 
 		public virtual void startClient(NetConfig config) {

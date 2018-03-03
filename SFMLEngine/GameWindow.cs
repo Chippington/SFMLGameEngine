@@ -66,6 +66,9 @@ namespace SFMLEngine {
 			log("Creating services");
 			ServiceManager services = new ServiceManager();
 			context.services = services;
+			context.services.onInitialize(context);
+
+			onRegisterServices(context);
 
 			if (context.services.hasService<ISceneManager>() == false)
 				context.services.registerService<SceneManager>();
@@ -86,7 +89,7 @@ namespace SFMLEngine {
 
 				log("Initializing services");
 				services.onInitialize(context);
-				logicInitialized(context);
+				onLogicInitialized(context);
 
 				log("Logic initialized");
 				logicInit = true;
@@ -94,6 +97,7 @@ namespace SFMLEngine {
 				while (graphicsInit == false)
 					Thread.Sleep(10);
 
+				context.lockContext();
 				lgcClock.Restart();
 				while (!exitFlag) {
 					Thread.Sleep(1);
@@ -149,7 +153,7 @@ namespace SFMLEngine {
 
 				log("Creating input hooks");
 				context.input.setHooks(window);
-				graphicsInitialized(context);
+				onGraphicsInitialized(context);
 				Statistics.initializeDebugDraw(context);
 
 				log("Graphics initialized");
@@ -191,7 +195,7 @@ namespace SFMLEngine {
 
 		private void _logicUpdate(GameContext context) {
 			Statistics.onLogicUpdate();
-			logicUpdate(context);
+			onLogicUpdate(context);
 
 			context.services.onUpdate(context);
 			context.ui.onUpdate(context);
@@ -203,19 +207,26 @@ namespace SFMLEngine {
 
 			context.services.onDraw(context);
 			context.ui.onDraw(context, context.uiLayer);
-			graphicsUpdate(context);
+			onGraphicsUpdate(context);
 		}
 
-		protected virtual void logicInitialized(GameContext context) { }
+		protected virtual void onRegisterServices(GameContext context) { }
 
-		protected virtual void graphicsInitialized(GameContext context) { }
+		protected virtual void onLogicInitialized(GameContext context) { }
 
-		protected virtual void logicUpdate(GameContext context) { }
+		protected virtual void onGraphicsInitialized(GameContext context) { }
 
-		protected virtual void graphicsUpdate(GameContext context) { }
+		protected virtual void onLogicUpdate(GameContext context) { }
+
+		protected virtual void onGraphicsUpdate(GameContext context) { }
 	}
 
 	public class GameContext {
+		internal bool locked = false;
+		internal void lockContext() {
+			locked = true;
+		}
+
 		public string name { get; internal set; }
 		public uint screenWidth { get; internal set; }
 		public uint screenHeight { get; internal set; }

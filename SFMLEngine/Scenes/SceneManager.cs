@@ -29,12 +29,14 @@ namespace SFMLEngine.Scenes {
 		public SceneEvent OnEntityComponentRemoved;
 
 		private Dictionary<Type, IScene> sceneMap;
+		private List<IScene> sceneList;
 		private IScene activeScene;
 
 		protected GameContext context;
 
 		public void onInitialize(GameContext context) {
 			this.sceneMap = new Dictionary<Type, IScene>();
+			this.sceneList = new List<IScene>();
 			this.context = context;
 		}
 
@@ -89,6 +91,8 @@ namespace SFMLEngine.Scenes {
 				throw new Exception("Scene already exists in the registry.");
 
 			sceneMap.Add(typeof(T), inst);
+			sceneList.Add(inst);
+
 			inst.onSceneRegistered(this);
 			OnSceneRegistered?.Invoke(new SceneManagerEventArgs() {
 				scene = inst,
@@ -134,6 +138,14 @@ namespace SFMLEngine.Scenes {
 				throw new Exception("Scene does not exist in the registry.");
 
 			return (T)sceneMap[typeof(T)];
+		}
+
+		public IEnumerable<IScene> getScenes() {
+			return sceneList;
+		}
+
+		public IScene getActiveScene() {
+			return activeScene;
 		}
 	}
 }

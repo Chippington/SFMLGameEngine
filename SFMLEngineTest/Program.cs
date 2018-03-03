@@ -22,8 +22,8 @@ using System.Threading.Tasks;
 namespace SFMLEngineTest {
 	class Program {
 		public class TestGame : GameWindow {
-			protected override void logicInitialized(GameContext context) {
-				base.logicInitialized(context);
+			protected override void onLogicInitialized(GameContext context) {
+				base.onLogicInitialized(context);
 				context.sceneManager.registerScene<Scene>();
 				context.sceneManager.setActiveScene<Scene>();
 				Scene mainScene = context.sceneManager.getScene<Scene>();
@@ -65,12 +65,12 @@ namespace SFMLEngineTest {
 				context.ui.addControl(uitest);
 			}
 
-			protected override void graphicsUpdate(GameContext context) {
-				base.graphicsUpdate(context);
+			protected override void onGraphicsUpdate(GameContext context) {
+				base.onGraphicsUpdate(context);
 			}
 
-			protected override void logicUpdate(GameContext context) {
-				base.logicUpdate(context);
+			protected override void onLogicUpdate(GameContext context) {
+				base.onLogicUpdate(context);
 			}
 		}
 

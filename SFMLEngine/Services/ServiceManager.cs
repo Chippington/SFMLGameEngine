@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Services {
-	public class ServiceManager : IUpdatable, IRenderable {
+	public class ServiceManager : ObjectBase, IUpdatable, IRenderable {
 		private Dictionary<Type, IGameService> serviceMap;
 		private List<IGameService> serviceList;
 		private GameContext context;
@@ -20,6 +20,10 @@ namespace SFMLEngine.Services {
 		}
 
 		public T registerService<T>() where T : IGameService {
+			if (context.locked)
+				throw new Exception("Cannot register a service after logic has been initialized.");
+
+			log("Registering service of type " + typeof(T).Name);
 			var inst = (T)Activator.CreateInstance<T>();
 			serviceMap.Add(typeof(T), inst);
 			var interfaces = typeof(T).GetInterfaces();
