@@ -123,6 +123,24 @@ namespace SFMLEngine.Network.Services {
 		protected virtual void onClientConnected(NetEventArgs args) {
 			log(string.Format("Client connected: {0}", args.client.ipendpoint));
 			OnClientConnected?.Invoke(new NetServerEventArgs());
+			var netScene = args.scene as INetScene;
+			if (netScene == null)
+				return;
+
+			var id = idFromScene(netScene);
+			if (id == null)
+				return;
+
+			DataBufferStream buff = new DataBufferStream();
+			netScene.writeTo(buff);
+			P_SceneChange packet = new P_SceneChange(id.Value, buff);
+			_netServer.sendToClients(new PacketInfo() {
+				packet = packet,
+				sendToAll = false,
+				recipients = new List<ClientInfo>() {
+					args.client,
+				}
+			});
 		}
 
 		public override void onDraw(GameContext context) {

@@ -31,7 +31,7 @@ namespace SFMLEngine.Utilities.Data {
 
 			string ret = "";
 			for(int i = 0; i < values.Length; i++) {
-				ret += string.Format("{0}, ");
+				ret += string.Format("{0}, ", values[i]);
 			}
 
 			return string.Format("[{0}]({1})", 
