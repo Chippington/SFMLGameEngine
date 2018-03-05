@@ -1,4 +1,5 @@
 ﻿using NetUtils.Net.Default.Providers.TCP;
+using NetUtils.Net.Interfaces;
 using SFML.Graphics;
 using SFML.System;
 using SFMLEngine;
@@ -46,7 +47,6 @@ namespace SFMLEngineTest {
 						port = 12345,
 						maxclients = 32,
 					}, new TCPNetworkProvider());
-
 				} else {
 					var cl = context.services.registerService<NetClientService>();
 					cl.startClient((new NetUtils.Net.NetConfig() {
@@ -88,11 +88,24 @@ namespace SFMLEngineTest {
 		}
 
 		public class TestNetScene : NetScene {
+			public override void onSceneActivated() {
+				base.onSceneActivated();
+			}
 
+			public override void writeTo(IDataBuffer buffer) {
+				base.writeTo(buffer);
+				buffer.write((string)"Hello!");
+			}
+
+			public override void readFrom(IDataBuffer buffer) {
+				base.readFrom(buffer);
+				var str = buffer.readString();
+
+				log("SERVER SAYS: " + str);
+			}
 		}
 
 		public class TestServer : NetServerService {
-
 		}
 
 		public class TestUIWindow : UIWindow {

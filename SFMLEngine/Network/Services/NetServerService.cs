@@ -77,7 +77,7 @@ namespace SFMLEngine.Network.Services {
 			var id = idFromScene(netScene);
 			if (id == null)
 				return;
-
+			
 			DataBufferStream buff = new DataBufferStream();
 			netScene.writeTo(buff);
 
@@ -118,6 +118,8 @@ namespace SFMLEngine.Network.Services {
 			});
 
 			OnServerStarted?.Invoke(new NetServerEventArgs());
+			foreach (var s in sceneList)
+				s.onNetInitialize(_netServer);
 		}
 
 		protected virtual void onClientConnected(NetEventArgs args) {

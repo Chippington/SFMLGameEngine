@@ -17,18 +17,26 @@ namespace SFMLEngine.Network.Entities {
 		private List<INetComponent> netComponents;
 		private bool netInitialized;
 		private INetScene netScene;
+		private NetworkHandler net;
 
 		public NetEntity() {
 			netComponents = new List<INetComponent>();
 			netInitialized = false;
 		}
 
+		public virtual void onNetInitialize(NetworkHandler netHandler) {
+			this.net = netHandler;
+			netInitialized = true;
+		}
+
 		private void onComponentAdded(ComponentEventArgs args) {
 			var netComponent = args.component as INetComponent;
 			if (netComponent != null) {
 				netComponents.Add(netComponent);
-				if (netInitialized)
-					netComponent.onNetInitialize(this);
+				if (netInitialized) {
+					netComponent.onNetInitialize(net);
+					netComponent.onNetEntityInitialize(this);
+				}
 			}
 		}
 

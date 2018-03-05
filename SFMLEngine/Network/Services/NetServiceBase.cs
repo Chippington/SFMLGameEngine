@@ -12,7 +12,7 @@ namespace SFMLEngine.Network.Services {
 		private Dictionary<INetScene, byte> sceneIDMap = new Dictionary<INetScene, byte>();
 		private Dictionary<Type, byte> typeIDMap = new Dictionary<Type, byte>();
 		private Dictionary<byte, Type> idTypeMap = new Dictionary<byte, Type>();
-		private List<INetScene> sceneList = new List<INetScene>();
+		protected List<INetScene> sceneList = new List<INetScene>();
 
 		protected INetScene sceneFromID(byte id) {
 			if (idSceneMap.ContainsKey(id) == false)

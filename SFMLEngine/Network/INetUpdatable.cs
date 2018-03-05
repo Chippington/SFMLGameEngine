@@ -5,10 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Network {
-	public interface INetUpdatable {
+	public interface INetUpdatable : INetBase {
 		void onClientUpdate();
 		void onServerUpdate();
-		bool isServer();
-		bool isClient();
 	}
 }

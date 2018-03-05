@@ -93,7 +93,14 @@ namespace SFMLEngine.Network.Services {
 		}
 
 		private void cbOnSceneChange(P_SceneChange obj) {
-			log("Active scene changed");
+			var scene = sceneFromID(obj.id);
+			if (scene == null) {
+				log(string.Format("Received scene change data for non-existant scene [{0}]", obj.id));
+				return;
+			}
+
+			log(string.Format("Received scene change data for {0} [{1}]", scene.GetType().Name, obj.id));
+			scene.readFrom(obj.sceneData);
 		}
 
 		protected virtual void onConnectedToServer(NetEventArgs args) {

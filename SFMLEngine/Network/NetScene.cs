@@ -13,10 +13,15 @@ namespace SFMLEngine.Network {
 	public class NetScene : Scene, INetScene {
 		private List<NetEntity> netEntityList;
 		private bool isServerFlag, isClientFlag;
+		private NetworkHandler net;
 
 		public NetScene() {
 			netEntityList = new List<NetEntity>();
 			OnEntityDestroyed += onEntityDestroyed;
+		}
+
+		public void onNetInitialize(NetworkHandler netHandler) {
+			this.net = netHandler;
 		}
 
 		private void onEntityDestroyed(SceneEventArgs args) {
@@ -67,11 +72,11 @@ namespace SFMLEngine.Network {
 			return isClientFlag;
 		}
 
-		public void writeTo(IDataBuffer buffer) {
+		public virtual void writeTo(IDataBuffer buffer) {
 
 		}
 
-		public void readFrom(IDataBuffer buffer) {
+		public virtual void readFrom(IDataBuffer buffer) {
 
 		}
 	}
