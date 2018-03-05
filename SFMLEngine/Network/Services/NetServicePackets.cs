@@ -11,6 +11,11 @@ namespace SFMLEngine.Network.Services {
 		public IDataBuffer sceneData;
 		public byte id;
 
+		public P_SceneChange() {
+			this.sceneData = null;
+			this.id = 0;
+		}
+
 		public P_SceneChange(byte id, IDataBuffer sceneData) {
 			this.sceneData = sceneData;
 			this.id = id;

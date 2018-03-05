@@ -32,7 +32,7 @@ namespace SFMLEngine.Network.Services {
 		public NetServer netServer { get => _netServer; set { } }
 
 		public override void onInitialize(GameContext context) {
-			DebugLog.setLogger(new DebugLogger());
+			DebugLog.setLogger(new NetDebugLogger());
 
 			if (context.services.hasService<NetSceneManager>(true) == false)
 				context.services.registerService<NetSceneManager>();
@@ -123,7 +123,7 @@ namespace SFMLEngine.Network.Services {
 		protected virtual void onClientConnected(NetEventArgs args) {
 			log(string.Format("Client connected: {0}", args.client.ipendpoint));
 			OnClientConnected?.Invoke(new NetServerEventArgs());
-			var netScene = args.scene as INetScene;
+			var netScene = context.sceneManager.getActiveScene() as INetScene;
 			if (netScene == null)
 				return;
 

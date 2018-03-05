@@ -10,6 +10,7 @@ using SFMLEngine.Entities.Components.Physics;
 using SFMLEngine.Entities.Graphics.Components;
 using SFMLEngine.Graphics.UI;
 using SFMLEngine.Graphics.UI.Controls;
+using SFMLEngine.Network;
 using SFMLEngine.Network.Services;
 using SFMLEngine.Scenes;
 using System;
@@ -34,9 +35,9 @@ namespace SFMLEngineTest {
 
 			protected override void onLogicInitialized(GameContext context) {
 				base.onLogicInitialized(context);
-				context.sceneManager.registerScene<Scene>();
-				context.sceneManager.setActiveScene<Scene>();
-				Scene mainScene = context.sceneManager.getScene<Scene>();
+				context.sceneManager.registerScene<TestNetScene>();
+				context.sceneManager.setActiveScene<TestNetScene>();
+				TestNetScene mainScene = context.sceneManager.getScene<TestNetScene>();
 
 				if (isServer) {
 					var sv = context.services.registerService<NetServerService>();
@@ -86,7 +87,12 @@ namespace SFMLEngineTest {
 			}
 		}
 
+		public class TestNetScene : NetScene {
+
+		}
+
 		public class TestServer : NetServerService {
+
 		}
 
 		public class TestUIWindow : UIWindow {
@@ -230,9 +236,9 @@ namespace SFMLEngineTest {
 		}
 
 		static void Main(string[] args) {
-			Console.WindowWidth = 120;
+			Console.WindowWidth = 160;
 			Console.WindowHeight = 60;
-			Console.BufferHeight = 60;
+			Console.BufferHeight = 120;
 			TestGame sv = new TestGame(true);
 			TestGame cl = new TestGame();
 			sv.start();

@@ -30,7 +30,7 @@ namespace SFMLEngine.Network.Services {
 		public NetClient netClient { get => _netClient; set { } }
 
 		public override void onInitialize(GameContext context) {
-			DebugLog.setLogger(new DebugLogger());
+			DebugLog.setLogger(new NetDebugLogger());
 
 			if (context.services.hasService<NetSceneManager>(true) == false)
 				context.services.registerService<NetSceneManager>();
@@ -93,6 +93,7 @@ namespace SFMLEngine.Network.Services {
 		}
 
 		private void cbOnSceneChange(P_SceneChange obj) {
+			log("Active scene changed");
 		}
 
 		protected virtual void onConnectedToServer(NetEventArgs args) {
