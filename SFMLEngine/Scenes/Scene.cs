@@ -16,8 +16,6 @@ namespace SFMLEngine.Scenes {
 		public IComponent component;
 	}
 	public class Scene : ObjectBase, IScene, IGameObject, IUpdatable, IRenderable {
-		private static int id = 0;
-
 		public SceneEvent _OnEntityCreated;
 		public SceneEvent _OnEntityDestroyed;
 		public SceneEvent _OnEntityComponentAdded;
@@ -42,7 +40,7 @@ namespace SFMLEngine.Scenes {
 		public Scene() {
 			entityMap = new Dictionary<int, IEntity>();
 			entityList = new List<IEntity>();
-			sceneID = id++;
+			sceneID = this.id;
 
 			log("Creating collision map");
 			_collisionMap = new SweepAndPrune();
