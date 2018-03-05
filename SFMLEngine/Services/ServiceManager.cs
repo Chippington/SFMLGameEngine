@@ -82,5 +82,16 @@ namespace SFMLEngine.Services {
 		public bool hasService<T>() where T : IGameService {
 			return serviceMap.ContainsKey(typeof(T));
 		}
+
+		public bool hasService<T>(bool inherit) where T : IGameService {
+			var interfaces = typeof(T).GetInterfaces();
+			if (inherit)
+				foreach (var i in interfaces)
+					if (i.GetInterfaces().Contains(typeof(IGameService)))
+						if(serviceMap.ContainsKey(i))
+							return true;
+
+			return serviceMap.ContainsKey(typeof(T));
+		}
 	}
 }

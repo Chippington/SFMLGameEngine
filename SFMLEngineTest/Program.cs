@@ -22,26 +22,38 @@ using System.Threading.Tasks;
 namespace SFMLEngineTest {
 	class Program {
 		public class TestGame : GameWindow {
+
+			public TestGame() : base("TestServer", 800, 600) {
+
+			}
+
+			bool isServer = false;
+			public TestGame(bool server) : base() {
+				isServer = true;
+			}
+
 			protected override void onLogicInitialized(GameContext context) {
 				base.onLogicInitialized(context);
 				context.sceneManager.registerScene<Scene>();
 				context.sceneManager.setActiveScene<Scene>();
 				Scene mainScene = context.sceneManager.getScene<Scene>();
 
-				var sv = context.services.registerService<NetServerService>();
-				var cl = context.services.registerService<NetClientService>();
+				if (isServer) {
+					var sv = context.services.registerService<NetServerService>();
+					sv.startServer(new NetUtils.Net.NetConfig() {
+						appname = "Test",
+						port = 12345,
+						maxclients = 32,
+					}, new TCPNetworkProvider());
 
-				sv.startServer(new NetUtils.Net.NetConfig() {
-					appname = "Test",
-					port = 12345,
-					maxclients = 32,
-				}, new TCPNetworkProvider());
-
-				cl.startClient((new NetUtils.Net.NetConfig() {
-					appname = "Test",
-					port = 12345,
-					ipaddress = "127.0.0.1"
-				}), new TCPNetworkProvider());
+				} else {
+					var cl = context.services.registerService<NetClientService>();
+					cl.startClient((new NetUtils.Net.NetConfig() {
+						appname = "Test",
+						port = 12345,
+						ipaddress = "127.0.0.1"
+					}), new TCPNetworkProvider());
+				}
 
 				for (int i = 0; i < 1; i++) {
 					for (int j = 0; j < 2000; j++) {
@@ -221,10 +233,11 @@ namespace SFMLEngineTest {
 			Console.WindowWidth = 120;
 			Console.WindowHeight = 60;
 			Console.BufferHeight = 60;
-			TestGame g = new TestGame();
-			g.start();
-
-			while (g.isRunning()) {
+			TestGame sv = new TestGame(true);
+			TestGame cl = new TestGame();
+			sv.start();
+			cl.start();
+			while (sv.isRunning() || cl.isRunning()) {
 				System.Threading.Thread.Sleep(100);
 			}
 		}

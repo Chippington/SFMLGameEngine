@@ -32,7 +32,7 @@ namespace SFMLEngine.Network.Services {
 		public override void onInitialize(GameContext context) {
 			DebugLog.setLogger(new DebugLogger());
 
-			if (context.services.hasService<NetSceneManager>() == false)
+			if (context.services.hasService<NetSceneManager>(true) == false)
 				context.services.registerService<NetSceneManager>();
 
 			context.sceneManager.OnSceneReset += onSceneReset;

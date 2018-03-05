@@ -7,6 +7,7 @@ using SFMLEngine.Graphics.UI;
 using SFMLEngine.Scenes;
 using SFMLEngine.Services;
 using SFMLEngine.Services.Input;
+using SFMLEngine.Services.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,12 +29,17 @@ namespace SFMLEngine {
 		private RenderWindow window;
 		private GameContext context;
 
-		public GameWindow() : this("") { }
+		public GameWindow() : this("") {
+			this.name = "NONAME - Headless";
+			graphicsInit = true;
+		}
 
-		public GameWindow(string name) : this(name, 800, 600) { }
-
-		public GameWindow(string name, uint width, uint height) {
+		public GameWindow(string name) {
 			this.name = name;
+			graphicsInit = true;
+		}
+
+		public GameWindow(string name, uint width, uint height) : this(name) {
 			this.width = width;
 			this.height = height;
 			vsyncEnabled = false;
@@ -75,6 +81,9 @@ namespace SFMLEngine {
 
 			if (context.services.hasService<InputController>() == false)
 				context.services.registerService<InputController>();
+
+			if (context.services.hasService<StatisticsService>() == false)
+				context.services.registerService<StatisticsService>();
 
 			log("Creating window");
 			UIWindow uiwindow = new UIWindow("", context.screenWidth, context.screenHeight, UIWindow.Style.NONE);
@@ -126,6 +135,13 @@ namespace SFMLEngine {
 				}
 			});
 
+			if (graphicsInit == true) {
+				log("Starting in HEADLESS MODE");
+				log("Starting threads");
+				logicThread.Start();
+				return;
+			}
+
 			graphicsThread = new Thread(() => {
 				log("Waiting for logic thread");
 				while (logicInit == false) System.Threading.Thread.Sleep(10);
@@ -154,7 +170,8 @@ namespace SFMLEngine {
 				log("Creating input hooks");
 				context.input.setHooks(window);
 				onGraphicsInitialized(context);
-				Statistics.initializeDebugDraw(context);
+				context.services.getService<StatisticsService>()
+					.initializeDebugDraw(context);
 
 				log("Graphics initialized");
 				graphicsInit = true;
@@ -194,7 +211,6 @@ namespace SFMLEngine {
 		}
 
 		private void _logicUpdate(GameContext context) {
-			Statistics.onLogicUpdate();
 			onLogicUpdate(context);
 
 			context.services.onUpdate(context);
@@ -202,9 +218,6 @@ namespace SFMLEngine {
 		}
 
 		private void _graphicsUpdate(GameContext context) {
-			Statistics.onGraphicsUpdate();
-			Statistics.debugDraw(context.uiLayer);
-
 			context.services.onDraw(context);
 			context.ui.onDraw(context, context.uiLayer);
 			onGraphicsUpdate(context);

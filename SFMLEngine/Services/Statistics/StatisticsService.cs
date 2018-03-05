@@ -2,13 +2,14 @@
 using SFML.System;
 using SFMLEngine.Graphics.UI;
 using SFMLEngine.Graphics.UI.Controls;
+using SFMLEngine.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SFMLEngine {
+namespace SFMLEngine.Services.Statistics {
 	public class StatisticsDebugWindow : UIWindow {
 		private Label cpuLabel, gpuLabel;
 		public StatisticsGraphControl graph;
@@ -119,22 +120,24 @@ namespace SFMLEngine {
 		}
 	}
 
-	public static class Statistics {
-		private static Queue<long> logicFrameQueue;
-		private static Queue<long> graphicsFrameQueue;
-		private static List<KeyValuePair<long, float>> dbgLogicGraphQueue;
-		private static List<KeyValuePair<long, float>> dbgGraphicGraphQueue;
-		private static long dbgGraphSampleDelay;
-		private static long dbgGraphLastSample;
-		private static int dbgGraphHistoryLength;
-		private static Vector2f dbgPosition;
-		private static Vector2f dbgSize;
+	public class StatisticsService : IGameService {
+		private Queue<long> logicFrameQueue;
+		private Queue<long> graphicsFrameQueue;
+		private List<KeyValuePair<long, float>> dbgLogicGraphQueue;
+		private List<KeyValuePair<long, float>> dbgGraphicGraphQueue;
+		private long dbgGraphSampleDelay;
+		private long dbgGraphLastSample;
+		private int dbgGraphHistoryLength;
+		private Vector2f dbgPosition;
+		private Vector2f dbgSize;
 
-		private static long startTickTime;
-		private static long lastTickTime;
-		private static StatisticsDebugWindow dbgWindow;
+		private long startTickTime;
+		private long lastTickTime;
+		private StatisticsDebugWindow dbgWindow;
+		private bool debugMode;
 
-		static Statistics() {
+		public StatisticsService() {
+			debugMode = false;
 			logicFrameQueue = new Queue<long>();
 			graphicsFrameQueue = new Queue<long>();
 
@@ -158,11 +161,12 @@ namespace SFMLEngine {
 			dbgWindow.Position = new Vector2f(10f, 10f);
 		}
 
-		public static void initializeDebugDraw(GameContext context) {
+		public void initializeDebugDraw(GameContext context) {
 			context.ui.addControl(dbgWindow);
+			debugMode = true;
 		}
 
-		public static void debugDraw(RenderTarget window) {
+		public void debugDraw() {
 			if(Environment.TickCount - dbgGraphLastSample > dbgGraphSampleDelay) {
 				dbgWindow.graph.addCPUPoint(Environment.TickCount, getLogicFramesPerSecond());
 				dbgWindow.graph.addGPUPoint(Environment.TickCount, getGraphicsFramesPerSecond());
@@ -173,7 +177,15 @@ namespace SFMLEngine {
 			}
 		}
 
-		public static void onLogicUpdate() {
+		public float getLogicFramesPerSecond() {
+			return ((float)logicFrameQueue.Count) / Math.Min(((float)Environment.TickCount - startTickTime) / 1000f, 1f);
+		}
+
+		public float getGraphicsFramesPerSecond() {
+			return ((float)graphicsFrameQueue.Count) / Math.Min(((float)Environment.TickCount - startTickTime) / 1000f, 1f);
+		}
+
+		public void onUpdate(GameContext context) {
 			logicFrameQueue.Enqueue(Environment.TickCount);
 
 			while (logicFrameQueue.Count > 0 && logicFrameQueue.Peek() < Environment.TickCount - 1000)
@@ -183,7 +195,11 @@ namespace SFMLEngine {
 				graphicsFrameQueue.Dequeue();
 		}
 
-		public static void onGraphicsUpdate() {
+		public void onDraw(GameContext context) {
+			if(debugMode) {
+				debugDraw();
+			}
+
 			graphicsFrameQueue.Enqueue(Environment.TickCount);
 
 			while (logicFrameQueue.Count > 0 && logicFrameQueue.Peek() < Environment.TickCount - 1000)
@@ -193,12 +209,10 @@ namespace SFMLEngine {
 				graphicsFrameQueue.Dequeue();
 		}
 
-		public static float getLogicFramesPerSecond() {
-			return ((float)logicFrameQueue.Count) / Math.Min(((float)Environment.TickCount - startTickTime) / 1000f, 1f);
+		public void onInitialize(GameContext context) {
 		}
 
-		public static float getGraphicsFramesPerSecond() {
-			return ((float)graphicsFrameQueue.Count) / Math.Min(((float)Environment.TickCount - startTickTime) / 1000f, 1f);
+		public void onDispose(GameContext context) {
 		}
 	}
 }

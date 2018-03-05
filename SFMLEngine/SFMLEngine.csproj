@@ -115,7 +115,7 @@
     <Compile Include="ObjectBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ServiceManager.cs" />
-    <Compile Include="Statistics.cs" />
+    <Compile Include="Services\Statistics\StatisticsService.cs" />
     <Compile Include="Utilities\Data\Dimension.cs" />
     <Compile Include="Utilities\Grids\IGridEventListener.cs" />
     <Compile Include="Utilities\Grids\Procedural\IProceduralGridBase.cs" />

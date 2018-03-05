@@ -23,6 +23,7 @@ namespace SFMLEngine.Network.Services {
 		private INetworkProvider provider;
 		private NetServer _netServer;
 		private NetConfig config;
+		private GameContext context;
 
 		public NetServerEvent OnServerStarted;
 		public NetServerEvent OnClientConnected;
@@ -33,7 +34,7 @@ namespace SFMLEngine.Network.Services {
 		public override void onInitialize(GameContext context) {
 			DebugLog.setLogger(new DebugLogger());
 
-			if (context.services.hasService<NetSceneManager>() == false)
+			if (context.services.hasService<NetSceneManager>(true) == false)
 				context.services.registerService<NetSceneManager>();
 
 			context.sceneManager.OnSceneReset += onSceneReset;
@@ -51,6 +52,8 @@ namespace SFMLEngine.Network.Services {
 			onSceneActivated(new SceneManagerEventArgs() {
 				scene = activeScene,
 			});
+
+			this.context = context;
 		}
 
 		protected override void onSceneRegistered(SceneManagerEventArgs args) {
@@ -108,6 +111,11 @@ namespace SFMLEngine.Network.Services {
 
 			netServer.onClientConnected += onClientConnected;
 			log("Net server initialized");
+
+			onSceneActivated(new SceneManagerEventArgs() {
+				scene = context.sceneManager.getActiveScene(),
+				active = true,
+			});
 
 			OnServerStarted?.Invoke(new NetServerEventArgs());
 		}
