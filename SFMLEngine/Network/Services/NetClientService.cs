@@ -18,7 +18,8 @@ namespace SFMLEngine.Network.Services {
 
 	}
 
-	public class NetClientService : NetServiceBase, IGameService {
+	public class NetClientService : ObjectBase, INetServiceBase, IGameService {
+		private NetSceneManager sceneManager;
 		private INetworkProvider provider;
 		private NetClient _netClient;
 		private NetConfig config;
@@ -29,43 +30,14 @@ namespace SFMLEngine.Network.Services {
 
 		public NetClient netClient { get => _netClient; set { } }
 
-		public override void onInitialize(GameContext context) {
+		public void onInitialize(GameContext context) {
 			DebugLog.setLogger(new NetDebugLogger());
 
 			if (context.services.hasService<NetSceneManager>(true) == false)
 				context.services.registerService<NetSceneManager>();
 
-			context.sceneManager.OnSceneReset += onSceneReset;
-			context.sceneManager.OnSceneActivated += onSceneActivated;
-			context.sceneManager.OnSceneDeactivated += onSceneDeactivated;
-			context.sceneManager.OnSceneRegistered += onSceneRegistered;
-
-			var scenes = context.sceneManager.getScenes();
-			foreach (var scene in scenes)
-				onSceneRegistered(new SceneManagerEventArgs() {
-					scene = scene,
-				});
-
-			var activeScene = context.sceneManager.getActiveScene();
-			onSceneActivated(new SceneManagerEventArgs() {
-				scene = activeScene,
-			});
-		}
-
-		protected override void onSceneRegistered(SceneManagerEventArgs args) {
-			base.onSceneRegistered(args);
-		}
-
-		protected override void onSceneDeactivated(SceneManagerEventArgs args) {
-			base.onSceneDeactivated(args);
-		}
-
-		protected override void onSceneActivated(SceneManagerEventArgs args) {
-			base.onSceneActivated(args);
-		}
-
-		protected override void onSceneReset(SceneManagerEventArgs args) {
-			base.onSceneReset(args);
+			sceneManager = context.services.getService<NetSceneManager>();
+			sceneManager.setNetService(this);
 		}
 
 		public virtual void startClient(NetConfig config) {
@@ -93,7 +65,7 @@ namespace SFMLEngine.Network.Services {
 		}
 
 		private void cbOnSceneChange(P_SceneChange obj) {
-			var scene = sceneFromID(obj.id);
+			var scene = sceneManager.sceneFromID(obj.id);
 			if (scene == null) {
 				log(string.Format("Received scene change data for non-existant scene [{0}]", obj.id));
 				return;
@@ -108,20 +80,24 @@ namespace SFMLEngine.Network.Services {
 			OnConnectedToServer?.Invoke(new NetClientEventArgs());
 		}
 
-		public override void onDraw(GameContext context) {
+		public void onDraw(GameContext context) {
 
 		}
 
-		public override void onUpdate(GameContext context) {
+		public void onUpdate(GameContext context) {
 			if(netClient != null)
 				netClient.updateClient();
 		}
 
-		public override void onDispose(GameContext context) {
+		public void onDispose(GameContext context) {
 			if(netClient != null)
 				netClient.stop();
 
 			netClient = null;
+		}
+
+		public NetworkHandler getNetHandler() {
+			return _netClient;
 		}
 	}
 }

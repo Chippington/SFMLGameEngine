@@ -34,12 +34,8 @@ namespace SFMLEngineTest {
 				isServer = true;
 			}
 
-			protected override void onLogicInitialized(GameContext context) {
-				base.onLogicInitialized(context);
-				context.sceneManager.registerScene<TestNetScene>();
-				context.sceneManager.setActiveScene<TestNetScene>();
-				TestNetScene mainScene = context.sceneManager.getScene<TestNetScene>();
-
+			protected override void onRegisterServices(GameContext context) {
+				base.onRegisterServices(context);
 				if (isServer) {
 					var sv = context.services.registerService<NetServerService>();
 					sv.startServer(new NetUtils.Net.NetConfig() {
@@ -55,6 +51,13 @@ namespace SFMLEngineTest {
 						ipaddress = "127.0.0.1"
 					}), new TCPNetworkProvider());
 				}
+			}
+
+			protected override void onLogicInitialized(GameContext context) {
+				base.onLogicInitialized(context);
+				context.sceneManager.registerScene<TestNetScene>();
+				context.sceneManager.setActiveScene<TestNetScene>();
+				TestNetScene mainScene = context.sceneManager.getScene<TestNetScene>();
 
 				for (int i = 0; i < 1; i++) {
 					for (int j = 0; j < 2000; j++) {
