@@ -1,5 +1,4 @@
-﻿using NetUtils.Net;
-using SFMLEngine.Services;
+﻿using SFMLEngine.Services;
 using NetUtils.Net.Default;
 using NetUtils.Net.Interfaces;
 using SFMLEngine.Network.Providers;
@@ -18,7 +17,7 @@ namespace SFMLEngine.Network.Services {
 
 	}
 
-	public class NetClientService : ObjectBase, INetServiceBase, IGameService {
+	public class NetClientService : NetServiceBase, IGameService {
 		private NetSceneManager sceneManager;
 		private INetworkProvider provider;
 		private NetClient _netClient;
@@ -30,7 +29,7 @@ namespace SFMLEngine.Network.Services {
 
 		public NetClient netClient { get => _netClient; set { } }
 
-		public void onInitialize(GameContext context) {
+		public override void onInitialize(GameContext context) {
 			DebugLog.setLogger(new NetDebugLogger());
 
 			if (context.services.hasService<NetSceneManager>(true) == false)
@@ -52,10 +51,11 @@ namespace SFMLEngine.Network.Services {
 			this.provider = provider;
 			this.config = config;
 
-			config.registerPacket<P_SceneChange>();
+			NetServicePackets.registerPackets(config);
 
 			_netClient = new NetClient(provider, config);
 			_netClient.addClientPacketCallback<P_SceneChange>(cbOnSceneChange);
+			_netClient.addClientPacketCallback<P_SceneReset>(cbOnSceneReset);
 			netClient.start();
 
 			netClient.onConnectedToServer += onConnectedToServer;
@@ -64,14 +64,25 @@ namespace SFMLEngine.Network.Services {
 			OnNetClientStart?.Invoke(new NetClientEventArgs());
 		}
 
-		private void cbOnSceneChange(P_SceneChange obj) {
+		private void cbOnSceneReset(P_SceneReset obj) {
 			var scene = sceneManager.sceneFromID(obj.id);
 			if (scene == null) {
-				log(string.Format("Received scene change data for non-existant scene [{0}]", obj.id));
+				log(string.Format("Received scene RESET data for non-existant scene [{0}]", obj.id));
 				return;
 			}
 
-			log(string.Format("Received scene change data for {0} [{1}]", scene.GetType().Name, obj.id));
+			log(string.Format("Received scene RESET data for {0} [{1}]", scene.GetType().Name, obj.id));
+			scene.readFrom(obj.sceneData);
+		}
+
+		private void cbOnSceneChange(P_SceneChange obj) {
+			var scene = sceneManager.sceneFromID(obj.id);
+			if (scene == null) {
+				log(string.Format("Received scene CHANGE data for non-existant scene [{0}]", obj.id));
+				return;
+			}
+
+			log(string.Format("Received scene CHANGE data for {0} [{1}]", scene.GetType().Name, obj.id));
 			scene.readFrom(obj.sceneData);
 		}
 
@@ -80,23 +91,23 @@ namespace SFMLEngine.Network.Services {
 			OnConnectedToServer?.Invoke(new NetClientEventArgs());
 		}
 
-		public void onDraw(GameContext context) {
+		public override void onDraw(GameContext context) {
 
 		}
 
-		public void onUpdate(GameContext context) {
+		public override void onUpdate(GameContext context) {
 			if(netClient != null)
 				netClient.updateClient();
 		}
 
-		public void onDispose(GameContext context) {
+		public override void onDispose(GameContext context) {
 			if(netClient != null)
 				netClient.stop();
 
 			netClient = null;
 		}
 
-		public NetworkHandler getNetHandler() {
+		public override NetworkHandler getNetHandler() {
 			return _netClient;
 		}
 	}

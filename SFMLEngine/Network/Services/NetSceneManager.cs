@@ -1,4 +1,5 @@
 ﻿using NetUtils.Net.Interfaces;
+using SFMLEngine.Network.Scenes;
 using SFMLEngine.Network.Services;
 using SFMLEngine.Scenes;
 using SFMLEngine.Services;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SFMLEngine.Network {
 	public class NetSceneManager : SceneManager, IGameService {
-		private INetServiceBase netService;
+		private NetServiceBase netService;
 		private Dictionary<byte, INetScene> idSceneMap = new Dictionary<byte, INetScene>();
 		private Dictionary<INetScene, byte> sceneIDMap = new Dictionary<INetScene, byte>();
 		private Dictionary<Type, byte> typeIDMap = new Dictionary<Type, byte>();
@@ -81,7 +82,7 @@ namespace SFMLEngine.Network {
 			return sceneList;
 		}
 
-		public void setNetService(INetServiceBase svc) {
+		public void setNetService(NetServiceBase svc) {
 			this.netService = svc;
 		}
 	}

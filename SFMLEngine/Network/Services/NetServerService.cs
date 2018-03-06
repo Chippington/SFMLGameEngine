@@ -1,5 +1,4 @@
-﻿using NetUtils.Net;
-using SFMLEngine.Services;
+﻿using SFMLEngine.Services;
 using NetUtils.Net.Default;
 using NetUtils.Net.Interfaces;
 using SFMLEngine.Network.Providers;
@@ -12,6 +11,7 @@ using System.Collections.Generic;
 using NetUtils.Utilities.Logging;
 using SFMLEngine.Scenes;
 using NetUtils.Net.Data;
+using SFMLEngine.Network.Scenes;
 
 namespace SFMLEngine.Network.Services {
 	public delegate void NetServerEvent(NetServerEventArgs args);
@@ -19,7 +19,7 @@ namespace SFMLEngine.Network.Services {
 		public ClientInfo client;
 	}
 
-	public class NetServerService : ObjectBase, INetServiceBase, IGameService {
+	public class NetServerService : NetServiceBase, IGameService {
 		private NetSceneManager sceneManager;
 		private INetworkProvider provider;
 		private NetServer _netServer;
@@ -32,7 +32,7 @@ namespace SFMLEngine.Network.Services {
 
 		public NetServer netServer { get => _netServer; set { } }
 
-		public void onInitialize(GameContext context) {
+		public override void onInitialize(GameContext context) {
 			DebugLog.setLogger(new NetDebugLogger());
 
 			if (context.services.hasService<NetSceneManager>(true) == false)
@@ -76,14 +76,32 @@ namespace SFMLEngine.Network.Services {
 		}
 
 		protected void onSceneReset(SceneManagerEventArgs args) {
+			if (_netServer == null)
+				return;
 
+			var netScene = args.scene as INetScene;
+			if (netScene == null)
+				return;
+
+			var id = sceneManager.idFromScene(netScene);
+			if (id == null)
+				return;
+
+			DataBufferStream buff = new DataBufferStream();
+			netScene.writeTo(buff);
+
+			P_SceneReset packet = new P_SceneReset(id.Value, buff);
+			_netServer.sendToClients(new PacketInfo() {
+				packet = packet,
+				sendToAll = true,
+			});
 		}
 
-		public virtual void startServer(NetConfig config) {
+		public virtual void startServer(SFMLEngine.Network.NetConfig config) {
 			startServer(config, new ENetProvider());
 		}
 
-		public void startServer(NetConfig config, INetworkProvider provider) {
+		public void startServer(SFMLEngine.Network.NetConfig config, INetworkProvider provider) {
 			log("Starting net server");
 			log(string.Format("Config settings: \r\nPort: {0}\r\nMax clients: {1}",
 				config.port, config.maxclients));
@@ -91,8 +109,7 @@ namespace SFMLEngine.Network.Services {
 			this.provider = provider;
 			this.config = config;
 
-			config.registerPacket<P_SceneChange>();
-
+			NetServicePackets.registerPackets(config);
 			_netServer = new NetServer(provider, config);
 			netServer.start();
 
@@ -107,7 +124,7 @@ namespace SFMLEngine.Network.Services {
 
 			OnServerStarted?.Invoke(new NetServerEventArgs());
 			foreach (var s in sceneManager.getNetScenes())
-				s.onNetInitialize(_netServer);
+				s.onNetInitialize(this, _netServer);
 		}
 
 		protected virtual void onClientDisconnected(NetEventArgs args) {
@@ -143,23 +160,23 @@ namespace SFMLEngine.Network.Services {
 			});
 		}
 
-		public void onDraw(GameContext context) {
+		public override void onDraw(GameContext context) {
 
 		}
 
-		public void onUpdate(GameContext context) {
+		public override void onUpdate(GameContext context) {
 			if(netServer != null)
 				netServer.updateServer();
 		}
 
-		public void onDispose(GameContext context) {
+		public override void onDispose(GameContext context) {
 			if(netServer != null)
 				netServer.stop();
 
 			netServer = null;
 		}
 
-		public NetworkHandler getNetHandler() {
+		public override NetworkHandler getNetHandler() {
 			return _netServer;
 		}
 	}

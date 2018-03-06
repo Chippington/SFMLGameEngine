@@ -12,6 +12,7 @@ using SFMLEngine.Entities.Graphics.Components;
 using SFMLEngine.Graphics.UI;
 using SFMLEngine.Graphics.UI.Controls;
 using SFMLEngine.Network;
+using SFMLEngine.Network.Scenes;
 using SFMLEngine.Network.Services;
 using SFMLEngine.Scenes;
 using System;
@@ -38,14 +39,14 @@ namespace SFMLEngineTest {
 				base.onRegisterServices(context);
 				if (isServer) {
 					var sv = context.services.registerService<NetServerService>();
-					sv.startServer(new NetUtils.Net.NetConfig() {
+					sv.startServer(new NetConfig() {
 						appname = "Test",
 						port = 12345,
 						maxclients = 32,
 					}, new TCPNetworkProvider());
 				} else {
 					var cl = context.services.registerService<NetClientService>();
-					cl.startClient((new NetUtils.Net.NetConfig() {
+					cl.startClient((new NetConfig() {
 						appname = "Test",
 						port = 12345,
 						ipaddress = "127.0.0.1"

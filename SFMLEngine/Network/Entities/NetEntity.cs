@@ -11,21 +11,34 @@ using SFMLEngine.Network.Entities.Components;
 using SFMLEngine.Scenes;
 using NetUtils;
 using NetUtils.Net.Interfaces;
+using NetUtils.Net.Data;
+using SFMLEngine.Network.Scenes;
+using SFMLEngine.Network.Services;
 
 namespace SFMLEngine.Network.Entities {
 	public class NetEntity : Entity, INetEntity, ISerializable {
 		private List<INetComponent> netComponents;
+		private NetworkHandler netHandler;
+		private NetServiceBase netService;
 		private bool netInitialized;
 		private INetScene netScene;
-		private NetworkHandler net;
+		private int entityID;
+
+		private Queue<PacketInfo> outgoingClientPackets;
+		private Queue<PacketInfo> outgoingServerPackets;
 
 		public NetEntity() {
 			netComponents = new List<INetComponent>();
 			netInitialized = false;
 		}
 
-		public virtual void onNetInitialize(NetworkHandler netHandler) {
-			this.net = netHandler;
+		public virtual void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
+			this.netHandler = netHandler;
+			this.netService = netService;
+
+			outgoingServerPackets = new Queue<PacketInfo>();
+			outgoingClientPackets = new Queue<PacketInfo>();
+
 			netInitialized = true;
 		}
 
@@ -34,7 +47,7 @@ namespace SFMLEngine.Network.Entities {
 			if (netComponent != null) {
 				netComponents.Add(netComponent);
 				if (netInitialized) {
-					netComponent.onNetInitialize(net);
+					netComponent.onNetInitialize(netService, netHandler);
 					netComponent.onNetEntityInitialize(this);
 				}
 			}
@@ -63,13 +76,9 @@ namespace SFMLEngine.Network.Entities {
 			netScene = owner as INetScene;
 		}
 
-		public void onClientUpdate() {
-			throw new NotImplementedException();
-		}
+		public virtual void onClientUpdate() { }
 
-		public void onServerUpdate() {
-			throw new NotImplementedException();
-		}
+		public virtual void onServerUpdate() { }
 
 		public bool isServer() {
 			if (netScene != null) return netScene.isServer();
@@ -82,11 +91,27 @@ namespace SFMLEngine.Network.Entities {
 		}
 
 		public virtual void writeTo(IDataBuffer buffer) {
-
+			buffer.write((int)entityID);
 		}
 
 		public virtual void readFrom(IDataBuffer buffer) {
+			entityID = buffer.readInt32();
+		}
 
+		public Queue<PacketInfo> getOutgoingClientPackets() {
+			return outgoingClientPackets;
+		}
+
+		public Queue<PacketInfo> getOutgoingServerPackets() {
+			return outgoingServerPackets;
+		}
+
+		public void setEntityID(int id) {
+			entityID = id;
+		}
+
+		public int getEntityID() {
+			return entityID;
 		}
 	}
 }

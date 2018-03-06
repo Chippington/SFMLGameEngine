@@ -85,7 +85,11 @@
     <Compile Include="Entities\Components\Graphics\SpriteRenderer.cs" />
     <Compile Include="Entities\Components\Common\Position.cs" />
     <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Network\Entities\NetEntityPackets.cs" />
     <Compile Include="Network\INetBase.cs" />
+    <Compile Include="Network\NetConfig.cs" />
+    <Compile Include="Network\NetPackets.cs" />
+    <Compile Include="Network\Scenes\NetScenePackets.cs" />
     <Compile Include="Network\Services\NetServiceBase.cs" />
     <Compile Include="Network\Services\NetServicePackets.cs" />
     <Compile Include="Scenes\IScene.cs" />
@@ -113,9 +117,9 @@
     <Compile Include="Network\Entities\INetEntity.cs" />
     <Compile Include="Network\Entities\Components\NetComponent.cs" />
     <Compile Include="Network\Entities\NetEntity.cs" />
-    <Compile Include="Network\INetScene.cs" />
+    <Compile Include="Network\Scenes\INetScene.cs" />
     <Compile Include="Network\INetUpdatable.cs" />
-    <Compile Include="Network\NetScene.cs" />
+    <Compile Include="Network\Scenes\NetScene.cs" />
     <Compile Include="Network\Providers\ENetProvider.cs" />
     <Compile Include="Network\Providers\LidgrenProvider.cs" />
     <Compile Include="Network\Services\NetClientService.cs" />

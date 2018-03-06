@@ -8,7 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Network.Services {
-	public interface INetServiceBase : IGameService {
-		NetworkHandler getNetHandler();
+	public class NetServiceBase : ObjectBase, IGameService {
+		public virtual NetworkHandler getNetHandler() { return null; }
+
+		public virtual void onInitialize(GameContext context) { }
+		public virtual void onDispose(GameContext context) { }
+		public virtual void onUpdate(GameContext context) { }
+		public virtual void onDraw(GameContext context) { }
 	}
 }
