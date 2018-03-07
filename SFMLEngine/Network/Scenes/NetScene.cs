@@ -128,6 +128,13 @@ namespace SFMLEngine.Network.Scenes {
 
 		public void instantiateRemoteEntity(INetEntity entity) {
 			base.instantiate(entity);
+			if(entityIDMap.ContainsKey(entity.getEntityID())) {
+				log(string.Format("Received instantiation data for entity that already exists: {0} [{1}]",
+					entity.GetType().Name,
+					entity.getEntityID()));
+				return;
+			}
+
 			netEntityList.Add(entity);
 			entityIDMap.Add(entity.getEntityID(), entity);
 			entity.onNetInitialize(netService, netHandler);
@@ -216,25 +223,30 @@ namespace SFMLEngine.Network.Scenes {
 			for (int i = 0; i < netEntityList.Count; i++) {
 				var ent = netEntityList[i];
 
+				buffer.write((int)ent.getEntityID());
 				config.writeEntityHeader(buffer, ent);
 				ent.writeTo(buffer);
 			}
 		}
 
 		public virtual void readFrom(IDataBuffer buffer) {
+			log("START READING SCENE DATA");
 			var config = netHandler.getNetConfig() as NetConfig;
-
-			localRemoteMap.Clear();
-			remoteLocalMap.Clear();
-			entityIDMap.Clear();
 
 			var ct = buffer.readInt32();
 			for(int i = 0; i < ct; i++) {
-				var ent = config.readEntityHeader(buffer);
+				var entID = buffer.readInt32();
+				INetEntity ent = config.readEntityHeader(buffer);
+
+				if(entityIDMap.ContainsKey(entID)) {
+					ent = entityIDMap[entID];
+				}
+
 				ent.readFrom(buffer);
 
 				instantiateRemoteEntity(ent);
 			}
+			log("FINISH READING SCENE DATA");
 		}
 
 		public Queue<PacketInfo> getOutgoingClientPackets() {

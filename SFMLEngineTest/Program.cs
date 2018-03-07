@@ -108,16 +108,17 @@ namespace SFMLEngineTest {
 		}
 
 		public class TestNetEntity : NetEntity {
+			public string data;
+
 			public override void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
 				base.onNetInitialize(netService, netHandler);
 				if (netHandler.isServer()) log("Test Entity initialized on SERVER");
 				if (netHandler.isClient()) log("Test Entity initialized on CLIENT");
-
-				if (netHandler.isClient()) queuePacket(new PacketInfo() {
-					packet = new TestNetEntityPacket() {
-						data = "Hello World!",
-					},
-				});
+				//if (netHandler.isClient()) queuePacket(new PacketInfo() {
+				//	packet = new TestNetEntityPacket() {
+				//		data = (netHandler.isServer()) ? "CREATED ON SERVER" : "CREATED ON CLIENT",
+				//	},
+				//});
 
 				getPacketRouter().addServerPacketCallback<TestNetEntityPacket>(cbTestCallback);
 			}
@@ -136,7 +137,7 @@ namespace SFMLEngineTest {
 			}
 
 			private void onClientConnected(NetEventArgs args) {
-				if (isServer()) return;
+				//if (isServer()) return;
 				//if (isClient()) return;
 
 				for (int i = 0; i < 10; i++)
@@ -310,11 +311,15 @@ namespace SFMLEngineTest {
 			TestGame sv = new TestGame(true);
 			TestGame cl = new TestGame();
 			sv.start();
-			cl.start();
+			//cl.start();
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			while (sv.isRunning() || cl.isRunning()) {
 				System.Threading.Thread.Sleep(100);
+				if(sw != null && sw.Elapsed.TotalSeconds > 1.5d) {
+					sw = null;
+					cl.start();
+				}
 			}
 		}
 	}
