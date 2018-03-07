@@ -127,8 +127,6 @@ namespace SFMLEngine.Network.Services {
 			});
 
 			OnServerStarted?.Invoke(new NetServerEventArgs());
-			foreach (var s in sceneManager.getNetScenes())
-				s.onNetInitialize(this, _netServer);
 		}
 
 		protected virtual void onClientDisconnected(NetEventArgs args) {

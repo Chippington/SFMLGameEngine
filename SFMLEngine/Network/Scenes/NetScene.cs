@@ -15,11 +15,10 @@ using NetUtils.Net.Default;
 
 namespace SFMLEngine.Network.Scenes {
 	public class NetScene : Scene, INetScene {
+		private HashSet<INetEntity> entityHashSet;
 		private Queue<INetEntity> instantiationQueue;
 		private Dictionary<int, INetEntity> pendingIDMap;
-		private Dictionary<int, INetEntity> entityIDMap;
-		private Dictionary<int, int> localRemoteMap;
-		private Dictionary<int, int> remoteLocalMap;
+		private Dictionary<int, INetEntity> netEntityIDMap;
 		private List<INetEntity> netEntityList;
 		private Queue<PacketInfo> clientQueue;
 		private Queue<PacketInfo> serverQueue;
@@ -29,11 +28,10 @@ namespace SFMLEngine.Network.Scenes {
 		private int nextEntityID;
 
 		public NetScene() {
+			entityHashSet = new HashSet<INetEntity>();
 			instantiationQueue = new Queue<INetEntity>();
 			pendingIDMap = new Dictionary<int, INetEntity>();
-			entityIDMap = new Dictionary<int, INetEntity>();
-			remoteLocalMap = new Dictionary<int, int>();
-			localRemoteMap = new Dictionary<int, int>();
+			netEntityIDMap = new Dictionary<int, INetEntity>();
 			netEntityList = new List<INetEntity>();
 			clientQueue = new Queue<PacketInfo>();
 			serverQueue = new Queue<PacketInfo>();
@@ -47,136 +45,125 @@ namespace SFMLEngine.Network.Scenes {
 			this.netHandler = netHandler;
 			this.netService = netService;
 
-			router.addClientPacketCallback<P_SetRemoteID>(cbSetRemoteID);
 			router.addClientPacketCallback<P_CreateEntity>(cbClientCreateEntity);
-			router.addServerPacketCallback<P_CreateEntityRequest>(cbServerCreateEntityRequest);
 			router.addClientPacketCallback<P_CreateEntityResponseDeny>(cbClientCreateEntityDeny);
 			router.addClientPacketCallback<P_EntityPacketContainer>(cbClientEntityPacketContainer);
-			router.addServerPacketCallback<P_EntityPacketContainer>(cbServerEntityPacketContainer);
 			router.addClientPacketCallback<P_CreateEntityResponseAccept>(cbClientCreateEntityAccept);
 
-			localRemoteMap.Clear();
-			remoteLocalMap.Clear();
+			router.addServerPacketCallback<P_EntityPacketContainer>(cbServerEntityPacketContainer);
+			router.addServerPacketCallback<P_CreateEntityRequest>(cbServerCreateEntityRequest);
+
 			pendingIDMap.Clear();
-			entityIDMap.Clear();
+			netEntityIDMap.Clear();
 			clientQueue.Clear();
 			serverQueue.Clear();
 
-			while(instantiationQueue.Count > 0) {
-				instantiateLocalEntity(instantiationQueue.Dequeue());
-			}
+			while (instantiationQueue.Count > 0)
+				netInstantiate(instantiationQueue.Dequeue());
 		}
 
 		private void cbServerEntityPacketContainer(P_EntityPacketContainer obj) {
-			var ent = entityIDMap[obj.entityID];
+			var ent = netEntityIDMap[obj.entityID];
 			ent.getPacketRouter().onServerReceivePacket(obj.packet);
 		}
 
 		private void cbClientEntityPacketContainer(P_EntityPacketContainer obj) {
-			var ent = entityIDMap[obj.entityID];
+			var ent = netEntityIDMap[obj.entityID];
 			ent.getPacketRouter().onClientReceivePacket(obj.packet);
 		}
 
 		private void cbServerCreateEntityRequest(P_CreateEntityRequest obj) {
-			var inst = obj.entity;
-			inst.setEntityID(nextEntityID++);
-			instantiateRemoteEntity(inst);
+			var ent = obj.entity;
+			ent.setEntityID(nextEntityID++);
 
-			P_CreateEntityResponseAccept response = new P_CreateEntityResponseAccept();
-			response.localID = obj.localID;
-			response.remoteID = inst.getEntityID();
+			base.instantiate(ent);
+			addNetEntityHooks(ent);
+
+			P_CreateEntityResponseAccept packet = new P_CreateEntityResponseAccept();
+			packet.localID = obj.localID;
+			packet.remoteID = ent.getEntityID();
 			queuePacket(new PacketInfo() {
-				packet = response,
 				recipients = new List<ClientInfo>() { obj.sender },
+				packet = packet
 			});
 
-			P_CreateEntity packet = new P_CreateEntity();
-			packet.entity = inst;
+			P_CreateEntity packet2 = new P_CreateEntity();
+			packet2.entity = ent;
 			queuePacket(new PacketInfo() {
-				packet = packet,
+				sendToAll = true,
 				exclude = new List<ClientInfo>() { obj.sender },
+				packet = packet2,
 			});
 		}
 
 		private void cbClientCreateEntityAccept(P_CreateEntityResponseAccept obj) {
-			var ent = pendingIDMap[obj.localID];
-			ent.setEntityID(obj.remoteID);
-			instantiateRemoteEntity(ent);
+			var netEntity = pendingIDMap[obj.localID];
+			pendingIDMap.Remove(obj.localID);
+
+			netEntity.setEntityID(obj.remoteID);
+			addNetEntityHooks(netEntity);
 		}
 
 		private void cbClientCreateEntityDeny(P_CreateEntityResponseDeny obj) {
-			throw new NotImplementedException();
 		}
 
 		private void cbClientCreateEntity(P_CreateEntity obj) {
-			instantiateRemoteEntity(obj.entity);
-		}
-
-		private void cbSetRemoteID(P_SetRemoteID obj) {
-			throw new NotImplementedException();
+			base.instantiate(obj.entity);
+			addNetEntityHooks(obj.entity);
 		}
 
 		private void onEntityDestroyed(SceneEventArgs args) {
-			var inst = args.entity as NetEntity;
-			if(inst != null)
-				netEntityList.Remove(inst);
 		}
 
 		public override IEntity instantiate(IEntity ent) {
-			base.instantiate(ent);
-			var netEntity = ent as NetEntity;
-			if (netEntity != null) {
-				instantiateLocalEntity(netEntity);
+			ent = base.instantiate(ent);
+			var netEnt = ent as NetEntity;
+			if(netEnt != null) {
+				netInstantiate(netEnt);
 			}
 
 			return ent;
 		}
 
-		public void instantiateRemoteEntity(INetEntity entity) {
-			base.instantiate(entity);
-			if(entityIDMap.ContainsKey(entity.getEntityID())) {
-				log(string.Format("Received instantiation data for entity that already exists: {0} [{1}]",
-					entity.GetType().Name,
-					entity.getEntityID()));
-				return;
-			}
-
-			netEntityList.Add(entity);
-			entityIDMap.Add(entity.getEntityID(), entity);
-			entity.onNetInitialize(netService, netHandler);
-		}
-
-		private void instantiateLocalEntity(INetEntity netEntity) {
-			if(netHandler == null) {
+		private void netInstantiate(INetEntity netEntity) {
+			netEntity.setEntityID(nextEntityID++);
+			if (netHandler == null) {
 				instantiationQueue.Enqueue(netEntity);
 				return;
 			}
 
-			netEntity.setEntityID(nextEntityID++);
-			if (netHandler.isServer()) {
-				entityIDMap.Add(netEntity.getEntityID(), netEntity);
-				netEntityList.Add(netEntity);
+			if (this.containsEntity(netEntity) == false)
+				throw new Exception("Cannot net-instantiate a non-mapped entity.");
+			
+			var info = new PacketInfo();
+
+			if(isServer()) {
+				addNetEntityHooks(netEntity);
 
 				P_CreateEntity packet = new P_CreateEntity();
 				packet.entity = netEntity;
 
-				queuePacket(new PacketInfo() {
-					packet = packet,
-					sendToAll = true,
-				});
+				info.sendToAll = true;
+				info.packet = packet;
+				queuePacket(info);
 			}
 
-			if(netHandler.isClient()) {
-				pendingIDMap.Add(netEntity.getEntityID(), netEntity);
+			if(isClient()) {
 				P_CreateEntityRequest packet = new P_CreateEntityRequest();
 				packet.localID = netEntity.getEntityID();
 				packet.entity = netEntity;
 
-				queuePacket(new PacketInfo() {
-					packet = packet,
-				});
-			}
+				info.packet = packet;
+				queuePacket(info);
 
+				pendingIDMap.Add(netEntity.getEntityID(), netEntity);
+			}
+		}
+		
+		private void addNetEntityHooks(INetEntity netEntity) {
+			entityHashSet.Add(netEntity);
+			netEntityList.Add(netEntity);
+			netEntityIDMap.Add(netEntity.getEntityID(), netEntity);
 			netEntity.onNetInitialize(netService, netHandler);
 		}
 
@@ -228,36 +215,9 @@ namespace SFMLEngine.Network.Scenes {
 		}
 
 		public virtual void writeTo(IDataBuffer buffer) {
-			var config = netHandler.getNetConfig() as NetConfig;
-
-			buffer.write((int)netEntityList.Count);
-			for (int i = 0; i < netEntityList.Count; i++) {
-				var ent = netEntityList[i];
-
-				buffer.write((int)ent.getEntityID());
-				config.writeEntityHeader(buffer, ent);
-				ent.writeTo(buffer);
-			}
 		}
 
 		public virtual void readFrom(IDataBuffer buffer) {
-			log("START READING SCENE DATA");
-			var config = netHandler.getNetConfig() as NetConfig;
-
-			var ct = buffer.readInt32();
-			for(int i = 0; i < ct; i++) {
-				var entID = buffer.readInt32();
-				INetEntity ent = config.readEntityHeader(buffer);
-
-				if(entityIDMap.ContainsKey(entID)) {
-					ent = entityIDMap[entID];
-				}
-
-				ent.readFrom(buffer);
-
-				instantiateRemoteEntity(ent);
-			}
-			log("FINISH READING SCENE DATA");
 		}
 
 		public Queue<PacketInfo> getOutgoingClientPackets() {

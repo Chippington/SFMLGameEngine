@@ -37,6 +37,10 @@ namespace SFMLEngine.Network.Scenes {
 	public class P_CreateEntity : Packet {
 		public INetEntity entity;
 
+		public P_CreateEntity() {
+
+		}
+
 		public override void writeTo(IDataBuffer buffer) {
 			base.writeTo(buffer);
 			(config as NetConfig).writeEntityHeader(buffer, entity);

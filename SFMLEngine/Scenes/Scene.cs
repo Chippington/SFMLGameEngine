@@ -30,6 +30,7 @@ namespace SFMLEngine.Scenes {
 		public ICollisionMap collisionMap;
 
 		private Dictionary<int, IEntity> entityMap;
+		private HashSet<IEntity> entityHash;
 		private List<IEntity> entityList;
 		private int sceneID;
 
@@ -39,6 +40,7 @@ namespace SFMLEngine.Scenes {
 
 		public Scene() {
 			entityMap = new Dictionary<int, IEntity>();
+			entityHash = new HashSet<IEntity>();
 			entityList = new List<IEntity>();
 			sceneID = this.id;
 
@@ -112,6 +114,8 @@ namespace SFMLEngine.Scenes {
 			OnEntityCreated?.Invoke(new SceneEventArgs() {
 				entity = ent,
 			});
+
+			entityHash.Add(ent);
 			return ent;
 		}
 
@@ -132,10 +136,16 @@ namespace SFMLEngine.Scenes {
 			OnEntityDestroyed?.Invoke(new SceneEventArgs() {
 				entity = args.entity,
 			});
+
+			entityHash.Remove(args.entity);
 		}
 
 		public virtual void onSceneRegistered(SceneManager manager) {
 			this.manager = manager;
+		}
+
+		public bool containsEntity(IEntity ent) {
+			return entityHash.Contains(ent);
 		}
 
 		public virtual void onSceneDeactivated() { }
