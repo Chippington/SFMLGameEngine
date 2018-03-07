@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Network.Entities {
 	public static class NetEntityPackets {
 		public static void registerPackets(NetConfig config) {
-			config.registerPacket<EntityPacketContainer>();
+			config.registerPacket<P_EntityPacketContainer>();
 		}
 	}
 
-	public class EntityPacketContainer : PacketContainer {
+	public class P_EntityPacketContainer : PacketContainer {
 		public byte entityTypeID;
 		public int entityID;
 

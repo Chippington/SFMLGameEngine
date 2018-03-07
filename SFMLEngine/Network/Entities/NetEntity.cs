@@ -20,6 +20,7 @@ namespace SFMLEngine.Network.Entities {
 		private List<INetComponent> netComponents;
 		private NetworkHandler netHandler;
 		private NetServiceBase netService;
+		private PacketHandler router;
 		private bool netInitialized;
 		private INetScene netScene;
 		private int entityID;
@@ -39,6 +40,7 @@ namespace SFMLEngine.Network.Entities {
 			outgoingServerPackets = new Queue<PacketInfo>();
 			outgoingClientPackets = new Queue<PacketInfo>();
 
+			router = new PacketHandler();
 			netInitialized = true;
 		}
 
@@ -106,12 +108,21 @@ namespace SFMLEngine.Network.Entities {
 			return outgoingServerPackets;
 		}
 
-		public void setEntityID(int id) {
-			entityID = id;
+		public void setEntityID(int idd) {
+			entityID = idd;
 		}
 
 		public int getEntityID() {
 			return entityID;
+		}
+
+		public PacketHandler getPacketRouter() {
+			return router;
+		}
+
+		public void queuePacket(PacketInfo info) {
+			if (netHandler.isServer()) outgoingServerPackets.Enqueue(info);
+			if (netHandler.isClient()) outgoingClientPackets.Enqueue(info);
 		}
 	}
 }

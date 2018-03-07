@@ -48,6 +48,7 @@ namespace SFMLEngine.Network {
 
 			Queue<PacketInfo> outgoing = null;
 			if (netHandler.isServer()) {
+				activeScene.onServerUpdate();
 				outgoing = activeScene.getOutgoingServerPackets();
 				while(outgoing.Count > 0) {
 					var info = outgoing.Dequeue();
@@ -62,6 +63,7 @@ namespace SFMLEngine.Network {
 			}
 
 			if (netHandler.isClient()) {
+				activeScene.onClientUpdate();
 				outgoing = activeScene.getOutgoingClientPackets();
 				while (outgoing.Count > 0) {
 					var info = outgoing.Dequeue();
@@ -145,6 +147,5 @@ namespace SFMLEngine.Network {
 		public bool isClient() {
 			return netHandler.isClient();
 		}
-
 	}
 }

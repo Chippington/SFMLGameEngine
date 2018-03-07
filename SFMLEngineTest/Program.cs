@@ -1,4 +1,5 @@
-﻿using NetUtils.Net.Default.Providers.TCP;
+﻿using NetUtils.Net.Data;
+using NetUtils.Net.Default.Providers.TCP;
 using NetUtils.Net.Interfaces;
 using SFML.Graphics;
 using SFML.System;
@@ -46,7 +47,7 @@ namespace SFMLEngineTest {
 				};
 
 				config.registerNetEntity<TestNetEntity>();
-
+				config.registerPacket<TestNetEntityPacket>();
 				if (isServer) {
 					var sv = context.services.registerService<NetServerService>();
 					sv.startServer(config, new TCPNetworkProvider());
@@ -93,11 +94,36 @@ namespace SFMLEngineTest {
 			}
 		}
 
+		public class TestNetEntityPacket : Packet {
+			public string data;
+			public override void writeTo(IDataBuffer buffer) {
+				base.writeTo(buffer);
+				buffer.write((string)data);
+			}
+
+			public override void readFrom(IDataBuffer buffer) {
+				base.readFrom(buffer);
+				data = buffer.readString();
+			}
+		}
+
 		public class TestNetEntity : NetEntity {
 			public override void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
 				base.onNetInitialize(netService, netHandler);
 				if (netHandler.isServer()) log("Test Entity initialized on SERVER");
 				if (netHandler.isClient()) log("Test Entity initialized on CLIENT");
+
+				if (netHandler.isClient()) queuePacket(new PacketInfo() {
+					packet = new TestNetEntityPacket() {
+						data = "Hello World!",
+					},
+				});
+
+				getPacketRouter().addServerPacketCallback<TestNetEntityPacket>(cbTestCallback);
+			}
+
+			private void cbTestCallback(TestNetEntityPacket obj) {
+				log("Client says: " + obj.data);
 			}
 		}
 
@@ -105,11 +131,16 @@ namespace SFMLEngineTest {
 			public override void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
 				base.onNetInitialize(netService, netHandler);
 
-				netHandler.onClientConnected += onClientConnected;
+				//netHandler.onClientConnected += onClientConnected;
+				onClientConnected(new NetEventArgs());
 			}
 
 			private void onClientConnected(NetEventArgs args) {
-				instantiate<TestNetEntity>();
+				if (isServer()) return;
+				//if (isClient()) return;
+
+				for (int i = 0; i < 10; i++)
+					instantiate<TestNetEntity>();
 			}
 
 			public override void onSceneActivated() {
@@ -280,6 +311,8 @@ namespace SFMLEngineTest {
 			TestGame cl = new TestGame();
 			sv.start();
 			cl.start();
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
 			while (sv.isRunning() || cl.isRunning()) {
 				System.Threading.Thread.Sleep(100);
 			}

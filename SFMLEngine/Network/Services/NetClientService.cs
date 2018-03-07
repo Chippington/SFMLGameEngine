@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using NetUtils.Utilities.Logging;
 using SFMLEngine.Scenes;
 using SFMLEngine.Network.Scenes;
+using SFMLEngine.Network.Entities;
 
 namespace SFMLEngine.Network.Services {
 	public delegate void NetClientEvent(NetClientEventArgs args);
@@ -52,6 +53,7 @@ namespace SFMLEngine.Network.Services {
 			this.config = config;
 
 			NetServicePackets.registerPackets(config);
+			NetEntityPackets.registerPackets(config);
 			NetScenePackets.registerPackets(config);
 
 			_netClient = new NetClient(provider, config);

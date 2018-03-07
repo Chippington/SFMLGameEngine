@@ -75,8 +75,8 @@ namespace SFMLEngine.Network.Scenes {
 
 		public override void readFrom(IDataBuffer buffer) {
 			base.readFrom(buffer);
-			buffer.write((int)localID);
-			buffer.write((int)remoteID);
+			localID = buffer.readInt32();
+			remoteID = buffer.readInt32();
 		}
 	}
 
