@@ -11,44 +11,102 @@ using NetUtils.Net.Data;
 using NetUtils.Net.Interfaces;
 using NetUtils.Utilities;
 using SFMLEngine.Network.Services;
+using NetUtils.Net.Default;
 
 namespace SFMLEngine.Network.Scenes {
 	public class NetScene : Scene, INetScene {
-		private IDMap<INetEntity> entityIDMap;
+		private Dictionary<int, INetEntity> pendingIDMap;
+		private Dictionary<int, INetEntity> entityIDMap;
+		private Dictionary<int, int> localRemoteMap;
+		private Dictionary<int, int> remoteLocalMap;
+		private List<INetEntity> netEntityList;
 		private Queue<PacketInfo> clientQueue;
 		private Queue<PacketInfo> serverQueue;
-		private List<NetEntity> netEntityList;
 		private NetworkHandler netHandler;
 		private NetServiceBase netService;
+		private PacketHandler router;
+		private int nextEntityID;
 
 		public NetScene() {
+			pendingIDMap = new Dictionary<int, INetEntity>();
+			entityIDMap = new Dictionary<int, INetEntity>();
+			remoteLocalMap = new Dictionary<int, int>();
+			localRemoteMap = new Dictionary<int, int>();
+			netEntityList = new List<INetEntity>();
 			clientQueue = new Queue<PacketInfo>();
 			serverQueue = new Queue<PacketInfo>();
-
-			netEntityList = new List<NetEntity>();
-			entityIDMap = new IDMap<INetEntity>();
+			nextEntityID = 0;
 
 			OnEntityDestroyed += onEntityDestroyed;
 		}
 
-		public void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
+		public virtual void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
+			this.router = new PacketHandler();
 			this.netHandler = netHandler;
 			this.netService = netService;
 
-			netHandler.addClientPacketCallback<P_SetRemoteID>(cbSetRemoteID);
-			netHandler.addClientPacketCallback<P_CreateEntity>(cbClientCreateEntity);
-			netHandler.addServerPacketCallback<P_CreateEntity>(cbServerCreateEntity);
+			router.addClientPacketCallback<P_SetRemoteID>(cbSetRemoteID);
+			router.addClientPacketCallback<P_CreateEntity>(cbClientCreateEntity);
+			router.addServerPacketCallback<P_CreateEntityRequest>(cbServerCreateEntityRequest);
+			router.addClientPacketCallback<P_CreateEntityResponseDeny>(cbClientCreateEntityDeny);
+			router.addClientPacketCallback<P_CreateEntityResponseAccept>(cbClientCreateEntityAccept);
 
+			localRemoteMap.Clear();
+			remoteLocalMap.Clear();
+			pendingIDMap.Clear();
+			entityIDMap.Clear();
 			clientQueue.Clear();
 			serverQueue.Clear();
 		}
 
-		private void cbServerCreateEntity(P_CreateEntity obj) {
+		public void handlePacket(Packet packet) {
+		}
+
+		private void cbServerCreateEntityRequest(P_CreateEntityRequest obj) {
+			var inst = obj.entity;
+			inst.setEntityID(nextEntityID++);
+			instantiate(inst);
+
+			entityIDMap.Add(inst.getEntityID(), inst);
+			netEntityList.Add(inst);
+
+			inst.onNetInitialize(netService, netHandler);
+
+			P_CreateEntityResponseAccept response = new P_CreateEntityResponseAccept();
+			response.localID = obj.localID;
+			response.remoteID = inst.getEntityID();
+			queuePacket(new PacketInfo() {
+				packet = response,
+				recipients = new List<ClientInfo>() { obj.sender },
+			});
+
+			P_CreateEntity packet = new P_CreateEntity();
+			packet.entity = inst;
+			queuePacket(new PacketInfo() {
+				packet = packet,
+				exclude = new List<ClientInfo>() { obj.sender },
+			});
+		}
+
+		private void cbClientCreateEntityAccept(P_CreateEntityResponseAccept obj) {
+			var ent = pendingIDMap[obj.localID];
+			ent.setEntityID(obj.remoteID);
+			netEntityList.Add(ent);
+			entityIDMap.Add(ent.getEntityID(), ent);
+			ent.onNetInitialize(netService, netHandler);
+		}
+
+		private void cbClientCreateEntityDeny(P_CreateEntityResponseDeny obj) {
 			throw new NotImplementedException();
 		}
 
 		private void cbClientCreateEntity(P_CreateEntity obj) {
+			var inst = obj.entity;
+			instantiate(inst);
 
+			entityIDMap.Add(inst.getEntityID(), inst);
+			netEntityList.Add(inst);
+			inst.onNetInitialize(netService, netHandler);
 		}
 
 		private void cbSetRemoteID(P_SetRemoteID obj) {
@@ -65,8 +123,18 @@ namespace SFMLEngine.Network.Scenes {
 			var inst = base.instantiate<T>(args);
 			var netEntity = inst as NetEntity;
 			if(netEntity != null) {
+				handleNewEntity(netEntity);
+			}
+
+			return inst;
+		}
+
+		private void handleNewEntity(INetEntity netEntity) {
+			netEntity.setEntityID(nextEntityID++);
+			if (netHandler.isServer()) {
+
+				entityIDMap.Add(netEntity.getEntityID(), netEntity);
 				netEntityList.Add(netEntity);
-				entityIDMap.addObject(netEntity);
 
 				P_CreateEntity packet = new P_CreateEntity();
 				packet.entity = netEntity;
@@ -77,7 +145,17 @@ namespace SFMLEngine.Network.Scenes {
 				});
 			}
 
-			return inst;
+			if(netHandler.isClient()) {
+				pendingIDMap.Add(netEntity.getEntityID(), netEntity);
+				P_CreateEntityRequest packet = new P_CreateEntityRequest();
+				packet.entity = netEntity;
+
+				queuePacket(new PacketInfo() {
+					packet = packet,
+				});
+			}
+
+			netEntity.onNetInitialize(netService, netHandler);
 		}
 
 		public void onClientUpdate() {
@@ -94,7 +172,8 @@ namespace SFMLEngine.Network.Scenes {
 				var outgoing = entity.getOutgoingServerPackets();
 				while(outgoing.Count > 0) {
 					EntityPacketContainer packet = new EntityPacketContainer();
-					packet.entityID = entity.id;
+					packet.entityID = entity.getEntityID();
+					//TODO
 				}
 			}
 		}
@@ -126,6 +205,10 @@ namespace SFMLEngine.Network.Scenes {
 
 		public Queue<PacketInfo> getOutgoingServerPackets() {
 			return serverQueue;
+		}
+
+		public IPacketHandler getPacketRouter() {
+			return router;
 		}
 	}
 }

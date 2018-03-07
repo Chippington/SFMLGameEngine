@@ -99,6 +99,10 @@ namespace SFMLEngine.Scenes {
 
 		public virtual T instantiate<T>(params object[] args) where T : IEntity {
 			T ent = (T)Activator.CreateInstance(typeof(T), args);
+			return (T)instantiate(ent);
+		}
+
+		public virtual IEntity instantiate(IEntity ent) {
 			entityList.Add(ent);
 
 			ent.OnDestroyEvent += onEntityDestroyed;

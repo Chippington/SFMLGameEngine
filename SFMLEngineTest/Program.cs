@@ -12,6 +12,7 @@ using SFMLEngine.Entities.Graphics.Components;
 using SFMLEngine.Graphics.UI;
 using SFMLEngine.Graphics.UI.Controls;
 using SFMLEngine.Network;
+using SFMLEngine.Network.Entities;
 using SFMLEngine.Network.Scenes;
 using SFMLEngine.Network.Services;
 using SFMLEngine.Scenes;
@@ -37,20 +38,21 @@ namespace SFMLEngineTest {
 
 			protected override void onRegisterServices(GameContext context) {
 				base.onRegisterServices(context);
+				NetConfig config = new NetConfig() {
+					appname = "Test",
+					port = 12345,
+					maxclients = 32,
+					ipaddress = "127.0.0.1"
+				};
+
+				config.registerNetEntity<TestNetEntity>();
+
 				if (isServer) {
 					var sv = context.services.registerService<NetServerService>();
-					sv.startServer(new NetConfig() {
-						appname = "Test",
-						port = 12345,
-						maxclients = 32,
-					}, new TCPNetworkProvider());
+					sv.startServer(config, new TCPNetworkProvider());
 				} else {
 					var cl = context.services.registerService<NetClientService>();
-					cl.startClient((new NetConfig() {
-						appname = "Test",
-						port = 12345,
-						ipaddress = "127.0.0.1"
-					}), new TCPNetworkProvider());
+					cl.startClient(config, new TCPNetworkProvider());
 				}
 			}
 
@@ -91,7 +93,25 @@ namespace SFMLEngineTest {
 			}
 		}
 
+		public class TestNetEntity : NetEntity {
+			public override void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
+				base.onNetInitialize(netService, netHandler);
+				if (netHandler.isServer()) log("Test Entity initialized on SERVER");
+				if (netHandler.isClient()) log("Test Entity initialized on CLIENT");
+			}
+		}
+
 		public class TestNetScene : NetScene {
+			public override void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
+				base.onNetInitialize(netService, netHandler);
+
+				netHandler.onClientConnected += onClientConnected;
+			}
+
+			private void onClientConnected(NetEventArgs args) {
+				instantiate<TestNetEntity>();
+			}
+
 			public override void onSceneActivated() {
 				base.onSceneActivated();
 			}

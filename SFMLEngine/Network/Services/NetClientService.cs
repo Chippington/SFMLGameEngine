@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using NetUtils.Utilities.Logging;
 using SFMLEngine.Scenes;
+using SFMLEngine.Network.Scenes;
 
 namespace SFMLEngine.Network.Services {
 	public delegate void NetClientEvent(NetClientEventArgs args);
@@ -36,7 +37,6 @@ namespace SFMLEngine.Network.Services {
 				context.services.registerService<NetSceneManager>();
 
 			sceneManager = context.services.getService<NetSceneManager>();
-			sceneManager.setNetService(this);
 		}
 
 		public virtual void startClient(NetConfig config) {
@@ -52,6 +52,7 @@ namespace SFMLEngine.Network.Services {
 			this.config = config;
 
 			NetServicePackets.registerPackets(config);
+			NetScenePackets.registerPackets(config);
 
 			_netClient = new NetClient(provider, config);
 			_netClient.addClientPacketCallback<P_SceneChange>(cbOnSceneChange);
@@ -62,6 +63,7 @@ namespace SFMLEngine.Network.Services {
 			log("Net client initialized");
 
 			OnNetClientStart?.Invoke(new NetClientEventArgs());
+			sceneManager.onNetInitialize(this, _netClient);
 		}
 
 		private void cbOnSceneReset(P_SceneReset obj) {

@@ -38,13 +38,12 @@ namespace SFMLEngine.Network.Services {
 			if (context.services.hasService<NetSceneManager>(true) == false)
 				context.services.registerService<NetSceneManager>();
 
+			sceneManager = context.services.getService<NetSceneManager>();
+
 			context.sceneManager.OnSceneReset += onSceneReset;
 			context.sceneManager.OnSceneActivated += onSceneActivated;
 
-			sceneManager = context.services.getService<NetSceneManager>();
-			sceneManager.setNetService(this);
 			var scenes = sceneManager.getScenes();
-
 			var activeScene = context.sceneManager.getActiveScene();
 			onSceneActivated(new SceneManagerEventArgs() {
 				scene = activeScene,
@@ -110,6 +109,8 @@ namespace SFMLEngine.Network.Services {
 			this.config = config;
 
 			NetServicePackets.registerPackets(config);
+			NetScenePackets.registerPackets(config);
+
 			_netServer = new NetServer(provider, config);
 			netServer.start();
 
@@ -117,6 +118,7 @@ namespace SFMLEngine.Network.Services {
 			netServer.onClientDisconnected += onClientDisconnected;
 			log("Net server initialized");
 
+			sceneManager.onNetInitialize(this, _netServer);
 			onSceneActivated(new SceneManagerEventArgs() {
 				scene = context.sceneManager.getActiveScene(),
 				active = true,

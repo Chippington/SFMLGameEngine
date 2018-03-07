@@ -34,13 +34,13 @@ namespace SFMLEngine.Scenes {
 
 		protected GameContext context;
 
-		public void onInitialize(GameContext context) {
+		public virtual void onInitialize(GameContext context) {
 			this.sceneMap = new Dictionary<Type, IScene>();
 			this.sceneList = new List<IScene>();
 			this.context = context;
 		}
 
-		public void setActiveScene(IScene scene) {
+		public virtual void setActiveScene(IScene scene) {
 			if (activeScene != null) {
 				OnSceneDeactivated?.Invoke(new SceneManagerEventArgs() {
 					scene = activeScene,
@@ -56,21 +56,21 @@ namespace SFMLEngine.Scenes {
 			});
 		}
 
-		public void onDispose(GameContext context) {
+		public virtual void onDispose(GameContext context) {
 			if (activeScene != null)
 				activeScene.onDispose(context);
 
 			activeScene = null;
 		}
 
-		public void onUpdate(GameContext context) {
+		public virtual void onUpdate(GameContext context) {
 			if (activeScene == null)
 				return;
 
 			activeScene.onUpdate(context);
 		}
 
-		public void onDraw(GameContext context) {
+		public virtual void onDraw(GameContext context) {
 			if (activeScene == null)
 				return;
 

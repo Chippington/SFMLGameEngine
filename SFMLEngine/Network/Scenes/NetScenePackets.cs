@@ -10,19 +10,27 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Network.Scenes {
 	public static class NetScenePackets {
 		public static void registerPackets(NetConfig config) {
-			config.registerPacket<ScenePacketContainer>();
+			config.registerPacket<P_CreateEntityResponseAccept>();
+			config.registerPacket<P_CreateEntityResponseDeny>();
+			config.registerPacket<P_CreateEntityResponse>();
+			config.registerPacket<P_ScenePacketContainer>();
+			config.registerPacket<P_CreateEntityRequest>();
+			config.registerPacket<P_CreateEntity>();
+			config.registerPacket<P_SetRemoteID>();
 		}
 	}
 
-	public class ScenePacketContainer : PacketContainer {
-		public int sceneID;
+	public class P_ScenePacketContainer : PacketContainer {
+		public byte sceneID;
 
 		public override void writeTo(IDataBuffer buffer) {
 			base.writeTo(buffer);
+			buffer.write((byte)sceneID);
 		}
 
 		public override void readFrom(IDataBuffer buffer) {
 			base.readFrom(buffer);
+			sceneID = buffer.readByte();
 		}
 	}
 
@@ -41,6 +49,39 @@ namespace SFMLEngine.Network.Scenes {
 			entity.readFrom(buffer);
 		}
 	}
+
+	public class P_CreateEntityRequest : P_CreateEntity {
+		public int localID;
+
+		public override void writeTo(IDataBuffer buffer) {
+			base.writeTo(buffer);
+			buffer.write((int)localID);
+		}
+
+		public override void readFrom(IDataBuffer buffer) {
+			base.readFrom(buffer);
+			localID = buffer.readInt32();
+		}
+	}
+
+	public class P_CreateEntityResponse : Packet {
+		public int localID, remoteID;
+
+		public override void writeTo(IDataBuffer buffer) {
+			base.writeTo(buffer);
+			buffer.write((int)localID);
+			buffer.write((int)remoteID);
+		}
+
+		public override void readFrom(IDataBuffer buffer) {
+			base.readFrom(buffer);
+			buffer.write((int)localID);
+			buffer.write((int)remoteID);
+		}
+	}
+
+	public class P_CreateEntityResponseAccept : P_CreateEntityResponse { }
+	public class P_CreateEntityResponseDeny : P_CreateEntityResponse { }
 
 	public class P_SetRemoteID : Packet {
 		public int localEntityID;

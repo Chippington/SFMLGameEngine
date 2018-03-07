@@ -1,4 +1,5 @@
-﻿using NetUtils.Net.Interfaces;
+﻿using NetUtils.Net.Data;
+using NetUtils.Net.Interfaces;
 using SFMLEngine.Network.Scenes;
 using SFMLEngine.Network.Services;
 using SFMLEngine.Scenes;
@@ -10,16 +11,69 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SFMLEngine.Network {
-	public class NetSceneManager : SceneManager, IGameService {
-		private NetServiceBase netService;
+	public class NetSceneManager : SceneManager, INetBase, IGameService {
 		private Dictionary<byte, INetScene> idSceneMap = new Dictionary<byte, INetScene>();
 		private Dictionary<INetScene, byte> sceneIDMap = new Dictionary<INetScene, byte>();
 		private Dictionary<Type, byte> typeIDMap = new Dictionary<Type, byte>();
 		private Dictionary<byte, Type> idTypeMap = new Dictionary<byte, Type>();
 		protected List<INetScene> sceneList = new List<INetScene>();
+		private NetworkHandler netHandler;
+		private NetServiceBase netService;
 
 		public NetSceneManager() : base() {
 			OnSceneRegistered += onSceneRegistered;
+		}
+
+		public void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
+			this.netService = netService;
+			this.netHandler = netHandler;
+			netHandler.addPacketCallback<P_ScenePacketContainer>(cbScenePacketContainer);
+
+			for (int i = 0; i < sceneList.Count; i++) {
+				sceneList[i].onNetInitialize(netService, netHandler);
+			}
+		}
+
+		private void cbScenePacketContainer(P_ScenePacketContainer obj) {
+			var scene = sceneFromID(obj.sceneID);
+			if (isServer()) scene.getPacketRouter().onServerReceivePacket(obj.packet);
+			if (isClient()) scene.getPacketRouter().onClientReceivePacket(obj.packet);
+		}
+
+		public override void onUpdate(GameContext context) {
+			base.onUpdate(context);
+			var activeScene = getActiveScene() as INetScene;
+			if (activeScene == null)
+				return;
+
+			Queue<PacketInfo> outgoing = null;
+			if (netHandler.isServer()) {
+				outgoing = activeScene.getOutgoingServerPackets();
+				while(outgoing.Count > 0) {
+					var info = outgoing.Dequeue();
+					var innerPacket = info.packet;
+					info.packet = new P_ScenePacketContainer() {
+						packet = innerPacket,
+						sceneID = idFromScene(activeScene).Value,
+					};
+
+					netHandler.queueServerSendToClients(info);
+				}
+			}
+
+			if (netHandler.isClient()) {
+				outgoing = activeScene.getOutgoingClientPackets();
+				while (outgoing.Count > 0) {
+					var info = outgoing.Dequeue();
+					var innerPacket = info.packet;
+					info.packet = new P_ScenePacketContainer() {
+						packet = innerPacket,
+						sceneID = idFromScene(activeScene).Value,
+					};
+
+					netHandler.queueClientSendToServer(info);
+				}
+			}
 		}
 
 		public INetScene sceneFromID(byte id) {
@@ -76,14 +130,21 @@ namespace SFMLEngine.Network {
 
 			sceneList.Add(netScene);
 			buildMaps();
+
+			netScene.onNetInitialize(netService, netHandler);
 		}
 
 		public List<INetScene> getNetScenes() {
 			return sceneList;
 		}
 
-		public void setNetService(NetServiceBase svc) {
-			this.netService = svc;
+		public bool isServer() {
+			return netHandler.isServer();
 		}
+
+		public bool isClient() {
+			return netHandler.isClient();
+		}
+
 	}
 }
