@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 
 namespace SFMLEngineTest {
 	class Program {
+		public static bool startClient = false;
 		public class TestGame : GameWindow {
 
 			public TestGame() : base("TestServer", 800, 600) {
@@ -37,9 +38,11 @@ namespace SFMLEngineTest {
 				isServer = true;
 			}
 
+			private NetConfig config;
+
 			protected override void onRegisterServices(GameContext context) {
 				base.onRegisterServices(context);
-				NetConfig config = new NetConfig() {
+				config = new NetConfig() {
 					appname = "Test",
 					port = 12345,
 					maxclients = 32,
@@ -48,12 +51,11 @@ namespace SFMLEngineTest {
 
 				config.registerNetEntity<TestNetEntity>();
 				config.registerPacket<TestNetEntityPacket>();
+
 				if (isServer) {
-					var sv = context.services.registerService<NetServerService>();
-					sv.startServer(config, new TCPNetworkProvider());
+					context.services.registerService<NetServerService>();
 				} else {
-					var cl = context.services.registerService<NetClientService>();
-					cl.startClient(config, new TCPNetworkProvider());
+					context.services.registerService<NetClientService>();
 				}
 			}
 
@@ -83,6 +85,15 @@ namespace SFMLEngineTest {
 				uitest.Position = new SFML.System.Vector2f(5f, 300f);
 
 				context.ui.addControl(uitest);
+				if (isServer) startClient = true;
+
+				if (isServer) {
+					var sv = context.services.getService<NetServerService>();
+					sv.startServer(config, new TCPNetworkProvider());
+				} else {
+					var cl = context.services.getService<NetClientService>();
+					cl.startClient(config, new TCPNetworkProvider());
+				}
 			}
 
 			protected override void onGraphicsUpdate(GameContext context) {
@@ -112,8 +123,8 @@ namespace SFMLEngineTest {
 
 			public override void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
 				base.onNetInitialize(netService, netHandler);
-				if (netHandler.isServer()) log("Test Entity initialized on SERVER");
-				if (netHandler.isClient()) log("Test Entity initialized on CLIENT");
+				//if (netHandler.isServer()) log("Test Entity initialized on SERVER");
+				//if (netHandler.isClient()) log("Test Entity initialized on CLIENT");
 				//if (netHandler.isClient()) queuePacket(new PacketInfo() {
 				//	packet = new TestNetEntityPacket() {
 				//		data = (netHandler.isServer()) ? "CREATED ON SERVER" : "CREATED ON CLIENT",
@@ -303,22 +314,23 @@ namespace SFMLEngineTest {
 				components.Get<Position>().x = 1000f;
 			}
 		}
-
+		static TestGame sv, cl;
 		static void Main(string[] args) {
 			Console.WindowWidth = 160;
 			Console.WindowHeight = 60;
 			Console.BufferHeight = 120;
-			TestGame sv = new TestGame(true);
-			TestGame cl = new TestGame();
+			sv = new TestGame(true);
+			cl = new TestGame();
 			sv.start();
+			bool started = false;
 			//cl.start();
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			while (sv.isRunning() || cl.isRunning()) {
 				System.Threading.Thread.Sleep(100);
-				if(sw != null && sw.Elapsed.TotalSeconds > 1.5d) {
-					sw = null;
+				if (started == false && startClient == true) {
 					cl.start();
+					started = true;
 				}
 			}
 		}

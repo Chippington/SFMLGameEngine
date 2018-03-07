@@ -234,7 +234,7 @@ namespace SFMLEngine {
 		protected virtual void onGraphicsUpdate(GameContext context) { }
 	}
 
-	public class GameContext {
+	public class GameContext : ObjectBase {
 		internal bool locked = false;
 		internal void lockContext() {
 			locked = true;

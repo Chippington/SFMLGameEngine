@@ -15,6 +15,7 @@ using NetUtils.Net.Default;
 
 namespace SFMLEngine.Network.Scenes {
 	public class NetScene : Scene, INetScene {
+		private Queue<INetEntity> instantiationQueue;
 		private Dictionary<int, INetEntity> pendingIDMap;
 		private Dictionary<int, INetEntity> entityIDMap;
 		private Dictionary<int, int> localRemoteMap;
@@ -28,6 +29,7 @@ namespace SFMLEngine.Network.Scenes {
 		private int nextEntityID;
 
 		public NetScene() {
+			instantiationQueue = new Queue<INetEntity>();
 			pendingIDMap = new Dictionary<int, INetEntity>();
 			entityIDMap = new Dictionary<int, INetEntity>();
 			remoteLocalMap = new Dictionary<int, int>();
@@ -59,6 +61,10 @@ namespace SFMLEngine.Network.Scenes {
 			entityIDMap.Clear();
 			clientQueue.Clear();
 			serverQueue.Clear();
+
+			while(instantiationQueue.Count > 0) {
+				instantiateLocalEntity(instantiationQueue.Dequeue());
+			}
 		}
 
 		private void cbServerEntityPacketContainer(P_EntityPacketContainer obj) {
@@ -141,6 +147,11 @@ namespace SFMLEngine.Network.Scenes {
 		}
 
 		private void instantiateLocalEntity(INetEntity netEntity) {
+			if(netHandler == null) {
+				instantiationQueue.Enqueue(netEntity);
+				return;
+			}
+
 			netEntity.setEntityID(nextEntityID++);
 			if (netHandler.isServer()) {
 				entityIDMap.Add(netEntity.getEntityID(), netEntity);
