@@ -26,11 +26,13 @@ namespace SFMLEngine.Network {
 
 		private bool netInit = false;
 		public void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
+			log("Net-Initializing NetSceneManager");
 			this.netService = netService;
 			this.netHandler = netHandler;
 			netHandler.addPacketCallback<P_ScenePacketContainer>(cbScenePacketContainer);
 
 			netInit = true;
+			log("Registering queued NetScenes");
 			for (int i = 0; i < sceneList.Count; i++) {
 				sceneList[i].onNetInitialize(netService, netHandler);
 			}
@@ -132,6 +134,7 @@ namespace SFMLEngine.Network {
 			if (netScene == null)
 				return;
 
+			log("Registering scene: " + args.scene.GetType().Name);
 			sceneList.Add(netScene);
 			buildMaps();
 

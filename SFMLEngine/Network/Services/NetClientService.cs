@@ -41,6 +41,7 @@ namespace SFMLEngine.Network.Services {
 		}
 
 		public virtual void startClient(NetConfig config) {
+			log("Starting client with default network provider.");
 			startClient(config, new ENetProvider());
 		}
 

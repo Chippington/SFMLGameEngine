@@ -10,13 +10,16 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Network.Scenes {
 	public static class NetScenePackets {
 		public static void registerPackets(NetConfig config) {
+			config.registerPacket<P_DeleteEntity>();
+			config.registerPacket<P_DeleteEntityRequest>();
+			config.registerPacket<P_DeleteEntityRequestDeny>();
+			config.registerPacket<P_DeleteEntityRequestAccept>();
 			config.registerPacket<P_CreateEntityResponseAccept>();
 			config.registerPacket<P_CreateEntityResponseDeny>();
 			config.registerPacket<P_CreateEntityResponse>();
 			config.registerPacket<P_ScenePacketContainer>();
 			config.registerPacket<P_CreateEntityRequest>();
 			config.registerPacket<P_CreateEntity>();
-			config.registerPacket<P_SetRemoteID>();
 		}
 	}
 
@@ -85,22 +88,48 @@ namespace SFMLEngine.Network.Scenes {
 	}
 
 	public class P_CreateEntityResponseAccept : P_CreateEntityResponse { }
-	public class P_CreateEntityResponseDeny : P_CreateEntityResponse { }
 
-	public class P_SetRemoteID : Packet {
-		public int localEntityID;
-		public int remoteEntityID;
+	public class P_CreateEntityResponseDeny : P_CreateEntityResponse {
+		public int errorCode;
 
 		public override void writeTo(IDataBuffer buffer) {
 			base.writeTo(buffer);
-			buffer.write((int)localEntityID);
-			buffer.write((int)remoteEntityID);
+			buffer.write((byte)errorCode);
 		}
 
 		public override void readFrom(IDataBuffer buffer) {
 			base.readFrom(buffer);
-			localEntityID = buffer.readInt32();
-			remoteEntityID = buffer.readInt32();
+			errorCode = buffer.readByte();
+		}
+	}
+
+	public class P_DeleteEntity : Packet {
+		public int entityID;
+
+		public override void writeTo(IDataBuffer buffer) {
+			base.writeTo(buffer);
+			buffer.write((int)entityID);
+		}
+
+		public override void readFrom(IDataBuffer buffer) {
+			base.readFrom(buffer);
+			entityID = buffer.readInt32();
+		}
+	}
+
+	public class P_DeleteEntityRequest : P_DeleteEntity { }
+	public class P_DeleteEntityRequestAccept : P_DeleteEntity { }
+	public class P_DeleteEntityRequestDeny : P_DeleteEntity {
+		public int errorCode;
+
+		public override void writeTo(IDataBuffer buffer) {
+			base.writeTo(buffer);
+			buffer.write((byte)errorCode);
+		}
+
+		public override void readFrom(IDataBuffer buffer) {
+			base.readFrom(buffer);
+			errorCode = buffer.readByte();
 		}
 	}
 }

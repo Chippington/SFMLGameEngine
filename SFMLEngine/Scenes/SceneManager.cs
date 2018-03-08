@@ -12,7 +12,7 @@ namespace SFMLEngine.Scenes {
 		public bool active;
 	}
 
-	public class SceneManager : ISceneManager {
+	public class SceneManager : ObjectBase, ISceneManager {
 		public SceneManagerEvent _onSceneReset;
 		public SceneManagerEvent _onSceneActivated;
 		public SceneManagerEvent _onSceneDeactivated;

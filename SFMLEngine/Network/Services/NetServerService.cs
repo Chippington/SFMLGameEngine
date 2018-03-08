@@ -54,17 +54,23 @@ namespace SFMLEngine.Network.Services {
 		}
 
 		protected void onSceneActivated(SceneManagerEventArgs args) {
+			log("Scene CHANGE detected");
 			if (_netServer == null)
 				return;
 
 			var netScene = args.scene as INetScene;
-			if (netScene == null)
+			if (netScene == null) {
+				log("New scene is not an INetScene instance.");
 				return;
+			}
 
 			var id = sceneManager.idFromScene(netScene);
-			if (id == null)
+			if (id == null) {
+				log("New scene has not been registered.");
 				return;
-			
+			}
+
+			log("Sending scene CHANGE data to clients.");
 			DataBufferStream buff = new DataBufferStream();
 			netScene.writeTo(buff);
 
@@ -76,17 +82,23 @@ namespace SFMLEngine.Network.Services {
 		}
 
 		protected void onSceneReset(SceneManagerEventArgs args) {
+			log("Scene RESET detected");
 			if (_netServer == null)
 				return;
 
 			var netScene = args.scene as INetScene;
-			if (netScene == null)
+			if (netScene == null) {
+				log("New scene is not an INetScene instance.");
 				return;
+			}
 
 			var id = sceneManager.idFromScene(netScene);
-			if (id == null)
+			if (id == null) {
+				log("New scene has not been registered.");
 				return;
+			}
 
+			log("Sending scene RESET data to clients.");
 			DataBufferStream buff = new DataBufferStream();
 			netScene.writeTo(buff);
 
@@ -98,6 +110,7 @@ namespace SFMLEngine.Network.Services {
 		}
 
 		public virtual void startServer(SFMLEngine.Network.NetConfig config) {
+			log("Starting server with default network provider.");
 			startServer(config, new ENetProvider());
 		}
 

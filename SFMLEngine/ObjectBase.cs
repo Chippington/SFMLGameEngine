@@ -28,7 +28,7 @@ namespace SFMLEngine {
 		}
 
 		private static ConsoleLogger logger = new ConsoleLogger();
-		public void log(string str) {
+		public virtual void log(string str) {
 			logger.log(str, this);
 		}
 
