@@ -8,6 +8,7 @@ using Console = Colorful.Console;
 
 namespace SFMLEngine.Debug.Loggers {
 	public class ConsoleLogger : ILogger {
+		private object last = null;
 		private static string divider = " │ ";
 		private bool altLine = false;
 		private int nameDiv = 40;
@@ -21,16 +22,11 @@ namespace SFMLEngine.Debug.Loggers {
 		public void log(string message, string sender) {
 			lock (lockList) {
 				string name = sender;
-
-				writeTag("[ext]");
-				writeName(name);
-				Console.Write(divider, Color.White);
-				writeMessage(message);
+				log("[ext]", name, message, sender);
 			}
 		}
 
 		public void log(string message, object sender) {
-			lock (lockList) {
 				if (sender == null)
 					sender = this;
 
@@ -40,18 +36,34 @@ namespace SFMLEngine.Debug.Loggers {
 					id = string.Format("[{0}]", gameObject.id.ToString());
 
 				string name = sender.GetType().FullName;
+				log(id, name, message, sender);
+		}
 
-				writeTag(id);
+		private void log(string tag, string name, string msg, object sender) {
+			lock (lockList) {
+				if (sender.Equals(last)) {
+					name = "";
+				} else {
+					//for (int i = 0; i < 5; i++) {
+					//	writeTag("");
+					//	writeName("");
+					//	Console.Write(divider, Color.White);
+					//	writeMessage("");
+					//}
+					altLine = !altLine;
+					last = sender;
+				}
+
+				writeTag(tag);
 				writeName(name);
 				Console.Write(divider, Color.White);
-				writeMessage(message);
+				writeMessage(msg);
 			}
 		}
 
 		private void writeTag(string tag) {
-			altLine = !altLine;
-			if (altLine) Console.BackgroundColor = Color.FromArgb(255, 5, 5, 5);
-			if (!altLine) Console.BackgroundColor = Color.FromArgb(255, 10, 10, 10);
+			if (altLine) Console.BackgroundColor = Color.FromArgb(255, 0, 0, 0);
+			if (!altLine) Console.BackgroundColor = Color.FromArgb(255, 0, 0, 0);
 
 			string pad = "";
 			for (int i = 0; i < tagDiv - tag.Length; i++)
@@ -65,7 +77,7 @@ namespace SFMLEngine.Debug.Loggers {
 		}
 
 		private void writeName(string sender) {
-			string name = sender;
+			string name = sender.Trim();
 
 			var length = name.Length;
 			int diff = nameDiv - length;
@@ -81,6 +93,9 @@ namespace SFMLEngine.Debug.Loggers {
 			}
 
 			Console.Write(pad);
+			if (name == "")
+				return;
+
 			var nameColor = Color.GhostWhite;
 			var col = Color.FromArgb(255, 50, 50, 50);
 			var nameSplit = name.Split('.');
