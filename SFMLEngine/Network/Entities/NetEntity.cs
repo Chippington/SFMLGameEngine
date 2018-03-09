@@ -60,6 +60,8 @@ namespace SFMLEngine.Network.Entities {
 				packet = packet,
 				sendToAll = true,
 			});
+
+			base.destroy();
 		}
 
 		protected virtual void cbClientDeleteEntityRequestAccept(P_DeleteEntityRequestAccept obj) {

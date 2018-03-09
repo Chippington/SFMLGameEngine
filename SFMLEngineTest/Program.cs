@@ -29,7 +29,7 @@ namespace SFMLEngineTest {
 		public static bool startClient = false;
 		public class TestGame : GameWindow {
 
-			public TestGame() : base("TestServer", 800, 600) {
+			public TestGame() : base("Test Client", 800, 600) {
 
 			}
 

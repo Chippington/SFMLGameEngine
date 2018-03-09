@@ -149,7 +149,6 @@ namespace SFMLEngine.Scenes {
 		}
 
 		protected virtual void onEntityDestroyed(EntityEventArgs args) {
-			log(string.Format("Entity destroyed [Type:{0}]", args.entity.GetType().Name));
 			OnEntityDestroyed?.Invoke(new SceneEventArgs() {
 				entity = args.entity,
 			});
