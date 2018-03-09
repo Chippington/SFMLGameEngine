@@ -75,18 +75,27 @@ namespace SFMLEngine.Scenes {
 		}
 
 		public virtual void onUpdate(GameContext context) {
+			Queue<IEntity> destroyQueue = new Queue<IEntity>();
 			for (int i = 0; i < entityList.Count; i++) {
 				entityList[i].onUpdate(context);
 				entityList[i].components.onUpdate(context);
 
 				if(entityList[i].isDestroyed()) {
-					var args = new EntityEventArgs() {
-						entity = entityList[i],
-					};
-
-					entityList[i].OnDestroyEvent(args);
-					onEntityDestroyed(args);
+					destroyQueue.Enqueue(entityList[i]);
 				}
+			}
+
+			while(destroyQueue.Count > 0) {
+				var ent = destroyQueue.Dequeue();
+				var args = new EntityEventArgs() {
+					entity = ent,
+				};
+
+				ent.onDestroy();
+				ent.OnDestroyEvent?.Invoke(args);
+				entityList.Remove(ent);
+				entityHash.Remove(ent);
+				onEntityDestroyed(args);
 			}
 
 			_collisionMap.onUpdate(context);
@@ -139,7 +148,7 @@ namespace SFMLEngine.Scenes {
 			return sceneID;
 		}
 
-		private void onEntityDestroyed(EntityEventArgs args) {
+		protected virtual void onEntityDestroyed(EntityEventArgs args) {
 			log(string.Format("Entity destroyed [Type:{0}]", args.entity.GetType().Name));
 			OnEntityDestroyed?.Invoke(new SceneEventArgs() {
 				entity = args.entity,

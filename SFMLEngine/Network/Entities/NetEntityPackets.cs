@@ -34,20 +34,7 @@ namespace SFMLEngine.Network.Entities {
 		}
 	}
 
-	public class P_DeleteEntity : Packet {
-		public int entityID;
-
-		public override void writeTo(IDataBuffer buffer) {
-			base.writeTo(buffer);
-			buffer.write((int)entityID);
-		}
-
-		public override void readFrom(IDataBuffer buffer) {
-			base.readFrom(buffer);
-			entityID = buffer.readInt32();
-		}
-	}
-
+	public class P_DeleteEntity : Packet { }
 	public class P_DeleteEntityRequest : P_DeleteEntity { }
 	public class P_DeleteEntityRequestAccept : P_DeleteEntity { }
 	public class P_DeleteEntityRequestDeny : P_DeleteEntity {

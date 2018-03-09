@@ -41,7 +41,33 @@ namespace SFMLEngine.Network.Entities {
 			outgoingClientPackets = new Queue<PacketInfo>();
 
 			router = new PacketHandler();
+			router.addClientPacketCallback<P_DeleteEntity>(cbClientDeleteEntity);
+			router.addClientPacketCallback<P_DeleteEntityRequestAccept>(cbClientDeleteEntityRequestAccept);
+			router.addClientPacketCallback<P_DeleteEntityRequestDeny>(cbClientDeleteEntityRequestDeny);
+			router.addServerPacketCallback<P_DeleteEntityRequest>(cbServerDeleteEntityRequest);
+
 			netInitialized = true;
+		}
+
+		protected virtual void cbClientDeleteEntity(P_DeleteEntity obj) {
+			base.destroy();
+		}
+
+		protected virtual void cbServerDeleteEntityRequest(P_DeleteEntityRequest obj) {
+			var packet = new P_DeleteEntityRequestAccept();
+
+			queuePacket(new PacketInfo() {
+				packet = packet,
+				sendToAll = true,
+			});
+		}
+
+		protected virtual void cbClientDeleteEntityRequestAccept(P_DeleteEntityRequestAccept obj) {
+			base.destroy();
+		}
+
+		protected virtual void cbClientDeleteEntityRequestDeny(P_DeleteEntityRequestDeny obj) {
+			throw new NotImplementedException();
 		}
 
 		private void onComponentAdded(ComponentEventArgs args) {
@@ -126,18 +152,23 @@ namespace SFMLEngine.Network.Entities {
 		}
 
 		public override void destroy() {
+			Packet packet = null;
 			if (isServer()) {
-				P_DeleteEntity packet = new P_DeleteEntity();
-				packet.entityID = getEntityID();
+				packet = new P_DeleteEntity();
 
-				queuePacket(new PacketInfo() {
-					packet = packet,
-					sendToAll = true,
-				});
+				//authoritative destroy
 				base.destroy();
 			} else {
-
+				packet = new P_DeleteEntityRequest();
 			}
+
+			if (packet == null)
+				return;
+
+			queuePacket(new PacketInfo() {
+				packet = packet,
+				sendToAll = true,
+			});
 		}
 	}
 }

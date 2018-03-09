@@ -36,8 +36,6 @@ namespace SFMLEngine.Network.Scenes {
 			clientQueue = new Queue<PacketInfo>();
 			serverQueue = new Queue<PacketInfo>();
 			nextEntityID = 0;
-
-			OnEntityDestroyed += onEntityDestroyed;
 		}
 
 		public virtual void onNetInitialize(NetServiceBase netService, NetworkHandler netHandler) {
@@ -56,35 +54,15 @@ namespace SFMLEngine.Network.Scenes {
 			router.addClientPacketCallback<P_CreateEntityResponseDeny>(cbClientCreateEntityDeny);
 			router.addClientPacketCallback<P_EntityPacketContainer>(cbClientEntityPacketContainer);
 			router.addClientPacketCallback<P_CreateEntityResponseAccept>(cbClientCreateEntityAccept);
-			router.addClientPacketCallback<P_DeleteEntityRequestAccept>(cbClientDeleteEntityAccept);
-			router.addClientPacketCallback<P_DeleteEntityRequestDeny>(cbClientDeleteEntityDeny);
-			router.addClientPacketCallback<P_DeleteEntity>(cbClientDeleteEntity);
 
 			router.addServerPacketCallback<P_EntityPacketContainer>(cbServerEntityPacketContainer);
 			router.addServerPacketCallback<P_CreateEntityRequest>(cbServerCreateEntityRequest);
-			router.addServerPacketCallback<P_DeleteEntityRequest>(cbServerDeleteEntityRequest);
 
 			if(instantiationQueue.Count > 0)
 				log("Instantiating queued entities");
 
 			while (instantiationQueue.Count > 0)
 				netInstantiate(instantiationQueue.Dequeue());
-		}
-
-		private void cbClientDeleteEntity(P_DeleteEntity obj) {
-			throw new NotImplementedException();
-		}
-
-		private void cbClientDeleteEntityDeny(P_DeleteEntityRequestDeny obj) {
-			throw new NotImplementedException();
-		}
-
-		private void cbClientDeleteEntityAccept(P_DeleteEntityRequestAccept obj) {
-			throw new NotImplementedException();
-		}
-
-		private void cbServerDeleteEntityRequest(P_DeleteEntityRequest obj) {
-			throw new NotImplementedException();
 		}
 
 		private void cbServerEntityPacketContainer(P_EntityPacketContainer obj) {
@@ -97,7 +75,7 @@ namespace SFMLEngine.Network.Scenes {
 			ent.getPacketRouter().onClientReceivePacket(obj.packet);
 		}
 
-		private void cbServerCreateEntityRequest(P_CreateEntityRequest obj) {
+		protected virtual void cbServerCreateEntityRequest(P_CreateEntityRequest obj) {
 			var ent = obj.entity;
 			ent.setEntityID(nextEntityID++);
 
@@ -121,7 +99,7 @@ namespace SFMLEngine.Network.Scenes {
 			});
 		}
 
-		private void cbClientCreateEntityAccept(P_CreateEntityResponseAccept obj) {
+		protected virtual void cbClientCreateEntityAccept(P_CreateEntityResponseAccept obj) {
 			var netEntity = pendingIDMap[obj.localID];
 			pendingIDMap.Remove(obj.localID);
 
@@ -129,34 +107,13 @@ namespace SFMLEngine.Network.Scenes {
 			addNetEntityHooks(netEntity);
 		}
 
-		private void cbClientCreateEntityDeny(P_CreateEntityResponseDeny obj) {
+		protected virtual void cbClientCreateEntityDeny(P_CreateEntityResponseDeny obj) {
+			throw new NotImplementedException();
 		}
 
-		private void cbClientCreateEntity(P_CreateEntity obj) {
+		protected virtual void cbClientCreateEntity(P_CreateEntity obj) {
 			base.instantiate(obj.entity);
 			addNetEntityHooks(obj.entity);
-		}
-
-		private void onEntityDestroyed(SceneEventArgs args) {
-			var netEntity = args.entity as INetEntity;
-			if (netEntity == null) return;
-
-			if(isServer()) {
-				P_DeleteEntity packet = new P_DeleteEntity();
-				packet.entityID = netEntity.getEntityID();
-				queuePacket(new PacketInfo() {
-					packet = packet,
-					sendToAll = true,
-				});
-			}
-
-			if(isClient()) {
-				P_DeleteEntityRequest packet = new P_DeleteEntityRequest();
-				packet.entityID = netEntity.getEntityID();
-				queuePacket(new PacketInfo() {
-					packet = packet,
-				});
-			}
 		}
 
 		public override IEntity instantiate(IEntity ent) {
@@ -259,9 +216,11 @@ namespace SFMLEngine.Network.Scenes {
 		}
 
 		public virtual void writeTo(IDataBuffer buffer) {
+
 		}
 
 		public virtual void readFrom(IDataBuffer buffer) {
+
 		}
 
 		public Queue<PacketInfo> getOutgoingClientPackets() {

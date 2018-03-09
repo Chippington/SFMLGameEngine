@@ -104,12 +104,14 @@ namespace SFMLEngine.Entities.Collision {
 			}
 		}
 
+		private Dictionary<IEntity, Node> removeMap;
 		private Queue<Tuple<Node, Node>> fullOverlaps;
 		private List<Node> nodeList;
 		private List<SweepPoint> haxis;
 		private List<SweepPoint> vaxis;
 
 		public SweepAndPrune() {
+			removeMap = new Dictionary<IEntity, Node>();
 			fullOverlaps = new Queue<Tuple<Node, Node>>();
 			nodeList = new List<Node>();
 			haxis = new List<SweepPoint>();
@@ -180,16 +182,29 @@ namespace SFMLEngine.Entities.Collision {
 		}
 
 		public void onEntityDestroyed(SceneEventArgs args) {
-			throw new NotImplementedException();
+			var comp = args.entity.components.Get<RigidBody>();
+			if (comp != null)
+				removeNode(args.entity);
 		}
 		private Node addNode(IEntity entity) {
 			Node newNode = new Node(entity);
+			removeMap.Add(entity, newNode);
 			nodeList.Add(newNode);
 			vaxis.Add(newNode.top);
 			haxis.Add(newNode.left);
 			haxis.Add(newNode.right);
 			vaxis.Add(newNode.bottom);
 			return newNode;
+		}
+		private Node removeNode(IEntity entity) {
+			Node oldNode = removeMap[entity];
+			nodeList.Remove(oldNode);
+			vaxis.Remove(oldNode.top);
+			haxis.Remove(oldNode.left);
+			haxis.Remove(oldNode.right);
+			vaxis.Remove(oldNode.bottom);
+			removeMap.Remove(entity);
+			return oldNode;
 		}
 
 		public void onInitialize(GameContext context) {

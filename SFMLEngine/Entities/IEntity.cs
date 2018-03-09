@@ -17,5 +17,6 @@ namespace SFMLEngine.Entities {
 		void setOwner(Scene owner);
 		Scene getOwner();
 		bool isDestroyed();
+		void onDestroy();
 	}
 }

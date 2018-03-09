@@ -125,17 +125,25 @@ namespace SFMLEngineTest {
 				base.onNetInitialize(netService, netHandler);
 				//if (netHandler.isServer()) log("Test Entity initialized on SERVER");
 				//if (netHandler.isClient()) log("Test Entity initialized on CLIENT");
-				//if (netHandler.isClient()) queuePacket(new PacketInfo() {
-				//	packet = new TestNetEntityPacket() {
-				//		data = (netHandler.isServer()) ? "CREATED ON SERVER" : "CREATED ON CLIENT",
-				//	},
-				//});
+				if (netHandler.isServer()) queuePacket(new PacketInfo() {
+					sendToAll = true,
+					packet = new TestNetEntityPacket() {
+						data = (netHandler.isServer()) ? "CREATED ON SERVER" : "CREATED ON CLIENT",
+					},
+				});
 
-				getPacketRouter().addServerPacketCallback<TestNetEntityPacket>(cbTestCallback);
+				getPacketRouter().addClientPacketCallback<TestNetEntityPacket>(cbTestCallback);
 			}
 
 			private void cbTestCallback(TestNetEntityPacket obj) {
 				log("Client says: " + obj.data);
+				destroy();
+			}
+
+			public override void onDestroy() {
+				base.onDestroy();
+				if (isServer()) log("SV DESTROY");
+				if (isClient()) log("CL DESTROY");
 			}
 		}
 
