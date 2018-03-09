@@ -124,5 +124,20 @@ namespace SFMLEngine.Network.Entities {
 			if (netHandler.isServer()) outgoingServerPackets.Enqueue(info);
 			if (netHandler.isClient()) outgoingClientPackets.Enqueue(info);
 		}
+
+		public override void destroy() {
+			if (isServer()) {
+				P_DeleteEntity packet = new P_DeleteEntity();
+				packet.entityID = getEntityID();
+
+				queuePacket(new PacketInfo() {
+					packet = packet,
+					sendToAll = true,
+				});
+				base.destroy();
+			} else {
+
+			}
+		}
 	}
 }

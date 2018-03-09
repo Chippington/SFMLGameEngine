@@ -78,6 +78,15 @@ namespace SFMLEngine.Scenes {
 			for (int i = 0; i < entityList.Count; i++) {
 				entityList[i].onUpdate(context);
 				entityList[i].components.onUpdate(context);
+
+				if(entityList[i].isDestroyed()) {
+					var args = new EntityEventArgs() {
+						entity = entityList[i],
+					};
+
+					entityList[i].OnDestroyEvent(args);
+					onEntityDestroyed(args);
+				}
 			}
 
 			_collisionMap.onUpdate(context);
@@ -107,7 +116,6 @@ namespace SFMLEngine.Scenes {
 		public virtual IEntity instantiate(IEntity ent) {
 			entityList.Add(ent);
 
-			ent.OnDestroyEvent += onEntityDestroyed;
 			ent.setOwner(this);
 			ent.onInitialize(context);
 

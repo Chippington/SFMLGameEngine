@@ -60,7 +60,7 @@ namespace SFMLEngine.Entities {
 			this.owner = owner;
 		}
 
-		public void destroy() {
+		public virtual void destroy() {
 			destroyed = true;
 		}
 

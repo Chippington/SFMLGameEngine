@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Network.Entities {
 	public static class NetEntityPackets {
 		public static void registerPackets(NetConfig config) {
+			config.registerPacket<P_DeleteEntity>();
+			config.registerPacket<P_DeleteEntityRequest>();
+			config.registerPacket<P_DeleteEntityRequestDeny>();
+			config.registerPacket<P_DeleteEntityRequestAccept>();
 			config.registerPacket<P_EntityPacketContainer>();
 		}
 	}
@@ -27,6 +31,36 @@ namespace SFMLEngine.Network.Entities {
 			base.readFrom(buffer);
 			entityID = buffer.readInt32();
 			entityTypeID = buffer.readByte();
+		}
+	}
+
+	public class P_DeleteEntity : Packet {
+		public int entityID;
+
+		public override void writeTo(IDataBuffer buffer) {
+			base.writeTo(buffer);
+			buffer.write((int)entityID);
+		}
+
+		public override void readFrom(IDataBuffer buffer) {
+			base.readFrom(buffer);
+			entityID = buffer.readInt32();
+		}
+	}
+
+	public class P_DeleteEntityRequest : P_DeleteEntity { }
+	public class P_DeleteEntityRequestAccept : P_DeleteEntity { }
+	public class P_DeleteEntityRequestDeny : P_DeleteEntity {
+		public int errorCode;
+
+		public override void writeTo(IDataBuffer buffer) {
+			base.writeTo(buffer);
+			buffer.write((byte)errorCode);
+		}
+
+		public override void readFrom(IDataBuffer buffer) {
+			base.readFrom(buffer);
+			errorCode = buffer.readByte();
 		}
 	}
 }
