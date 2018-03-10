@@ -66,11 +66,21 @@ namespace SFMLEngine.Network.Scenes {
 		}
 
 		private void cbServerEntityPacketContainer(P_EntityPacketContainer obj) {
+			if (netEntityIDMap.ContainsKey(obj.entityID) == false) {
+				log("Received container packet for nonexistent entity [" + obj.entityID + "]");
+				return;
+			}
+
 			var ent = netEntityIDMap[obj.entityID];
 			ent.getPacketRouter().onServerReceivePacket(obj.packet);
 		}
 
 		private void cbClientEntityPacketContainer(P_EntityPacketContainer obj) {
+			if (netEntityIDMap.ContainsKey(obj.entityID) == false) {
+				log("Received container packet for nonexistent entity [" + obj.entityID + "]");
+				return;
+			}
+
 			var ent = netEntityIDMap[obj.entityID];
 			ent.getPacketRouter().onClientReceivePacket(obj.packet);
 		}
