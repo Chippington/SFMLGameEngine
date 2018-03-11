@@ -122,6 +122,11 @@ namespace SFMLEngine.Network.Scenes {
 		}
 
 		protected virtual void cbClientCreateEntity(P_CreateEntity obj) {
+			if (netEntityIDMap.ContainsKey(obj.entity.getEntityID())) {
+				log("Received entity creation data for entity ID that already exists [" + obj.entity.getEntityID() + "], discarding data");
+				return;
+			}
+
 			base.instantiate(obj.entity);
 			addNetEntityHooks(obj.entity);
 		}
@@ -226,11 +231,25 @@ namespace SFMLEngine.Network.Scenes {
 		}
 
 		public virtual void writeTo(IDataBuffer buffer) {
+			buffer.write((int)netEntityList.Count);
+			for(int i = 0; i < netEntityList.Count; i++) {
+				P_CreateEntity p = new P_CreateEntity();
+				p.config = netHandler.getNetConfig();
+				p.entity = netEntityList[i];
 
+				p.writeTo(buffer);
+			}
 		}
 
 		public virtual void readFrom(IDataBuffer buffer) {
+			int ct = buffer.readInt32();
+			for(int i = 0; i < ct; i++) {
+				P_CreateEntity p = new P_CreateEntity();
+				p.config = netHandler.getNetConfig();
+				p.readFrom(buffer);
 
+				cbClientCreateEntity(p);
+			}
 		}
 
 		public Queue<PacketInfo> getOutgoingClientPackets() {
