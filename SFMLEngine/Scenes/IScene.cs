@@ -23,5 +23,6 @@ namespace SFMLEngine.Scenes {
 		void setCamera(CameraComponent camera);
 
 		CameraComponent getCamera();
+		List<IEntity> getEntityList();
 	}
 }

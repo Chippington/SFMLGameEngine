@@ -164,6 +164,10 @@ namespace SFMLEngine.Scenes {
 			return entityHash.Contains(ent);
 		}
 
+		public List<IEntity> getEntityList() {
+			return entityList;
+		}
+
 		public virtual void onSceneDeactivated() { }
 
 		public virtual void onSceneActivated() { }
