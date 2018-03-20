@@ -83,7 +83,7 @@
     <Compile Include="Entities\Components\Physics\Gravity.cs" />
     <Compile Include="Entities\Components\Physics\RigidBody.cs" />
     <Compile Include="Entities\Components\Graphics\SpriteRenderer.cs" />
-    <Compile Include="Entities\Components\Common\Position.cs" />
+    <Compile Include="Entities\Components\Common\PositionComponent.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Network\Entities\NetEntityPackets.cs" />
     <Compile Include="Network\INetBase.cs" />

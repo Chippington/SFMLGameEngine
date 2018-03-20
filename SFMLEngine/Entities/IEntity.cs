@@ -15,7 +15,7 @@ namespace SFMLEngine.Entities {
 		ComponentSet components { get; set; }
 		ComponentSet getComponents();
 		void setOwner(Scene owner);
-		Scene getOwner();
+		Scene getScene();
 		bool isDestroyed();
 		void onDestroy();
 	}

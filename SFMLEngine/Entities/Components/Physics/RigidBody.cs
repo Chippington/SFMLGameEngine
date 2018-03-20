@@ -43,7 +43,7 @@ namespace SFMLEngine.Entities.Components.Physics {
 		}
 
 		private bool hasChangedData;
-		private Position transform;
+		private PositionComponent transform;
 
 		public override void onInitialize(GameContext context) {
 			base.onInitialize(context);
@@ -53,7 +53,7 @@ namespace SFMLEngine.Entities.Components.Physics {
 
 			hasChangedData = true;
 			dbgCols = new HashSet<ICollider>();
-			transform = entity.components.Add<Position>();
+			transform = entity.components.Add<PositionComponent>();
 
 			dbgPosition = new Vector2f(transform.x + _bounds.left, transform.y + _bounds.top);
 			dbgSize = new Vector2f(_bounds.right - _bounds.left, _bounds.bottom - _bounds.top);

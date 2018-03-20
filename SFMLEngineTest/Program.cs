@@ -68,8 +68,8 @@ namespace SFMLEngineTest {
 				for (int i = 0; i < 1; i++) {
 					for (int j = 0; j < 2000; j++) {
 						var test = mainScene.instantiate<TestEntity>(string.Format("Test[{0},{1}]", i, j));
-						test.components.Get<Position>().x = 50 + (10 * i);
-						test.components.Get<Position>().y = 50 + (10 * j);
+						test.components.Get<PositionComponent>().x = 50 + (10 * i);
+						test.components.Get<PositionComponent>().y = 50 + (10 * j);
 
 						if (i == 0 || i == 99 || j == 0 || j == 99)
 							test.components.Get<RigidBody>().setDebugDraw(true);
@@ -78,7 +78,7 @@ namespace SFMLEngineTest {
 
 				for (int i = 0; i < 1; i++) {
 					var player = mainScene.instantiate<TestPlayer>();
-					player.components.Get<Position>().x = i * 6;
+					player.components.Get<PositionComponent>().x = i * 6;
 				}
 
 				TestUIWindow uitest = new TestUIWindow();
@@ -138,6 +138,16 @@ namespace SFMLEngineTest {
 			private void cbTestCallback(TestNetEntityPacket obj) {
 				log("Client says: " + obj.data);
 				destroy();
+			}
+
+			protected override void cbServerDeleteEntityRequest(P_DeleteEntityRequest obj) {
+				base.cbServerDeleteEntityRequest(obj);
+				log("DELETE REQUEST");
+			}
+
+			protected override void cbClientDeleteEntityRequestAccept(P_DeleteEntityRequestAccept obj) {
+				base.cbClientDeleteEntityRequestAccept(obj);
+				log("DELETE ACCEPT");
 			}
 
 			public override void onDestroy() {
@@ -201,7 +211,7 @@ namespace SFMLEngineTest {
 		public class TestPlayer : Entity {
 			RigidBody rigidbody;
 			CameraComponent cam;
-			Position pos;
+			PositionComponent pos;
 			float vx, vy;
 			public override void onInitialize(GameContext context) {
 				base.onInitialize(context);
@@ -210,7 +220,7 @@ namespace SFMLEngineTest {
 				rb.setDebugDraw(true);
 				rb.onCollisionStep += onCollisionStep;
 				rigidbody = rb;
-				pos = components.Add<Position>();
+				pos = components.Add<PositionComponent>();
 
 				var tex = new SFML.Graphics.Texture("Resources/Sprites/sprite.png");
 				var spr = new SFML.Graphics.Sprite(tex);
@@ -222,7 +232,7 @@ namespace SFMLEngineTest {
 				cam.setSize(new SFML.System.Vector2f(800f, 600f));
 				cam.setViewport(new SFML.Graphics.FloatRect(0f, 0f, 1f, 1f));
 
-				owner.setCamera(cam);
+				scene.setCamera(cam);
 			}
 
 			private void onCollisionStep(CollisionEventArgs args) {
@@ -279,7 +289,7 @@ namespace SFMLEngineTest {
 
 		public class TestEntity : Entity {
 			private string name;
-			Position position;
+			PositionComponent position;
 
 			public TestEntity(string name) {
 				this.name = name;
@@ -296,7 +306,7 @@ namespace SFMLEngineTest {
 				//r.onCollisionEnter += onCollisionEnter;
 				//r.onCollisionLeave += onCollisionLeave;
 
-				this.position = components.Add<Position>();
+				this.position = components.Add<PositionComponent>();
 			}
 
 			public override void onUpdate(GameContext context) {
@@ -319,7 +329,7 @@ namespace SFMLEngineTest {
 				}
 
 				if(name == "Test")
-				components.Get<Position>().x = 1000f;
+				components.Get<PositionComponent>().x = 1000f;
 			}
 		}
 		static TestGame sv, cl;

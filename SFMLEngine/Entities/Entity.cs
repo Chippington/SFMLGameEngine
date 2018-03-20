@@ -23,7 +23,7 @@ namespace SFMLEngine.Entities {
 		public EntityEvent OnUpdateEvent { get => _onUpdateEvent; set => _onUpdateEvent = value; }
 		public EntityEvent OnDrawEvent { get => _onDrawEvent; set => _onDrawEvent = value; }
 
-		protected Scene owner;
+		protected Scene scene;
 		private bool destroyed;
 
 		private ComponentSet _components;
@@ -57,7 +57,7 @@ namespace SFMLEngine.Entities {
 		}
 
 		public virtual void setOwner(Scene owner) {
-			this.owner = owner;
+			this.scene = owner;
 		}
 
 		public virtual void destroy() {
@@ -76,8 +76,8 @@ namespace SFMLEngine.Entities {
 			_components.onDispose(context);
 		}
 
-		public Scene getOwner() {
-			return owner;
+		public Scene getScene() {
+			return scene;
 		}
 	}
 }

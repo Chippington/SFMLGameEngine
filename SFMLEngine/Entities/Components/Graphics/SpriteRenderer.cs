@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace SFMLEngine.Entities.Graphics.Components {
 	public class SpriteRenderer : Component {
 		private Sprite sprite;
-		private Position transform;
+		private PositionComponent transform;
 		private Vector2f origin;
 		private Vector2f scale;
 
@@ -19,7 +19,7 @@ namespace SFMLEngine.Entities.Graphics.Components {
 			base.onInitialize(context);
 			scale = new Vector2f(1f, 1f);
 			origin = new Vector2f(0f, 0f);
-			transform = entity.components.Add<Position>();
+			transform = entity.components.Add<PositionComponent>();
 		}
 
 		public void setSprite(Sprite sprite) {
