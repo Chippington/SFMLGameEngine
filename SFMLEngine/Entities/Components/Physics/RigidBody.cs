@@ -45,6 +45,10 @@ namespace SFMLEngine.Entities.Components.Physics {
 		private bool hasChangedData;
 		private PositionComponent transform;
 
+		public RigidBody(PositionComponent pos) {
+
+		}
+
 		public override void onInitialize(GameContext context) {
 			base.onInitialize(context);
 
