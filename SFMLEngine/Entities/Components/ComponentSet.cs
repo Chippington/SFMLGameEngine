@@ -100,6 +100,10 @@ namespace SFMLEngine.Entities.Components {
 			return inst;
 		}
 
+		public IEnumerable<IComponent> Get() {
+			return componentList;
+		}
+
 		public T Get<T>() where T : IComponent {
 			return (T)Get(typeof(T));
 		}

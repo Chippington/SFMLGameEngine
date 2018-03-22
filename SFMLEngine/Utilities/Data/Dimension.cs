@@ -15,6 +15,10 @@ namespace SFMLEngine.Utilities.Data {
 			values = new int[size];
 		}
 
+		public Dimension(params int[] values) {
+			this.values = values;
+		}
+
 		public int this[int index] {
 			get {
 				return values[index];

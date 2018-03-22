@@ -1,4 +1,5 @@
-﻿using SFMLEngine.Entities.Components.Physics;
+﻿using SFMLEngine.Entities.Components;
+using SFMLEngine.Entities.Components.Physics;
 using SFMLEngine.Scenes;
 using System;
 using System.Collections.Generic;
@@ -21,13 +22,14 @@ namespace SFMLEngine.Entities.Collision {
 			public List<Node> newCollisions;
 			public List<Node> pendingCollisions;
 
-			public Node(IEntity entity) {
+			public Node(IComponent comp) {
+				this.entity = comp.getEntity();
+
 				pendingCollisions = new List<Node>();
 				activeCollisions = new List<Node>();
 				oldCollisions = new List<Node>();
 				newCollisions = new List<Node>();
 
-				this.entity = entity;
 				this.collider = entity.components.Get<RigidBody>();
 				this.bounds = this.collider.getBoundingBox();
 
@@ -104,14 +106,14 @@ namespace SFMLEngine.Entities.Collision {
 			}
 		}
 
-		private Dictionary<IEntity, Node> removeMap;
+		private Dictionary<ICollider, Node> removeMap;
 		private Queue<Tuple<Node, Node>> fullOverlaps;
 		private List<Node> nodeList;
 		private List<SweepPoint> haxis;
 		private List<SweepPoint> vaxis;
 
 		public SweepAndPrune() {
-			removeMap = new Dictionary<IEntity, Node>();
+			removeMap = new Dictionary<ICollider, Node>();
 			fullOverlaps = new Queue<Tuple<Node, Node>>();
 			nodeList = new List<Node>();
 			haxis = new List<SweepPoint>();
@@ -176,19 +178,28 @@ namespace SFMLEngine.Entities.Collision {
 		}
 
 		public void onEntityCreated(SceneEventArgs args) {
-			var comp = args.entity.components.Get<RigidBody>();
-			if (comp != null)
-				addNode(args.entity);
+			var comps = args.entity.components.Get().ToList();
+			for (int i = 0; i < comps.Count; i++) {
+				var col = comps[i] as ICollider;
+
+				if(col != null)
+					addNode(col);
+			}
 		}
 
 		public void onEntityDestroyed(SceneEventArgs args) {
-			var comp = args.entity.components.Get<RigidBody>();
-			if (comp != null)
-				removeNode(args.entity);
+			var comps = args.entity.components.Get().ToList();
+			for (int i = 0; i < comps.Count; i++) {
+				var col = comps[i] as ICollider;
+
+				if (col != null)
+					removeNode(col);
+			}
 		}
-		private Node addNode(IEntity entity) {
-			Node newNode = new Node(entity);
-			removeMap.Add(entity, newNode);
+
+		private Node addNode(ICollider comp) {
+			Node newNode = new Node(comp);
+			removeMap.Add(comp, newNode);
 			nodeList.Add(newNode);
 			vaxis.Add(newNode.top);
 			haxis.Add(newNode.left);
@@ -196,14 +207,15 @@ namespace SFMLEngine.Entities.Collision {
 			vaxis.Add(newNode.bottom);
 			return newNode;
 		}
-		private Node removeNode(IEntity entity) {
-			Node oldNode = removeMap[entity];
+
+		private Node removeNode(ICollider comp) {
+			Node oldNode = removeMap[comp];
 			nodeList.Remove(oldNode);
 			vaxis.Remove(oldNode.top);
 			haxis.Remove(oldNode.left);
 			haxis.Remove(oldNode.right);
 			vaxis.Remove(oldNode.bottom);
-			removeMap.Remove(entity);
+			removeMap.Remove(comp);
 			return oldNode;
 		}
 
