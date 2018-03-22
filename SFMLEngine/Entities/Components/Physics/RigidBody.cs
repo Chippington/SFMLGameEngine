@@ -15,7 +15,6 @@ namespace SFMLEngine.Entities.Components.Physics {
 		void onStepCollision(ICollider other);
 		void setIgnoreCallbacks(bool ignore);
 		bool getIgnoreCallbacks();
-		bool hasChanged();
 	}
 
 	public delegate void CollisionEvent(CollisionEventArgs args);
@@ -44,10 +43,6 @@ namespace SFMLEngine.Entities.Components.Physics {
 
 		private bool hasChangedData;
 		private PositionComponent transform;
-
-		public RigidBody(PositionComponent pos) {
-
-		}
 
 		public override void onInitialize(GameContext context) {
 			base.onInitialize(context);
@@ -148,10 +143,6 @@ namespace SFMLEngine.Entities.Components.Physics {
 					dbgRect.OutlineColor = new Color(255, 0, 0, 255);
 
 			context.window.Draw(dbgRect);
-		}
-
-		public bool hasChanged() {
-			return hasChangedData;
 		}
 
 		public void resetChangedFlag() {

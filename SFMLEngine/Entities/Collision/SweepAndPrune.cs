@@ -22,7 +22,7 @@ namespace SFMLEngine.Entities.Collision {
 			public List<Node> newCollisions;
 			public List<Node> pendingCollisions;
 
-			public Node(IComponent comp) {
+			public Node(ICollider comp) {
 				this.entity = comp.getEntity();
 
 				pendingCollisions = new List<Node>();
@@ -30,7 +30,7 @@ namespace SFMLEngine.Entities.Collision {
 				oldCollisions = new List<Node>();
 				newCollisions = new List<Node>();
 
-				this.collider = entity.components.Get<RigidBody>();
+				this.collider = comp;
 				this.bounds = this.collider.getBoundingBox();
 
 				top = new SweepPoint(this, SweepPoint.Type.START);

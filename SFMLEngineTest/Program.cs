@@ -288,6 +288,12 @@ namespace SFMLEngineTest {
 		}
 
 		public class TestEntity : Entity {
+			public class TestCollider : RigidBody {
+				public override void onEnterCollision(ICollider other) {
+					base.onEnterCollision(other);
+				}
+			}
+
 			private string name;
 			PositionComponent position;
 
@@ -307,6 +313,13 @@ namespace SFMLEngineTest {
 				//r.onCollisionLeave += onCollisionLeave;
 
 				this.position = components.Add<PositionComponent>();
+				r = components.Add<TestCollider>();
+				r.setBoundingBox(new BoundingBox() {
+					left = -5f,
+					right = 5f,
+					top = -5f,
+					bottom = 5f,
+				});
 			}
 
 			public override void onUpdate(GameContext context) {
