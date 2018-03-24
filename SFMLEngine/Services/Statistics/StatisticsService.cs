@@ -209,6 +209,10 @@ namespace SFMLEngine.Services.Statistics {
 				graphicsFrameQueue.Dequeue();
 		}
 
+		public StatisticsDebugWindow getDebugWindow() {
+			return dbgWindow;
+		}
+
 		public void onInitialize(GameContext context) {
 		}
 
