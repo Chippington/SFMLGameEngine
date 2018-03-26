@@ -134,7 +134,12 @@ namespace SFMLEngine.Entities.Components {
 		public IEnumerator<KeyValuePair<Type, IComponent>> GetEnumerator() => source.GetEnumerator();
 
 		public void onDispose(GameContext context) {
-			throw new NotImplementedException();
+			for(int i = 0; i < componentList.Count; i++) {
+				var c = componentList[i];
+				OnComponentRemoved?.Invoke(new ComponentEventArgs() {
+					component = c,
+				});
+			}
 		}
 	}
 }

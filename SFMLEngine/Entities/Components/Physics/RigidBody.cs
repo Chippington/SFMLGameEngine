@@ -90,6 +90,8 @@ namespace SFMLEngine.Entities.Components.Physics {
 		}
 
 		public virtual void onEnterCollision(ICollider other) {
+			if (other.GetType() != typeof(RigidBody)) return;
+
 			onCollisionEnter?.Invoke(new CollisionEventArgs() {
 				other = other,
 			});
@@ -101,6 +103,8 @@ namespace SFMLEngine.Entities.Components.Physics {
 		}
 
 		public virtual void onLeaveCollision(ICollider other) {
+			if (other.GetType() != typeof(RigidBody)) return;
+
 			onCollisionLeave?.Invoke(new CollisionEventArgs() {
 				other = other,
 			});
@@ -112,6 +116,8 @@ namespace SFMLEngine.Entities.Components.Physics {
 		}
 
 		public virtual void onStepCollision(ICollider other) {
+			if (other.GetType() != typeof(RigidBody)) return;
+
 			onCollisionStep?.Invoke(new CollisionEventArgs() {
 				other = other,
 			});

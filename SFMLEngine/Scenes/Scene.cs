@@ -30,6 +30,15 @@ namespace SFMLEngine.Scenes {
 		public ICollisionMap collisionMap;
 
 		private Dictionary<int, IEntity> entityMap;
+
+		private Queue<IComponent> componentDrawQueue;
+		private Queue<IComponent> componentDrawAdditionQueue;
+		private HashSet<IComponent> componentDrawRemovalMap;
+
+		private Queue<IComponent> componentUpdateQueue;
+		private Queue<IComponent> componentUpdateAdditionQueue;
+		private HashSet<IComponent> componentUpdateRemovalMap;
+
 		private HashSet<IEntity> entityHash;
 		private List<IEntity> entityList;
 		private int sceneID;
@@ -39,6 +48,14 @@ namespace SFMLEngine.Scenes {
 		protected GameContext context;
 
 		public Scene() {
+			componentDrawAdditionQueue = new Queue<IComponent>();
+			componentDrawRemovalMap = new HashSet<IComponent>();
+			componentDrawQueue = new Queue<IComponent>();
+
+			componentUpdateAdditionQueue = new Queue<IComponent>();
+			componentUpdateRemovalMap = new HashSet<IComponent>();
+			componentUpdateQueue = new Queue<IComponent>();
+
 			entityMap = new Dictionary<int, IEntity>();
 			entityHash = new HashSet<IEntity>();
 			entityList = new List<IEntity>();
@@ -52,7 +69,26 @@ namespace SFMLEngine.Scenes {
 			OnEntityComponentAdded += _collisionMap.onEntityComponentAdded;
 			OnEntityComponentRemoved += _collisionMap.onEntityComponentDestroyed;
 
+			OnEntityComponentAdded += onEntityComponentAdded;
+			OnEntityComponentRemoved += onEntityComponentRemoved;
+
 			log(string.Format("Scene created [ID:{0}]", sceneID));
+		}
+
+		private void onEntityComponentAdded(SceneEventArgs args) {
+			lock (componentDrawAdditionQueue)
+				componentDrawAdditionQueue.Enqueue(args.component);
+
+			lock (componentUpdateAdditionQueue)
+				componentUpdateAdditionQueue.Enqueue(args.component);
+		}
+
+		private void onEntityComponentRemoved(SceneEventArgs args) {
+			lock (componentDrawRemovalMap)
+				componentDrawRemovalMap.Add(args.component);
+
+			lock (componentUpdateRemovalMap)
+				componentUpdateRemovalMap.Add(args.component);
 		}
 
 		public void onInitialize(GameContext context) {
@@ -75,10 +111,27 @@ namespace SFMLEngine.Scenes {
 		}
 
 		public virtual void onUpdate(GameContext context) {
+			lock (componentUpdateAdditionQueue) lock (componentUpdateQueue)
+					while (componentUpdateAdditionQueue.Any())
+						componentUpdateQueue.Enqueue(componentUpdateAdditionQueue.Dequeue());
+
+			Queue<IComponent> tmp = new Queue<IComponent>();
+			while (componentUpdateQueue.Any()) {
+				var c = componentUpdateQueue.Dequeue();
+				if (componentUpdateRemovalMap.Contains(c))
+					continue;
+
+				c.onUpdate(context);
+				tmp.Enqueue(c);
+			}
+
+			componentUpdateRemovalMap.Clear();
+			componentUpdateAdditionQueue.Clear();
+			componentUpdateQueue = tmp;
+
 			Queue<IEntity> destroyQueue = new Queue<IEntity>();
 			for (int i = 0; i < entityList.Count; i++) {
 				entityList[i].onUpdate(context);
-				entityList[i].components.onUpdate(context);
 
 				if(entityList[i].isDestroyed()) {
 					destroyQueue.Enqueue(entityList[i]);
@@ -102,8 +155,26 @@ namespace SFMLEngine.Scenes {
 		}
 
 		public virtual void onDraw(GameContext context) {
+			lock (componentDrawAdditionQueue) lock (componentDrawQueue)
+					while (componentDrawAdditionQueue.Any())
+						componentDrawQueue.Enqueue(componentDrawAdditionQueue.Dequeue());
+
+			Queue<IComponent> tmp = new Queue<IComponent>();
+			while(componentDrawQueue.Any()) {
+				var c = componentDrawQueue.Dequeue();
+				if (componentDrawRemovalMap.Contains(c))
+					continue;
+
+				c.onDraw(context);
+				tmp.Enqueue(c);
+			}
+
+			componentDrawRemovalMap.Clear();
+			componentDrawAdditionQueue.Clear();
+			componentDrawQueue = tmp;
+
 			for (int i = 0; i < entityList.Count; i++) {
-				entityList[i].components.onDraw(context);
+				//entityList[i].components.onDraw(context);
 				entityList[i].onDraw(context);
 			}
 
@@ -126,13 +197,23 @@ namespace SFMLEngine.Scenes {
 			entityList.Add(ent);
 
 			ent.setOwner(this);
-			ent.onInitialize(context);
 
 			OnEntityCreated?.Invoke(new SceneEventArgs() {
 				entity = ent,
 			});
 
+			ent.components.OnComponentAdded += (i) => OnEntityComponentAdded.Invoke(new SceneEventArgs() {
+				entity = ent,
+				component = i.component,
+			});
+
+			ent.components.OnComponentRemoved += (i) => OnEntityComponentRemoved.Invoke(new SceneEventArgs() {
+				entity = ent,
+				component = i.component,
+			});
+
 			entityHash.Add(ent);
+			ent.onInitialize(context);
 			return ent;
 		}
 

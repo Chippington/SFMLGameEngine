@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace SFMLEngine.Entities.Components {
 	public class Component : IComponent {
-		public IEntity entity;
+		public IEntity entity { get; protected set; }
+		public ComponentSet components { get; protected set; }
 
 		public virtual void onInitialize(GameContext context) { }
 		public virtual void onDispose(GameContext context) { }
@@ -14,6 +15,7 @@ namespace SFMLEngine.Entities.Components {
 		public virtual void onDraw(GameContext context) { }
 		public virtual void setEntity(IEntity owner) {
 			this.entity = owner;
+			this.components = owner.components;
 		}
 		public virtual IEntity getEntity() {
 			return this.entity;

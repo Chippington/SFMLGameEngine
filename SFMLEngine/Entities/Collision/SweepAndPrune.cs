@@ -169,32 +169,41 @@ namespace SFMLEngine.Entities.Collision {
 		public void onDraw(GameContext context) {
 		}
 
+		HashSet<ICollider> t = new HashSet<ICollider>();
 		public void onEntityComponentAdded(SceneEventArgs args) {
-			throw new NotImplementedException();
+			var c = args.component as ICollider;
+			if (c == null) return;
+
+			t.Add(c);
+
+			addNode(c);
 		}
 
 		public void onEntityComponentDestroyed(SceneEventArgs args) {
-			throw new NotImplementedException();
+			var c = args.component as ICollider;
+			if (c == null) return;
+
+			removeNode(c);
 		}
 
 		public void onEntityCreated(SceneEventArgs args) {
-			var comps = args.entity.components.Get().ToList();
-			for (int i = 0; i < comps.Count; i++) {
-				var col = comps[i] as ICollider;
+			//var comps = args.entity.components.Get().ToList();
+			//for (int i = 0; i < comps.Count; i++) {
+			//	var col = comps[i] as ICollider;
 
-				if(col != null)
-					addNode(col);
-			}
+			//	if(col != null)
+			//		addNode(col);
+			//}
 		}
 
 		public void onEntityDestroyed(SceneEventArgs args) {
-			var comps = args.entity.components.Get().ToList();
-			for (int i = 0; i < comps.Count; i++) {
-				var col = comps[i] as ICollider;
+			//var comps = args.entity.components.Get().ToList();
+			//for (int i = 0; i < comps.Count; i++) {
+			//	var col = comps[i] as ICollider;
 
-				if (col != null)
-					removeNode(col);
-			}
+			//	if (col != null)
+			//		removeNode(col);
+			//}
 		}
 
 		private Node addNode(ICollider comp) {

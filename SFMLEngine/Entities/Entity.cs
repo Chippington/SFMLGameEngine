@@ -62,6 +62,7 @@ namespace SFMLEngine.Entities {
 
 		public virtual void destroy() {
 			destroyed = true;
+			components.onDispose(null);
 		}
 
 		public bool isDestroyed() {
